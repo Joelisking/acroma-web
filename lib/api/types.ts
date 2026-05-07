@@ -173,3 +173,22 @@ export type Order = {
   updatedAt: string;
   items: OrderItem[];
 };
+
+// ---------------------------------------------------------------------------
+// Payments — payout account (Paystack subaccount)
+// ---------------------------------------------------------------------------
+
+export type PayoutAccountType = "BANK" | "MOBILE_MONEY";
+
+export type PayoutAccount = {
+  paystackSubaccountCode: string | null;
+  payoutAccountType: PayoutAccountType | null;
+  payoutBankCode: string | null;
+  payoutBankName: string | null;
+  payoutAccountNumber: string | null;
+  payoutAccountName: string | null;
+  payoutConfiguredAt: string | null;
+};
+
+export type BankSummary = { code: string; name: string };
+export type ResolvedAccount = { accountName: string; accountNumber: string };

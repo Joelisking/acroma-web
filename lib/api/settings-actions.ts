@@ -53,22 +53,6 @@ export async function testWhatsappAction(
   }
 }
 
-export async function updatePaystackAction(input: {
-  secretKey?: string;
-  publicKey?: string;
-}): Promise<ActionResult> {
-  try {
-    await apiFetch<{ success: boolean }>("/settings/paystack", {
-      method: "PATCH",
-      body: input,
-    });
-    revalidatePath("/dashboard/settings/payments");
-    return { ok: true, data: undefined };
-  } catch (err) {
-    return { ok: false, error: humanError(err, "Couldn't save Paystack") };
-  }
-}
-
 function humanError(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error) return err.message || fallback;
