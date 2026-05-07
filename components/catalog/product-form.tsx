@@ -1,0 +1,304 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Loader2, Sparkles } from "lucide-react";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  createProductAction,
+  updateProductAction,
+  type ProductInput,
+} from "@/lib/api/products-actions";
+import { autofillProductAction } from "@/lib/api/products-ai-actions";
+import { ImageUploader } from "@/components/shared/image-uploader";
+
+const schema = z.object({
+  name: z.string().min(2, "Name is required").max(120),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  basePrice: z.number().min(0, "Must be 0 or more"),
+  stock: z.number().int().min(0).optional(),
+  category: z.string().max(40).optional().or(z.literal("")),
+  imageUrl: z.string().url().or(z.literal("")).optional(),
+  isActive: z.boolean(),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+function toNumber(v: string): number {
+  if (v === "") return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+type ProductFormProps = {
+  mode: "create" | "edit";
+  productId?: string;
+  defaults?: Partial<FormValues>;
+};
+
+export function ProductForm({ mode, productId, defaults }: ProductFormProps) {
+  const router = useRouter();
+  const [pending, startTransition] = React.useTransition();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: defaults?.name ?? "",
+      description: defaults?.description ?? "",
+      basePrice: defaults?.basePrice ?? 0,
+      stock: defaults?.stock ?? 0,
+      category: defaults?.category ?? "",
+      imageUrl: defaults?.imageUrl ?? "",
+      isActive: defaults?.isActive ?? true,
+    },
+  });
+
+  const [autofilling, startAutofill] = React.useTransition();
+
+  function autofillFromName() {
+    const name = form.getValues("name").trim();
+    if (!name) {
+      toast.info("Type a product name first");
+      return;
+    }
+    startAutofill(async () => {
+      const result = await autofillProductAction(name);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      const { category, description } = result.data;
+      if (category && !form.getValues("category"))
+        form.setValue("category", category, { shouldDirty: true });
+      if (description && !form.getValues("description"))
+        form.setValue("description", description, { shouldDirty: true });
+      toast.success("Filled in suggestions");
+    });
+  }
+
+  function onSubmit(values: FormValues) {
+    const payload: ProductInput = {
+      name: values.name,
+      description: values.description || undefined,
+      basePrice: values.basePrice,
+      stock: values.stock ?? 0,
+      category: values.category || undefined,
+      imageUrl: values.imageUrl || undefined,
+      isActive: values.isActive,
+    };
+
+    startTransition(async () => {
+      const result =
+        mode === "create"
+          ? await createProductAction(payload)
+          : await updateProductAction(productId!, payload);
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(mode === "create" ? "Product added" : "Product updated");
+      router.replace(`/dashboard/catalog/${result.data.id}`);
+      router.refresh();
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center justify-between">
+                <FormLabel>Name</FormLabel>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  onClick={autofillFromName}
+                  disabled={autofilling}
+                  className="text-brand-orange hover:text-brand-orange gap-1"
+                >
+                  {autofilling ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Sparkles />
+                  )}
+                  Auto-fill
+                </Button>
+              </div>
+              <FormControl>
+                <Input className="h-11" autoFocus {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <textarea
+                  rows={3}
+                  className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[80px] w-full resize-y rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid gap-5 sm:grid-cols-3">
+          <FormField
+            control={form.control}
+            name="basePrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    className="h-11 tabular-nums"
+                    name={field.name}
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    value={field.value ?? 0}
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    className="h-11 tabular-nums"
+                    name={field.name}
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    value={field.value ?? 0}
+                    onChange={(e) => field.onChange(toNumber(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input
+                    className="h-11"
+                    placeholder="Optional"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  value={field.value || null}
+                  onChange={(url) => field.onChange(url ?? "")}
+                  kind="product"
+                  aspect="aspect-[4/3]"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isActive"
+          render={({ field }) => (
+            <FormItem className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
+              <div>
+                <FormLabel>Visible to customers</FormLabel>
+                <FormDescription>
+                  Hidden products won&apos;t appear in AI replies or menus.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <input
+                  type="checkbox"
+                  className="size-5 accent-[var(--brand-orange)]"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.back()}
+            disabled={pending}
+            className="rounded-xl"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={pending}
+            className="bg-brand-orange hover:bg-brand-orange/90 h-10 gap-2 rounded-xl px-5"
+          >
+            {pending ? <Loader2 className="animate-spin" /> : null}
+            {mode === "create" ? "Add product" : "Save changes"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
