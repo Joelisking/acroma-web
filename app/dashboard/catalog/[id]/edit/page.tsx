@@ -5,7 +5,7 @@ import { ChevronLeft } from "lucide-react";
 
 import { getProduct } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/server";
-import { ProductForm } from "@/components/catalog/product-form";
+import { EditProductForm } from "@/components/catalog/edit-product-form";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -30,8 +30,7 @@ export default async function EditProductPage({ params }: PageProps) {
           Edit product
         </h1>
       </header>
-      <ProductForm
-        mode="edit"
+      <EditProductForm
         productId={id}
         defaults={{
           name: product.name,
