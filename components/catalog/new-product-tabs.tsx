@@ -3,8 +3,7 @@
 import * as React from "react";
 import { Sparkles, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type NewProductMode = "describe" | "manual";
+import type { NewProductMode } from "@/hooks/use-new-product";
 
 type Props = {
   mode: NewProductMode;

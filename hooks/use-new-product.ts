@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -9,43 +7,8 @@ import {
 } from "@/lib/api/products-ai-actions";
 import { createProductAction } from "@/lib/api/products-actions";
 import { saveVariantsAction } from "@/lib/api/variants-actions";
-import type {
-  ParsedProduct,
-  ProductFormValues,
-} from "@/lib/api/types";
-
-const EMPTY_VALUES: ProductFormValues = {
-  name: "",
-  description: "",
-  basePrice: "",
-  stock: "",
-  category: "",
-  imageUrl: "",
-  isActive: true,
-  hasVariants: false,
-  variantDimensions: [],
-  variants: [],
-};
-
-function parsedToFormValues(p: ParsedProduct, prev: ProductFormValues): ProductFormValues {
-  return {
-    name: p.name,
-    description: p.description ?? "",
-    basePrice: String(p.basePrice),
-    stock: String(p.stock ?? 0),
-    category: p.category ?? "",
-    imageUrl: prev.imageUrl, // never overwrite uploaded image
-    isActive: prev.isActive,
-    hasVariants: p.hasVariants,
-    variantDimensions: p.variantDimensions,
-    variants: p.variants.map((v) => ({
-      attributes: v.attributes,
-      stock: v.stock,
-      priceOverride: v.priceOverride,
-      isActive: true,
-    })),
-  };
-}
+import type { ParsedProduct, ProductFormValues } from "@/lib/api/types";
+import { EMPTY_FORM_VALUES, parsedToFormValues } from "@/lib/catalog/product-form-utils";
 
 export type NewProductMode = "describe" | "manual";
 
@@ -53,7 +16,7 @@ export function useNewProduct() {
   const router = useRouter();
 
   const [mode, setMode] = React.useState<NewProductMode>("describe");
-  const [formValues, setFormValues] = React.useState<ProductFormValues>(EMPTY_VALUES);
+  const [formValues, setFormValues] = React.useState<ProductFormValues>(EMPTY_FORM_VALUES);
   const [parsedPreview, setParsedPreview] = React.useState<ParsedProduct | null>(null);
   const [originalDescription, setOriginalDescription] = React.useState("");
 
