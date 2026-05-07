@@ -87,6 +87,35 @@ export function ManualProductForm({ values, onChange }: Props) {
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>
+          <Label htmlFor="product-has-variants">
+            Has options (size, color, etc.)
+          </Label>
+          <p className="text-muted-foreground text-xs">
+            Turn on to manage stock and price per option.
+          </p>
+        </div>
+        <input
+          id="product-has-variants"
+          type="checkbox"
+          className="size-5 accent-[var(--brand-orange)]"
+          checked={values.hasVariants}
+          onChange={(e) => {
+            const checked = e.target.checked;
+            onChange({
+              ...values,
+              hasVariants: checked,
+              variantDimensions:
+                checked && values.variantDimensions.length === 0
+                  ? [{ name: "", options: [] }]
+                  : values.variantDimensions,
+              variants: checked ? values.variants : [],
+            });
+          }}
+        />
+      </div>
+
+      <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
+        <div>
           <Label htmlFor="product-active">Visible to customers</Label>
           <p className="text-muted-foreground text-xs">
             Hidden products won&apos;t appear in AI replies or menus.

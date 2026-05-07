@@ -12,6 +12,7 @@ import { DescribeWithAiPanel } from "@/components/catalog/describe-with-ai-panel
 import { ManualProductForm } from "@/components/catalog/manual-product-form";
 import { VariantOptionImages } from "@/components/catalog/variant-option-images";
 import { useNewProduct } from "@/hooks/use-new-product";
+import { InlineVariantsEditor } from "@/components/catalog/variants/inline-variants-editor";
 
 export function NewProductPageClient() {
   const router = useRouter();
@@ -40,6 +41,13 @@ export function NewProductPageClient() {
           onChange={np.setFormValues}
         />
       )}
+
+      {np.formValues.hasVariants ? (
+        <InlineVariantsEditor
+          values={np.formValues}
+          onChange={np.setFormValues}
+        />
+      ) : null}
 
       <div className="space-y-2">
         <Label>Product image</Label>
