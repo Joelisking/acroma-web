@@ -1,26 +1,28 @@
 import type { Metadata } from "next";
-import { getPaystackSettings } from "@/lib/api/settings";
+import { getPayoutAccount, listBanks } from "@/lib/api/payments";
 import { SettingsCard } from "@/components/settings/settings-card";
-import { CopyField } from "@/components/settings/copy-field";
-import { PaymentsForm } from "@/components/settings/payments-form";
+import { PayoutAccountSummary } from "@/components/payments/payout-account-summary";
 
 export const metadata: Metadata = { title: "Payments · Settings · Acroma" };
 
 export default async function PaymentsSettingsPage() {
-  const paystack = await getPaystackSettings();
+  const [account, banksBank, banksMomo] = await Promise.all([
+    getPayoutAccount(),
+    listBanks("bank"),
+    listBanks("momo"),
+  ]);
 
   return (
     <div className="space-y-6">
       <SettingsCard
-        title="Paystack"
-        description="Acroma uses Paystack to collect MoMo and card payments. Add your live keys to start accepting money."
+        title="Payouts"
+        description="Where Acroma sends the money customers pay you. Add a Ghanaian bank account or mobile money number."
       >
-        <CopyField
-          label="Current secret key"
-          value={paystack.secretKeyMasked}
-          helper="Server stores the full key — only the prefix is shown here."
+        <PayoutAccountSummary
+          account={account}
+          banksBank={banksBank}
+          banksMomo={banksMomo}
         />
-        <PaymentsForm defaults={{ publicKey: paystack.publicKey ?? "" }} />
       </SettingsCard>
     </div>
   );
