@@ -155,6 +155,36 @@ export type Product = {
 };
 
 // ---------------------------------------------------------------------------
+// Form state shapes (UI-side, not from the API)
+// ---------------------------------------------------------------------------
+
+export type ProductVariantFormRow = {
+  attributes: Record<string, string>;
+  stock: number;
+  priceOverride: number | null;
+  isActive: boolean;
+};
+
+/**
+ * Editable shape backing the new-product page. Numeric fields are kept
+ * as strings so that controlled inputs never fight the user mid-typing
+ * (mirrors the mobile app's `ProductFormValues`). Conversion to numbers
+ * happens at submit time.
+ */
+export type ProductFormValues = {
+  name: string;
+  description: string;
+  basePrice: string;
+  stock: string;
+  category: string;
+  imageUrl: string;
+  isActive: boolean;
+  hasVariants: boolean;
+  variantDimensions: VariantDimension[];
+  variants: ProductVariantFormRow[];
+};
+
+// ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------
 
