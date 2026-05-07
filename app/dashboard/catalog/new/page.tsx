@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
-import { NewProductTabs } from "@/components/catalog/new-product-tabs";
+import { NewProductPageClient } from "@/components/catalog/new-product-page";
 
 export const metadata: Metadata = { title: "New product · Acroma" };
 
@@ -20,7 +20,7 @@ export default function NewProductPage() {
           Add a product
         </h1>
       </header>
-      <NewProductTabs />
+      <NewProductPageClient />
     </div>
   );
 }
