@@ -31,6 +31,12 @@ type ApiFetchOptions = Omit<RequestInit, "body"> & {
   auth?: false;
   /** Internal — prevents infinite recursion on refresh. */
   _retried?: boolean;
+  /**
+   * Internal — overrides the cookie-read access token on the retry leg.
+   * Server Components can't persist a refreshed cookie, so we thread the
+   * fresh token through memory instead of relying on a re-read.
+   */
+  _accessOverride?: string;
 };
 
 /**
@@ -46,14 +52,14 @@ export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
 ): Promise<T> {
-  const { body, auth, headers, _retried, ...rest } = options;
+  const { body, auth, headers, _retried, _accessOverride, ...rest } = options;
 
   const finalHeaders = new Headers(headers);
   finalHeaders.set("Accept", "application/json");
   if (body !== undefined) finalHeaders.set("Content-Type", "application/json");
 
   if (auth !== false) {
-    const token = await readAccessToken();
+    const token = _accessOverride ?? (await readAccessToken());
     if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
   }
 
@@ -67,7 +73,11 @@ export async function apiFetch<T>(
   if (res.status === 401 && auth !== false && !_retried) {
     const refreshed = await tryRefresh();
     if (refreshed) {
-      return apiFetch<T>(path, { ...options, _retried: true });
+      return apiFetch<T>(path, {
+        ...options,
+        _retried: true,
+        _accessOverride: refreshed,
+      });
     }
   }
 
@@ -80,9 +90,18 @@ export async function apiFetch<T>(
   return (await res.json()) as T;
 }
 
-async function tryRefresh(): Promise<boolean> {
+/**
+ * Exchange the refresh cookie for a fresh access token.
+ *
+ * Returns the new access token on success (and persists it via cookies when
+ * the calling context allows it — Server Actions, Route Handlers, the proxy).
+ * Returns null on failure and clears stale cookies. Server Component callers
+ * should thread the returned token through `_accessOverride` since cookie
+ * writes silently no-op there.
+ */
+export async function tryRefresh(): Promise<string | null> {
   const refreshToken = await readRefreshToken();
-  if (!refreshToken) return false;
+  if (!refreshToken) return null;
 
   const res = await fetch(`${API_URL}/auth/refresh`, {
     method: "POST",
@@ -93,12 +112,12 @@ async function tryRefresh(): Promise<boolean> {
 
   if (!res.ok) {
     await clearAuthCookies();
-    return false;
+    return null;
   }
 
   const { accessToken } = (await res.json()) as RefreshResponse;
   await setAuthCookies({ accessToken });
-  return true;
+  return accessToken;
 }
 
 async function safeJson(res: Response): Promise<ApiErrorBody | null> {

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import {
   Form,
@@ -18,12 +18,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   resolveAccountAction,
   savePayoutAccountAction,
@@ -163,31 +170,71 @@ export function PayoutAccountForm({
           <FormField
             control={form.control}
             name="bankCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {accountType === "BANK" ? "Bank" : "Provider"}
-                </FormLabel>
-                <FormControl>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select…" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {banks.map((b) => (
-                        <SelectItem key={b.code} value={b.code}>
-                          {b.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const selected = banks.find((b) => b.code === field.value);
+              return (
+                <FormItem className="flex flex-col">
+                  <FormLabel>
+                    {accountType === "BANK" ? "Bank" : "Provider"}
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "h-11 w-full justify-between font-normal",
+                            !selected && "text-muted-foreground",
+                          )}
+                        >
+                          {selected ? selected.name : "Select…"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-[--radix-popover-trigger-width] p-0"
+                      align="start"
+                    >
+                      <Command>
+                        <CommandInput
+                          placeholder={
+                            accountType === "BANK"
+                              ? "Search banks…"
+                              : "Search providers…"
+                          }
+                        />
+                        <CommandList>
+                          <CommandEmpty>No matches.</CommandEmpty>
+                          <CommandGroup>
+                            {banks.map((b) => (
+                              <CommandItem
+                                key={b.code}
+                                value={b.name}
+                                onSelect={() => field.onChange(b.code)}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === b.code
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                                {b.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
           <FormField
             control={form.control}
