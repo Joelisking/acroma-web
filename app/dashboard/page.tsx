@@ -4,9 +4,11 @@ import { MessageSquare, ShoppingBag, Wallet } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { listConversations } from "@/lib/api/conversations";
 import { listOrders } from "@/lib/api/orders";
+import { getPayoutAccount } from "@/lib/api/payments";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { SetupCallout } from "@/components/dashboard/setup-callout";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { PayoutNudgeBanner } from "@/components/payments/payout-nudge-banner";
 import { formatMoney } from "@/lib/format";
 import {
   buildActivity,
@@ -19,10 +21,11 @@ export const metadata: Metadata = { title: "Overview · Acroma" };
 const ACTIVITY_LIMIT = 6;
 
 export default async function OverviewPage() {
-  const [business, conversations, orders] = await Promise.all([
+  const [business, conversations, orders, payout] = await Promise.all([
     getCurrentBusiness(),
     safeList(listConversations()),
     safeList(listOrders()),
+    safePayoutAccount(),
   ]);
   // Layout already enforces auth, but TS doesn't know that.
   if (!business) return null;
@@ -38,6 +41,8 @@ export default async function OverviewPage() {
       <MobileGreeting name={business.name} />
 
       {!business.whatsappWebhookActive ? <SetupCallout /> : null}
+
+      {!payout?.paystackSubaccountCode ? <PayoutNudgeBanner /> : null}
 
       <section
         className="grid gap-4 sm:grid-cols-3"
@@ -76,6 +81,14 @@ async function safeList<T>(p: Promise<T[]>): Promise<T[]> {
     return await p;
   } catch {
     return [];
+  }
+}
+
+async function safePayoutAccount() {
+  try {
+    return await getPayoutAccount();
+  } catch {
+    return null;
   }
 }
 
