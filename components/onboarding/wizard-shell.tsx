@@ -9,7 +9,7 @@ type WizardShellProps = {
   children: React.ReactNode;
 };
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 export function WizardShell({
   step,

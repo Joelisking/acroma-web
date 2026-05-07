@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import { WizardShell } from "@/components/onboarding/wizard-shell";
-import { FinishStep } from "@/components/onboarding/finish-step";
+import { PayoutStep } from "@/components/onboarding/payout-step";
+import { listBanks } from "@/lib/api/payments";
 
-export const metadata: Metadata = { title: "All set · Acroma" };
+export const metadata: Metadata = { title: "Set up payouts · Acroma" };
 
-export default function Step4Page() {
+export default async function Step4Page() {
+  const [banksBank, banksMomo] = await Promise.all([
+    listBanks("bank"),
+    listBanks("momo"),
+  ]);
   return (
     <WizardShell
       step={4}
-      eyebrow="Almost there"
-      title="One last thing."
-      subtitle="Let's open your live dashboard so you can watch Acroma work."
+      eyebrow="Payouts"
+      title="Where should we send your money?"
+      subtitle="Add your bank or mobile money so customers can pay you through Acroma. You can skip this and set it up later."
     >
-      <FinishStep />
+      <PayoutStep banksBank={banksBank} banksMomo={banksMomo} />
     </WizardShell>
   );
 }
