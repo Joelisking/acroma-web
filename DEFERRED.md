@@ -55,36 +55,42 @@ Manual credential entry (already shipped) covers the same ground.
 - `/dashboard/settings/ai` is now a real form: toggle + description +
   AI-context textarea.
 
-## ✅ 6. Web Push notifications
+## ✅ 6. Notifications — Resend (email)
 
-- New `webPushSubscription Json?` field on `Business`.
-- New endpoints: `POST /business/me/web-push-subscription`,
-  `DELETE /business/me/web-push-subscription`,
-  `GET /business/vapid-public-key`.
-- `notifications.service` fans out to **both** Expo (mobile) and Web
-  Push (browser) for every notification type — new order, payment
+Originally scoped as Web Push, **swapped to email via Resend** because
+push brought too much complexity (service worker, VAPID, browser
+permission prompt, per-device subscriptions) for early-stage commerce
+where merchants already check email constantly.
+
+- New `emailNotificationsEnabled Boolean @default(true)` field on
+  `Business`. Toggle exposed via `PATCH /business/me`.
+- `notifications.service` fans out to **Expo push (mobile)** + **email
+  (Resend)** for every notification type — new order, payment
   confirmed/failed, escalation. Each delivery is best-effort.
-- Web: `public/sw.js` handles `push` + `notificationclick` (routes to
-  the right page). `<NotificationsCard>` at
-  `/dashboard/settings/notifications` walks the merchant through
-  permission + subscription + unsubscribe.
-- Backend env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
-  Generate with `npx web-push generate-vapid-keys`.
+- Branded HTML + plain-text templates live in
+  `src/notifications/email-templates.ts` (orange + navy, single CTA per
+  email).
+- Web: `/dashboard/settings/notifications` shows current email + a
+  toggle to enable/disable.
+- Backend env: `RESEND_API_KEY`, `RESEND_FROM` (default
+  `Acroma <notifications@asera.tech>`), `WEB_URL` (used in CTA links).
+
+If we ever want browser push back, the prior implementation lives in
+git history — look for the commit that added `webPushSubscription`.
 
 ## Migration steps you still need to run
 
-1. **Backend `.env`** already has the Cloudinary cloud name + upload
-   preset and the rest of the existing config. To enable Web Push, add:
+1. **Backend `.env`:** to enable email notifications, add:
    ```
-   VAPID_PUBLIC_KEY=
-   VAPID_PRIVATE_KEY=
-   VAPID_SUBJECT=mailto:you@asera.tech
+   RESEND_API_KEY=re_…
+   RESEND_FROM=Acroma <notifications@asera.tech>
+   WEB_URL=https://app.asera.tech
    ```
-   Generate with `npx web-push generate-vapid-keys`.
-2. **Database migration:** the `webPushSubscription` field was added to
-   the Prisma schema — run `npx prisma migrate dev --name web-push` in
+   The `RESEND_FROM` domain (e.g. `asera.tech`) needs to be verified in
+   Resend before prod sends work. Without `RESEND_API_KEY` the service
+   logs a warning and silently no-ops — Expo push still works.
+2. **Database migration:** the `emailNotificationsEnabled` field was
+   added to the Prisma schema — run
+   `npx prisma migrate dev --name email-notifications` in
    `acroma-backend` to create the migration locally, then apply with
    `npx prisma migrate deploy` in production.
-3. **Service worker icons:** `public/sw.js` references `/icon-192.png`
-   and `/badge.png` — drop those into `acroma-web/public/` (you can
-   reuse the existing favicon for now).

@@ -18,6 +18,7 @@ export type Business = {
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
+  emailNotificationsEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 };

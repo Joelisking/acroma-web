@@ -8,6 +8,7 @@ import {
   CreditCard,
   Sparkles,
   Bell,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,11 @@ export const SETTINGS_SECTIONS: Section[] = [
     href: "/dashboard/settings/notifications",
     label: "Notifications",
     icon: Bell,
+  },
+  {
+    href: "/dashboard/settings/security",
+    label: "Security",
+    icon: ShieldCheck,
   },
 ];
 

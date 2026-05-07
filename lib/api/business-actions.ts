@@ -16,6 +16,7 @@ export async function updateBusinessAction(input: {
   aiEnabled?: boolean;
   businessDescription?: string;
   aiBusinessContext?: string;
+  emailNotificationsEnabled?: boolean;
 }): Promise<ActionResult<Business>> {
   try {
     const data = await apiFetch<Business>("/business/me", {

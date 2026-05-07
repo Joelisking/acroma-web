@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { getVapidPublicKey } from "@/lib/api/web-push";
+import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
-import { NotificationsCard } from "@/components/settings/notifications-card";
+import { EmailNotificationsCard } from "@/components/settings/email-notifications-card";
 
-export const metadata: Metadata = { title: "Notifications · Settings · Acroma" };
+export const metadata: Metadata = {
+  title: "Notifications · Settings · Acroma",
+};
 
 export default async function NotificationsSettingsPage() {
-  const vapidPublicKey = await getVapidPublicKey();
+  const business = await getCurrentBusiness();
+  if (!business) return null;
 
   return (
     <div className="space-y-6">
       <SettingsCard
-        title="Browser notifications"
-        description="Get pinged in this browser the moment a new order or escalation comes in — even when Acroma isn't open."
+        title="Notifications"
+        description="Stay in the loop on orders, payments, and customer escalations — over email."
       >
-        <NotificationsCard vapidPublicKey={vapidPublicKey} />
+        <EmailNotificationsCard business={business} />
       </SettingsCard>
     </div>
   );

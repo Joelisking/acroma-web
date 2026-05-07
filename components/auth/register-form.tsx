@@ -2,17 +2,12 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Check, X } from "lucide-react";
 
 import { registerAction } from "@/lib/api/auth";
-import {
-  registerSchema,
-  PASSWORD_RULES,
-  type RegisterInput,
-} from "@/lib/auth-schemas";
+import { registerSchema, type RegisterInput } from "@/lib/auth-schemas";
 import {
   Form,
   FormField,
@@ -24,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { AuthCta } from "@/components/auth/auth-cta";
-import { cn } from "@/lib/utils";
+import { PasswordChecklist } from "@/components/auth/password-checklist";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -36,7 +31,7 @@ export function RegisterForm() {
     mode: "onChange",
   });
 
-  const password = form.watch("password");
+  const password = useWatch({ control: form.control, name: "password" }) ?? "";
 
   function onSubmit(values: RegisterInput) {
     startTransition(async () => {
@@ -151,31 +146,5 @@ export function RegisterForm() {
         </form>
       </Form>
     </div>
-  );
-}
-
-function PasswordChecklist({ value }: { value: string }) {
-  return (
-    <ul className="mt-2 space-y-1">
-      {PASSWORD_RULES.map((rule) => {
-        const ok = rule.test(value);
-        return (
-          <li
-            key={rule.id}
-            className={cn(
-              "flex items-center gap-2 text-xs transition-colors",
-              ok ? "text-brand-green" : "text-muted-foreground",
-            )}
-          >
-            {ok ? (
-              <Check className="size-3.5" aria-hidden />
-            ) : (
-              <X className="size-3.5" aria-hidden />
-            )}
-            <span>{rule.label}</span>
-          </li>
-        );
-      })}
-    </ul>
   );
 }
