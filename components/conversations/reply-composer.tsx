@@ -9,24 +9,41 @@ import {
   handoffAction,
 } from "@/lib/api/conversations-actions";
 import { Button } from "@/components/ui/button";
-import type { ConversationStatus } from "@/lib/api/types";
+import type { ConversationStatus, Message } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
+
+type OptimisticHandlers = {
+  onOptimisticAppend?: (msg: Message) => void;
+  onOptimisticReconcile?: (tempId: string, real: Message) => void;
+  onOptimisticRollback?: (tempId: string) => void;
+};
 
 type ReplyComposerProps = {
   conversationId: string;
   status: ConversationStatus;
-};
+} & OptimisticHandlers;
 
 const MAX_LENGTH = 4000;
 
-export function ReplyComposer({ conversationId, status }: ReplyComposerProps) {
+export function ReplyComposer({
+  conversationId,
+  status,
+  ...optimistic
+}: ReplyComposerProps) {
   if (status === "WITH_OWNER") {
-    return <ActiveComposer conversationId={conversationId} />;
+    return (
+      <ActiveComposer conversationId={conversationId} {...optimistic} />
+    );
   }
   return <DisabledBanner conversationId={conversationId} status={status} />;
 }
 
-function ActiveComposer({ conversationId }: { conversationId: string }) {
+function ActiveComposer({
+  conversationId,
+  onOptimisticAppend,
+  onOptimisticReconcile,
+  onOptimisticRollback,
+}: { conversationId: string } & OptimisticHandlers) {
   const [value, setValue] = React.useState("");
   const [pending, startTransition] = React.useTransition();
   const taRef = React.useRef<HTMLTextAreaElement>(null);
@@ -34,14 +51,29 @@ function ActiveComposer({ conversationId }: { conversationId: string }) {
   function send() {
     const trimmed = value.trim();
     if (!trimmed || pending) return;
+
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const tempMessage: Message = {
+      id: tempId,
+      conversationId,
+      sender: "OWNER",
+      content: trimmed,
+      whatsappMsgId: null,
+      createdAt: new Date().toISOString(),
+    };
+    onOptimisticAppend?.(tempMessage);
+    setValue("");
+    requestAnimationFrame(() => taRef.current?.focus());
+
     startTransition(async () => {
       const result = await replyAction(conversationId, trimmed);
       if (!result.ok) {
+        onOptimisticRollback?.(tempId);
+        setValue(trimmed);
         toast.error(result.error);
         return;
       }
-      setValue("");
-      requestAnimationFrame(() => taRef.current?.focus());
+      onOptimisticReconcile?.(tempId, result.data);
     });
   }
 
