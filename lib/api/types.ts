@@ -198,6 +198,7 @@ export type Order = {
   currency: string;
   paystackRef: string | null;
   paystackAuthUrl: string | null;
+  paystackPreviousRefs: string[];
   notes: string | null;
   createdAt: string;
   updatedAt: string;

@@ -27,3 +27,25 @@ export async function updateOrderStatusAction(
     return { ok: false, error: "Couldn't update order" };
   }
 }
+
+export async function regeneratePaymentLinkAction(
+  orderId: string,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(
+      `/orders/${orderId}/regenerate-payment-link`,
+      { method: "POST" },
+    );
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return {
+        ok: false,
+        error: err.message || "Couldn't regenerate payment link",
+      };
+    }
+    return { ok: false, error: "Couldn't regenerate payment link" };
+  }
+}
