@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { updateDeliveryAddressAction } from "@/lib/api/orders-actions";
 import type { Order, OrderStatus } from "@/lib/api/types";
 
@@ -47,11 +48,12 @@ export function DeliveryAddressCard({
         <div className="min-w-0">
           <p className="eyebrow text-muted-foreground">Delivery address</p>
           <p
-            className={
+            className={cn(
+              "mt-2 text-sm",
               deliveryAddress
-                ? "text-foreground mt-2 text-sm leading-relaxed whitespace-pre-wrap break-words"
-                : "text-muted-foreground mt-2 text-sm"
-            }
+                ? "text-foreground leading-relaxed whitespace-pre-wrap break-words"
+                : "text-muted-foreground",
+            )}
           >
             {deliveryAddress ?? "—"}
           </p>
@@ -124,7 +126,7 @@ function EditForm({
 
   const trimmed = value.trim();
   const disabled =
-    pending || trimmed.length === 0 || trimmed === currentAddress.trim();
+    pending || trimmed.length === 0 || value === currentAddress;
 
   function onSave() {
     startTransition(async () => {
