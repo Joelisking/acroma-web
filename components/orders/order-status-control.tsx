@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Cog, Truck, PackageCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateOrderStatusAction } from "@/lib/api/orders-actions";
-import type { OrderStatus } from "@/lib/api/types";
+import type { OrderStatus, PaymentMethod } from "@/lib/api/types";
 
 type Action = {
   status: OrderStatus;
@@ -16,9 +16,59 @@ type Action = {
 
 /**
  * Returns the contextually-relevant next-status actions for an order.
- * Keeps the UI focused on the realistic forward path the merchant takes.
+ * Branches on payment method: COD follows a physical fulfilment flow;
+ * MOMO follows a payment-first flow.
  */
-function nextActions(status: OrderStatus): Action[] {
+function nextActions(
+  status: OrderStatus,
+  paymentMethod: PaymentMethod,
+): Action[] {
+  if (paymentMethod === "CASH_ON_DELIVERY") {
+    switch (status) {
+      case "PENDING":
+        return [
+          { status: "PROCESSING", label: "Start processing", Icon: Cog },
+          {
+            status: "CANCELLED",
+            label: "Cancel",
+            Icon: XCircle,
+            variant: "destructive",
+          },
+        ];
+      case "PROCESSING":
+        return [
+          { status: "SHIPPED", label: "Mark as shipped", Icon: Truck },
+          {
+            status: "CANCELLED",
+            label: "Cancel",
+            Icon: XCircle,
+            variant: "destructive",
+          },
+        ];
+      case "SHIPPED":
+        return [
+          {
+            status: "DELIVERED",
+            label: "Mark as delivered",
+            Icon: PackageCheck,
+          },
+          {
+            status: "CANCELLED",
+            label: "Cancel",
+            Icon: XCircle,
+            variant: "destructive",
+          },
+        ];
+      case "DELIVERED":
+        return [
+          { status: "PAID", label: "Mark cash received", Icon: CheckCircle2 },
+        ];
+      default:
+        return [];
+    }
+  }
+
+  // MOMO path (existing)
   switch (status) {
     case "PENDING":
     case "PAYMENT_PENDING":
@@ -59,12 +109,14 @@ function nextActions(status: OrderStatus): Action[] {
 export function OrderStatusControl({
   orderId,
   status,
+  paymentMethod,
 }: {
   orderId: string;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
 }) {
   const [pending, startTransition] = React.useTransition();
-  const actions = nextActions(status);
+  const actions = nextActions(status, paymentMethod);
   if (actions.length === 0) return null;
 
   function run(next: OrderStatus, label: string) {

@@ -39,7 +39,11 @@ export default async function OrderDetailPage({ params }: PageProps) {
           <OrderStatusStepper status={order.status} />
         </div>
         <div className="mt-6">
-          <OrderStatusControl orderId={order.id} status={order.status} />
+          <OrderStatusControl
+                orderId={order.id}
+                status={order.status}
+                paymentMethod={order.paymentMethod}
+              />
         </div>
       </section>
 
