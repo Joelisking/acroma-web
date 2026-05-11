@@ -5,6 +5,18 @@
  * Source of truth: /Users/joel/Documents/acroma-backend/src/**
  */
 
+export type DayHours = { open: string; close: string };
+
+export type OpeningHours = {
+  monday: DayHours | null;
+  tuesday: DayHours | null;
+  wednesday: DayHours | null;
+  thursday: DayHours | null;
+  friday: DayHours | null;
+  saturday: DayHours | null;
+  sunday: DayHours | null;
+};
+
 export type Business = {
   id: string;
   name: string;
@@ -16,6 +28,7 @@ export type Business = {
   whatsappWebhookActive: boolean;
   aiEnabled: boolean;
   acceptsCashOnDelivery: boolean;
+  openingHours: OpeningHours | null;
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
