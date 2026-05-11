@@ -5,45 +5,78 @@ import { Bot, User } from "lucide-react";
 import { toast } from "sonner";
 import { handoffAction } from "@/lib/api/conversations-actions";
 import { Button } from "@/components/ui/button";
-import type { ConversationStatus } from "@/lib/api/types";
+import type { ConversationStatus, HandoffAction } from "@/lib/api/types";
 
 type HandoffToggleProps = {
   conversationId: string;
   status: ConversationStatus;
 };
 
-/**
- * Switch a conversation between AI handling and owner handling.
- * The actual cause + effect is one-tap, with optimistic toast feedback.
- */
+type ButtonKind = "TAKE_OVER" | "RESUME_AI";
+
+function buttonsFor(status: ConversationStatus): ButtonKind[] {
+  switch (status) {
+    case "WAITING_FOR_OWNER":
+      return ["TAKE_OVER", "RESUME_AI"];
+    case "WITH_OWNER":
+      return ["RESUME_AI"];
+    case "AI_HANDLING":
+    case "RESOLVED":
+    default:
+      return ["TAKE_OVER"];
+  }
+}
+
 export function HandoffToggle({
   conversationId,
   status,
 }: HandoffToggleProps) {
   const [pending, startTransition] = React.useTransition();
-  const ownerHasIt = status === "WITH_OWNER";
+  const kinds = buttonsFor(status);
 
-  function toggle() {
+  function run(kind: ButtonKind) {
     startTransition(async () => {
-      const result = await handoffAction(
-        conversationId,
-        ownerHasIt ? "RESUME_AI" : "TAKE_OVER",
+      const action: HandoffAction = kind;
+      const result = await handoffAction(conversationId, action);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(
+        kind === "TAKE_OVER" ? "You're now in the chat" : "AI is back on",
       );
-      if (!result.ok) toast.error(result.error);
-      else toast.success(ownerHasIt ? "AI is back on" : "You're now in the chat");
     });
   }
 
   return (
-    <Button
-      variant={ownerHasIt ? "secondary" : "outline"}
-      size="sm"
-      onClick={toggle}
-      disabled={pending}
-      className="gap-1.5"
-    >
-      {ownerHasIt ? <Bot /> : <User />}
-      {ownerHasIt ? "Hand back to AI" : "Take over"}
-    </Button>
+    <div className="flex gap-2">
+      {kinds.map((kind) =>
+        kind === "TAKE_OVER" ? (
+          <Button
+            key="TAKE_OVER"
+            variant="outline"
+            size="sm"
+            disabled={pending}
+            onClick={() => run("TAKE_OVER")}
+            className="gap-1.5"
+          >
+            <User />
+            Take over
+          </Button>
+        ) : (
+          <Button
+            key="RESUME_AI"
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            onClick={() => run("RESUME_AI")}
+            className="gap-1.5"
+          >
+            <Bot />
+            Hand back to AI
+          </Button>
+        ),
+      )}
+    </div>
   );
 }
