@@ -52,7 +52,8 @@ export function OrderStatusStepper({
   const steps = paymentMethod === "CASH_ON_DELIVERY" ? COD_STEPS : MOMO_STEPS;
   const index = paymentMethod === "CASH_ON_DELIVERY" ? COD_INDEX : MOMO_INDEX;
   const current = index[status];
-  const halted = status === "CANCELLED" || status === "PAYMENT_FAILED";
+  const halted =
+    status === "CANCELLED" || status === "PAYMENT_FAILED" || current === -1;
 
   if (halted) {
     return (
@@ -63,12 +64,16 @@ export function OrderStatusStepper({
   }
 
   return (
-    <ol className="grid grid-cols-5 gap-2">
+    <ol aria-label="Order progress" className="grid grid-cols-5 gap-2">
       {steps.map((step, i) => {
         const reached = i <= current;
         const isCurrent = i === current;
         return (
-          <li key={step.status} className="flex flex-col items-center gap-2">
+          <li
+            key={step.status}
+            aria-current={isCurrent ? "step" : undefined}
+            className="flex flex-col items-center gap-2"
+          >
             <div
               className={cn(
                 "flex size-7 items-center justify-center rounded-full text-[0.65rem] font-semibold transition-colors",
