@@ -10,7 +10,7 @@ import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
 } from "@/lib/api/settings-actions";
-import { isOpen, nextOpenTime, formatNextOpen } from "@/lib/business-hours";
+import { isOpen, nextOpenTime, formatNextOpen, toMinutes } from "@/lib/business-hours";
 import type { DayHours, OpeningHours } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -45,10 +45,6 @@ const EMPTY_WEEK: OpeningHours = {
   sunday: null,
 };
 
-function toMin(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
 
 type Props = {
   initial: OpeningHours | null;
@@ -64,7 +60,7 @@ export function OpeningHoursForm({ initial }: Props) {
     const e: Partial<Record<DayKey, string>> = {};
     for (const { key } of DAYS) {
       const d = hours[key];
-      if (d && toMin(d.close) <= toMin(d.open)) {
+      if (d && toMinutes(d.close) <= toMinutes(d.open)) {
         e[key] = "Close must be after open";
       }
     }
@@ -73,8 +69,13 @@ export function OpeningHoursForm({ initial }: Props) {
 
   const hasErrors = Object.keys(errors).length > 0;
 
+  const allDaysClosed = React.useMemo(
+    () => DAYS.every(({ key }) => hours[key] === null),
+    [hours],
+  );
+
   const statusLine = React.useMemo(() => {
-    if (initial === null && hours === EMPTY_WEEK) {
+    if (initial === null && allDaysClosed) {
       return "Currently: always open. Add hours below to start auto-replying when closed.";
     }
     const now = new Date();
@@ -83,7 +84,7 @@ export function OpeningHoursForm({ initial }: Props) {
     }
     const friendly = formatNextOpen(now, nextOpenTime(hours, now));
     return `Currently: closed. Opens ${friendly}.`;
-  }, [hours, initial]);
+  }, [hours, initial, allDaysClosed]);
 
   function setDay(key: DayKey, value: DayHours | null) {
     setHours((prev) => ({ ...prev, [key]: value }));
