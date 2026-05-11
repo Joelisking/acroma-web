@@ -200,6 +200,7 @@ export type Order = {
   paystackAuthUrl: string | null;
   paystackPreviousRefs: string[];
   notes: string | null;
+  deliveryAddress: string | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
