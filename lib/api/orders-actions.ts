@@ -49,3 +49,33 @@ export async function regeneratePaymentLinkAction(
     return { ok: false, error: "Couldn't regenerate payment link" };
   }
 }
+
+export async function updateDeliveryAddressAction(
+  orderId: string,
+  deliveryAddress: string,
+): Promise<ActionResult<Order>> {
+  const trimmed = deliveryAddress.trim();
+  if (trimmed.length === 0) {
+    return { ok: false, error: "Address can't be empty" };
+  }
+  if (trimmed.length > 500) {
+    return { ok: false, error: "Address is too long (max 500 characters)" };
+  }
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/delivery-address`, {
+      method: "PATCH",
+      body: { deliveryAddress: trimmed },
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return {
+        ok: false,
+        error: err.message || "Couldn't update delivery address",
+      };
+    }
+    return { ok: false, error: "Couldn't update delivery address" };
+  }
+}
