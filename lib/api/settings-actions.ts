@@ -53,6 +53,28 @@ export async function testWhatsappAction(
   }
 }
 
+export async function updateAcceptsCashOnDeliveryAction(
+  acceptsCashOnDelivery: boolean,
+): Promise<ActionResult<{ id: string; acceptsCashOnDelivery: boolean }>> {
+  try {
+    const data = await apiFetch<{ id: string; acceptsCashOnDelivery: boolean }>(
+      "/settings/payment-methods",
+      {
+        method: "PATCH",
+        body: { acceptsCashOnDelivery },
+      },
+    );
+    revalidatePath("/dashboard/settings/payments");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save payment method preferences"),
+    };
+  }
+}
+
 function humanError(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error) return err.message || fallback;
