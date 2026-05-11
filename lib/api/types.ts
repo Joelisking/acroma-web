@@ -15,6 +15,7 @@ export type Business = {
   whatsappPhoneNumberId: string | null;
   whatsappWebhookActive: boolean;
   aiEnabled: boolean;
+  acceptsCashOnDelivery: boolean;
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
@@ -80,6 +81,8 @@ export type HandoffAction = "TAKE_OVER" | "RESUME_AI";
 // ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------
+
+export type PaymentMethod = "MOMO" | "CASH_ON_DELIVERY";
 
 export type OrderStatus =
   | "PENDING"
@@ -201,6 +204,7 @@ export type Order = {
   paystackPreviousRefs: string[];
   notes: string | null;
   deliveryAddress: string | null;
+  paymentMethod: PaymentMethod;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
