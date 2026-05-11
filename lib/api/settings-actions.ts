@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
 import type { WhatsappSettings } from "./settings";
+import type { OpeningHours } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -71,6 +72,49 @@ export async function updateAcceptsCashOnDeliveryAction(
     return {
       ok: false,
       error: humanError(err, "Couldn't save payment method preferences"),
+    };
+  }
+}
+
+export async function updateOpeningHoursAction(
+  hours: OpeningHours,
+): Promise<ActionResult<{ id: string; openingHours: OpeningHours | null }>> {
+  try {
+    const data = await apiFetch<{
+      id: string;
+      openingHours: OpeningHours | null;
+    }>("/settings/opening-hours", {
+      method: "PATCH",
+      body: hours,
+    });
+    revalidatePath("/dashboard/settings/opening-hours");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save opening hours"),
+    };
+  }
+}
+
+export async function clearOpeningHoursAction(): Promise<
+  ActionResult<{ id: string; openingHours: OpeningHours | null }>
+> {
+  try {
+    const data = await apiFetch<{
+      id: string;
+      openingHours: OpeningHours | null;
+    }>("/settings/opening-hours", {
+      method: "DELETE",
+    });
+    revalidatePath("/dashboard/settings/opening-hours");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't clear opening hours"),
     };
   }
 }
