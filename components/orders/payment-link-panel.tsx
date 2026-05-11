@@ -14,6 +14,7 @@ const REGENERATABLE: Order["status"][] = ["PAYMENT_PENDING", "PAYMENT_FAILED"];
 export function PaymentLinkPanel({ order }: { order: Order }) {
   const [pending, startTransition] = React.useTransition();
 
+  if (order.paymentMethod !== "MOMO") return null;
   if (!REGENERATABLE.includes(order.status)) return null;
 
   const showCurrentLink =
