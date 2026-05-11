@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   MessageCircle,
   Building2,
+  Clock,
   CreditCard,
   Sparkles,
   Bell,
@@ -22,6 +23,7 @@ type Section = {
 export const SETTINGS_SECTIONS: Section[] = [
   { href: "/dashboard/settings/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { href: "/dashboard/settings/business", label: "Business", icon: Building2 },
+  { href: "/dashboard/settings/opening-hours", label: "Hours", icon: Clock },
   { href: "/dashboard/settings/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/settings/ai", label: "AI", icon: Sparkles },
   {
