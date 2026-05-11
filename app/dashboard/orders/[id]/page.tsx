@@ -36,7 +36,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       >
         <p className="eyebrow text-muted-foreground">Progress</p>
         <div className="mt-5">
-          <OrderStatusStepper status={order.status} />
+          <OrderStatusStepper status={order.status} paymentMethod={order.paymentMethod} />
         </div>
         <div className="mt-6">
           <OrderStatusControl

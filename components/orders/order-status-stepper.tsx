@@ -1,8 +1,10 @@
 import { Check } from "lucide-react";
-import type { OrderStatus } from "@/lib/api/types";
+import type { OrderStatus, PaymentMethod } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-const STEPS: { status: OrderStatus; label: string }[] = [
+type Step = { status: OrderStatus; label: string };
+
+const MOMO_STEPS: Step[] = [
   { status: "PENDING", label: "Received" },
   { status: "PAID", label: "Paid" },
   { status: "PROCESSING", label: "Processing" },
@@ -10,7 +12,15 @@ const STEPS: { status: OrderStatus; label: string }[] = [
   { status: "DELIVERED", label: "Delivered" },
 ];
 
-const ORDER_INDEX: Record<OrderStatus, number> = {
+const COD_STEPS: Step[] = [
+  { status: "PENDING", label: "Received" },
+  { status: "PROCESSING", label: "Processing" },
+  { status: "SHIPPED", label: "Shipped" },
+  { status: "DELIVERED", label: "Delivered" },
+  { status: "PAID", label: "Cash received" },
+];
+
+const MOMO_INDEX: Record<OrderStatus, number> = {
   PENDING: 0,
   PAYMENT_PENDING: 0,
   PAID: 1,
@@ -21,8 +31,27 @@ const ORDER_INDEX: Record<OrderStatus, number> = {
   PAYMENT_FAILED: -1,
 };
 
-export function OrderStatusStepper({ status }: { status: OrderStatus }) {
-  const current = ORDER_INDEX[status];
+const COD_INDEX: Record<OrderStatus, number> = {
+  PENDING: 0,
+  PROCESSING: 1,
+  SHIPPED: 2,
+  DELIVERED: 3,
+  PAID: 4,
+  PAYMENT_PENDING: -1,
+  PAYMENT_FAILED: -1,
+  CANCELLED: -1,
+};
+
+export function OrderStatusStepper({
+  status,
+  paymentMethod,
+}: {
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+}) {
+  const steps = paymentMethod === "CASH_ON_DELIVERY" ? COD_STEPS : MOMO_STEPS;
+  const index = paymentMethod === "CASH_ON_DELIVERY" ? COD_INDEX : MOMO_INDEX;
+  const current = index[status];
   const halted = status === "CANCELLED" || status === "PAYMENT_FAILED";
 
   if (halted) {
@@ -35,7 +64,7 @@ export function OrderStatusStepper({ status }: { status: OrderStatus }) {
 
   return (
     <ol className="grid grid-cols-5 gap-2">
-      {STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const reached = i <= current;
         const isCurrent = i === current;
         return (
