@@ -1,6 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
-import { Plus } from "lucide-react"
+import { Plus, Tag } from "lucide-react"
 
 import { listProducts } from "@/lib/api/products"
 import { getCurrentBusiness } from "@/lib/api/business"
@@ -40,6 +40,24 @@ export default async function CatalogPage() {
           </Link>
         </Button>
       </header>
+
+      <Link
+        href="/dashboard/discounts"
+        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="bg-brand-orange-soft text-brand-orange flex size-10 items-center justify-center rounded-xl">
+            <Tag className="size-5" />
+          </span>
+          <div>
+            <p className="text-foreground text-sm font-medium">Discount codes</p>
+            <p className="text-muted-foreground text-sm">
+              Run promos by giving customers a code to type in WhatsApp.
+            </p>
+          </div>
+        </div>
+        <span className="text-muted-foreground text-xs">Manage →</span>
+      </Link>
 
       {products.length === 0 ? (
         <CatalogEmpty />
