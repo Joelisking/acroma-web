@@ -92,6 +92,35 @@ export type ConversationWithMessages = Conversation & {
 export type HandoffAction = "TAKE_OVER" | "RESUME_AI";
 
 // ---------------------------------------------------------------------------
+// Discounts
+// ---------------------------------------------------------------------------
+
+export type DiscountType = "PERCENTAGE" | "FIXED";
+
+export type Discount = {
+  id: string;
+  businessId: string;
+  code: string;
+  type: DiscountType;
+  value: number;
+  validFrom: string | null;
+  validUntil: string | null;
+  totalUsageLimit: number | null;
+  perCustomerLimit: number;
+  usageCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OrderDiscount = {
+  id: string;
+  code: string;
+  type: DiscountType;
+  value: number;
+};
+
+// ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------
 
@@ -218,6 +247,10 @@ export type Order = {
   notes: string | null;
   deliveryAddress: string | null;
   paymentMethod: PaymentMethod;
+  subtotal: number;
+  discountId: string | null;
+  discountAmount: number;
+  discount: OrderDiscount | null;
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
