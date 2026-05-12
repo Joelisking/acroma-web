@@ -8,6 +8,7 @@ import {
   Clock,
   CreditCard,
   Sparkles,
+  BookOpen,
   Bell,
   ShieldCheck,
   type LucideIcon,
@@ -26,6 +27,11 @@ export const SETTINGS_SECTIONS: Section[] = [
   { href: "/dashboard/settings/opening-hours", label: "Hours", icon: Clock },
   { href: "/dashboard/settings/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/settings/ai", label: "AI", icon: Sparkles },
+  {
+    href: "/dashboard/settings/knowledge-base",
+    label: "Knowledge",
+    icon: BookOpen,
+  },
   {
     href: "/dashboard/settings/notifications",
     label: "Notifications",
