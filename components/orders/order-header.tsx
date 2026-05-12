@@ -3,6 +3,7 @@ import { ChevronLeft, Phone } from "lucide-react";
 import type { Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
 import { PaymentMethodBadge } from "./payment-method-badge";
+import { DiscountBadge } from "./discount-badge";
 import { formatMoney, formatPhone, shortId } from "@/lib/format";
 
 export function OrderHeader({ order }: { order: Order }) {
@@ -43,6 +44,13 @@ export function OrderHeader({ order }: { order: Order }) {
         <div className="flex flex-col items-end gap-2">
           <OrderStatusBadge status={order.status} size="md" />
           <PaymentMethodBadge method={order.paymentMethod} />
+          {order.discount ? (
+            <DiscountBadge
+              discount={order.discount}
+              discountAmount={order.discountAmount}
+              currency={order.currency}
+            />
+          ) : null}
         </div>
       </div>
     </header>

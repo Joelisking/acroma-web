@@ -60,7 +60,14 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       <section aria-label="Items" className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground">Items</h2>
-        <OrderItems items={order.items} currency={order.currency} />
+        <OrderItems
+          items={order.items}
+          currency={order.currency}
+          subtotal={order.subtotal}
+          discountAmount={order.discountAmount}
+          total={order.totalAmount}
+          discountCode={order.discount?.code ?? null}
+        />
       </section>
 
       {order.notes ? (
