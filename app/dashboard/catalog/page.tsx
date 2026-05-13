@@ -1,6 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
-import { Plus, Tag } from "lucide-react"
+import { Plus, Tag, Users, Megaphone } from "lucide-react"
 
 import { listProducts } from "@/lib/api/products"
 import { getCurrentBusiness } from "@/lib/api/business"
@@ -57,6 +57,42 @@ export default async function CatalogPage() {
           </div>
         </div>
         <span className="text-muted-foreground text-xs">Manage →</span>
+      </Link>
+
+      <Link
+        href="/dashboard/customers"
+        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="bg-brand-blue-soft text-brand-blue flex size-10 items-center justify-center rounded-xl">
+            <Users className="size-5" />
+          </span>
+          <div>
+            <p className="text-foreground text-sm font-medium">Customers</p>
+            <p className="text-muted-foreground text-sm">
+              Who&apos;s ordered or chatted with you. Toggle opt-out to exclude someone from broadcasts.
+            </p>
+          </div>
+        </div>
+        <span className="text-muted-foreground text-xs">View →</span>
+      </Link>
+
+      <Link
+        href="/dashboard/broadcasts"
+        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="bg-brand-green-soft text-brand-green flex size-10 items-center justify-center rounded-xl">
+            <Megaphone className="size-5" />
+          </span>
+          <div>
+            <p className="text-foreground text-sm font-medium">Broadcasts</p>
+            <p className="text-muted-foreground text-sm">
+              Send a campaign-style message to a group of customers.
+            </p>
+          </div>
+        </div>
+        <span className="text-muted-foreground text-xs">Open →</span>
       </Link>
 
       {products.length === 0 ? (
