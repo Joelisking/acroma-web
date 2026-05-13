@@ -102,3 +102,19 @@ export async function cancelBroadcastAction(
     return { ok: false, error: "Couldn't cancel" };
   }
 }
+
+export async function previewRecipientCountAction(
+  bucket: BroadcastAudienceBucket,
+): Promise<ActionResult<{ count: number }>> {
+  try {
+    const data = await apiFetch<{ count: number }>(
+      `/broadcasts/preview-count?bucket=${bucket}`,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't fetch count" };
+    }
+    return { ok: false, error: "Couldn't fetch count" };
+  }
+}
