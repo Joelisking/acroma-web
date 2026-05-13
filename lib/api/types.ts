@@ -274,3 +274,100 @@ export type PayoutAccount = {
 
 export type BankSummary = { code: string; name: string };
 export type ResolvedAccount = { accountName: string; accountNumber: string };
+
+// ---------------------------------------------------------------------------
+// Customers
+// ---------------------------------------------------------------------------
+
+export type Customer = {
+  id: string;
+  businessId: string;
+  phone: string;
+  name: string | null;
+  optedOut: boolean;
+  optedOutAt: string | null;
+  lastMessageAt: string | null;
+  lastOrderAt: string | null;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ---------------------------------------------------------------------------
+// Broadcasts
+// ---------------------------------------------------------------------------
+
+export type BroadcastAudienceBucket =
+  | "ALL_CUSTOMERS"
+  | "ACTIVE_LAST_30_DAYS"
+  | "ACTIVE_LAST_90_DAYS"
+  | "IN_24H_WINDOW";
+
+export type BroadcastStatus =
+  | "DRAFT"
+  | "QUEUED"
+  | "SENDING"
+  | "SENT"
+  | "FAILED";
+
+export type BroadcastRecipientStatus =
+  | "PENDING"
+  | "SENT"
+  | "DELIVERED"
+  | "READ"
+  | "FAILED"
+  | "SKIPPED";
+
+export type WhatsappTemplateStatus =
+  | "APPROVED"
+  | "PENDING"
+  | "REJECTED"
+  | "DISABLED";
+
+export type WhatsappTemplate = {
+  id: string;
+  businessId: string;
+  name: string;
+  language: string;
+  category: string;
+  status: WhatsappTemplateStatus;
+  body: string;
+  variableCount: number;
+  lastSyncedAt: string;
+};
+
+export type Broadcast = {
+  id: string;
+  businessId: string;
+  name: string;
+  audienceBucket: BroadcastAudienceBucket;
+  bodyTemplate: string;
+  templateId: string | null;
+  templateLanguage: string | null;
+  discountId: string | null;
+  status: BroadcastStatus;
+  totalRecipients: number;
+  sentCount: number;
+  deliveredCount: number;
+  readCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  template: Pick<WhatsappTemplate, "id" | "name" | "language" | "status"> | null;
+  discount: Pick<Discount, "id" | "code" | "type" | "value"> | null;
+};
+
+export type BroadcastRecipient = {
+  id: string;
+  broadcastId: string;
+  customerId: string;
+  status: BroadcastRecipientStatus;
+  whatsappMsgId: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  sentAt: string | null;
+  deliveredAt: string | null;
+  readAt: string | null;
+  createdAt: string;
+};
