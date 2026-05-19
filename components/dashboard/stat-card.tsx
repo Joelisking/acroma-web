@@ -7,6 +7,10 @@ type StatCardProps = {
   hint?: string;
   icon: LucideIcon;
   tone?: "orange" | "blue" | "green" | "navy";
+  /** Optional compare-to-previous delta. Percent number or null. */
+  delta?: { change: number | null; label: string };
+  /** Dim the value while a re-fetch is in flight. */
+  loading?: boolean;
 };
 
 const toneStyles: Record<NonNullable<StatCardProps["tone"]>, string> = {
@@ -22,18 +26,26 @@ export function StatCard({
   hint,
   icon: Icon,
   tone = "orange",
+  delta,
+  loading = false,
 }: StatCardProps) {
   return (
     <div className="border-border/70 bg-card relative overflow-hidden rounded-2xl border p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="eyebrow text-muted-foreground">{label}</p>
-          <p className="font-display text-foreground mt-3 text-3xl font-medium tracking-tight tabular-nums">
+          <p
+            className={cn(
+              "font-display text-foreground mt-3 text-3xl font-medium tracking-tight tabular-nums transition-opacity",
+              loading && "opacity-40",
+            )}
+          >
             {value}
           </p>
           {hint ? (
             <p className="text-muted-foreground mt-1 text-xs">{hint}</p>
           ) : null}
+          {delta ? <DeltaLine delta={delta} /> : null}
         </div>
         <span
           className={cn(
@@ -46,4 +58,21 @@ export function StatCard({
       </div>
     </div>
   );
+}
+
+function DeltaLine({
+  delta,
+}: {
+  delta: NonNullable<StatCardProps["delta"]>;
+}) {
+  const { change, label } = delta;
+  const tone =
+    change === null
+      ? "text-muted-foreground"
+      : change > 0
+        ? "text-brand-green"
+        : change < 0
+          ? "text-destructive"
+          : "text-muted-foreground";
+  return <p className={cn("mt-1 text-xs font-medium", tone)}>{label}</p>;
 }
