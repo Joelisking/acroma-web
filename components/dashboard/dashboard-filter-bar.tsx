@@ -55,14 +55,18 @@ export function DashboardFilterBar({
   isDefault,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div
+      className="flex flex-wrap items-center gap-2"
+      role="group"
+      aria-label="Dashboard filters"
+    >
       <Select
         value={filter.range}
         onValueChange={(v) =>
           onChange({ ...filter, range: v as DashboardRange })
         }
       >
-        <SelectTrigger size="sm" className="w-[150px]">
+        <SelectTrigger size="sm" className="w-[150px]" aria-label="Date range">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -93,7 +97,7 @@ export function DashboardFilterBar({
           })
         }
       >
-        <SelectTrigger size="sm" className="w-[150px]">
+        <SelectTrigger size="sm" className="w-[150px]" aria-label="Order status filter">
           <SelectValue placeholder="Any order status" />
         </SelectTrigger>
         <SelectContent>
@@ -116,7 +120,7 @@ export function DashboardFilterBar({
           })
         }
       >
-        <SelectTrigger size="sm" className="w-[160px]">
+        <SelectTrigger size="sm" className="w-[160px]" aria-label="Conversation status filter">
           <SelectValue placeholder="Any conversation" />
         </SelectTrigger>
         <SelectContent>
@@ -139,7 +143,7 @@ export function DashboardFilterBar({
           })
         }
       >
-        <SelectTrigger size="sm" className="w-[140px]">
+        <SelectTrigger size="sm" className="w-[140px]" aria-label="Customer segment filter">
           <SelectValue placeholder="All customers" />
         </SelectTrigger>
         <SelectContent>
@@ -154,14 +158,21 @@ export function DashboardFilterBar({
         onChange={(customerPhone) => onChange({ ...filter, customerPhone })}
       />
 
-      <label className="text-muted-foreground flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2">
         <Switch
+          id="dashboard-compare"
           checked={Boolean(filter.compare) && canCompare(filter)}
           disabled={!canCompare(filter)}
           onCheckedChange={(compare) => onChange({ ...filter, compare })}
+          aria-label="Compare to previous period"
         />
-        Compare
-      </label>
+        <label
+          htmlFor="dashboard-compare"
+          className="text-muted-foreground cursor-pointer text-sm"
+        >
+          Compare
+        </label>
+      </div>
 
       <Button
         variant="ghost"

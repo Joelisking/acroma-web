@@ -7,6 +7,22 @@ import {
 } from "@/lib/api/dashboard-actions";
 import type { DashboardFilter, DashboardStats } from "@/lib/api/types";
 
+const FILTER_KEYS: (keyof DashboardFilter)[] = [
+  "range",
+  "startDate",
+  "endDate",
+  "orderStatus",
+  "conversationStatus",
+  "customerSegment",
+  "customerPhone",
+  "compare",
+];
+
+/** Structural equality for two filters — key-order independent. */
+function filtersEqual(a: DashboardFilter, b: DashboardFilter): boolean {
+  return FILTER_KEYS.every((k) => a[k] === b[k]);
+}
+
 /** A CUSTOM filter with no dates yet is not ready to fetch. */
 function isFetchable(filter: DashboardFilter): boolean {
   if (filter.range !== "CUSTOM") return true;
@@ -53,8 +69,7 @@ export function useDashboardStats(
     });
   }, [filter]);
 
-  const isDefault =
-    JSON.stringify(filter) === JSON.stringify(savedDefault);
+  const isDefault = filtersEqual(filter, savedDefault);
 
   return {
     filter,

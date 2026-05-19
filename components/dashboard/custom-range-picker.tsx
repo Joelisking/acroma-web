@@ -13,9 +13,9 @@ type Props = {
   onApply: (startDate: string, endDate: string) => void;
 };
 
-/** Format a Date as a UTC YYYY-MM-DD string. */
+/** Format a Date as a YYYY-MM-DD string using its local calendar day. */
 function toIsoDate(d: Date): string {
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function parseIsoDate(s?: string): Date | undefined {
@@ -42,7 +42,18 @@ export function CustomRangePicker({ startDate, endDate, onApply }: Props) {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        if (next) {
+          setRange({
+            from: parseIsoDate(startDate),
+            to: parseIsoDate(endDate),
+          });
+        }
+        setOpen(next);
+      }}
+    >
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <CalendarDays className="size-3.5 opacity-60" />
