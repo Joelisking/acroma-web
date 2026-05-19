@@ -1,40 +1,48 @@
 import type { Metadata } from "next";
-import { MessageSquare, ShoppingBag, Wallet } from "lucide-react";
 
 import { getCurrentBusiness } from "@/lib/api/business";
-import { listConversations } from "@/lib/api/conversations";
-import { listOrders } from "@/lib/api/orders";
 import { getPayoutAccount } from "@/lib/api/payments";
-import { StatCard } from "@/components/dashboard/stat-card";
+import {
+  getDashboardActivity,
+  getDashboardStats,
+} from "@/lib/api/dashboard";
+import { DashboardStatsSection } from "@/components/dashboard/dashboard-stats";
 import { SetupCallout } from "@/components/dashboard/setup-callout";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { PayoutNudgeBanner } from "@/components/payments/payout-nudge-banner";
-import { formatMoney } from "@/lib/format";
-import {
-  buildActivity,
-  computeTodayMetrics,
-  startOfTodayUtc,
-} from "@/lib/dashboard-metrics";
+import { buildActivity } from "@/lib/dashboard-metrics";
+import { DEFAULT_DASHBOARD_FILTER } from "@/lib/dashboard-filter";
+import type { DashboardActivity, DashboardStats } from "@/lib/api/types";
 
 export const metadata: Metadata = { title: "Overview · Acroma" };
 
 const ACTIVITY_LIMIT = 6;
 
+const EMPTY_STATS: DashboardStats = {
+  range: { start: "", end: "", label: "Today" },
+  metrics: { conversations: 0, orders: 0, revenue: 0 },
+};
+
+const EMPTY_ACTIVITY: DashboardActivity = { conversations: [], orders: [] };
+
 export default async function OverviewPage() {
-  const [business, conversations, orders, payout] = await Promise.all([
-    getCurrentBusiness(),
-    safeList(listConversations()),
-    safeList(listOrders()),
-    safePayoutAccount(),
-  ]);
+  const business = await getCurrentBusiness();
   // Layout already enforces auth, but TS doesn't know that.
   if (!business) return null;
 
-  const today = computeTodayMetrics(conversations, orders, startOfTodayUtc());
-  const activity = buildActivity(conversations, orders).slice(
-    0,
-    ACTIVITY_LIMIT,
-  );
+  const initialFilter =
+    business.dashboardDefaultFilter ?? DEFAULT_DASHBOARD_FILTER;
+
+  const [stats, activity, payout] = await Promise.all([
+    safe(getDashboardStats(initialFilter), EMPTY_STATS),
+    safe(getDashboardActivity(ACTIVITY_LIMIT), EMPTY_ACTIVITY),
+    safe(getPayoutAccount(), null),
+  ]);
+
+  const activityItems = buildActivity(
+    activity.conversations,
+    activity.orders,
+  ).slice(0, ACTIVITY_LIMIT);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:gap-8">
@@ -44,51 +52,22 @@ export default async function OverviewPage() {
 
       {!payout?.paystackSubaccountCode ? <PayoutNudgeBanner /> : null}
 
-      <section
-        className="grid gap-4 sm:grid-cols-3"
-        aria-label="Today's metrics"
-      >
-        <StatCard
-          label="Conversations"
-          value={String(today.conversations)}
-          hint="Today"
-          icon={MessageSquare}
-          tone="orange"
-        />
-        <StatCard
-          label="Orders"
-          value={String(today.orders)}
-          hint="Today"
-          icon={ShoppingBag}
-          tone="blue"
-        />
-        <StatCard
-          label="Revenue"
-          value={formatMoney(today.revenue, business.currency)}
-          hint="Today"
-          icon={Wallet}
-          tone="green"
-        />
-      </section>
+      <DashboardStatsSection
+        initialFilter={initialFilter}
+        initialStats={stats}
+        currency={business.currency}
+      />
 
-      <RecentActivity items={activity} />
+      <RecentActivity items={activityItems} />
     </div>
   );
 }
 
-async function safeList<T>(p: Promise<T[]>): Promise<T[]> {
+async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
   try {
     return await p;
   } catch {
-    return [];
-  }
-}
-
-async function safePayoutAccount() {
-  try {
-    return await getPayoutAccount();
-  } catch {
-    return null;
+    return fallback;
   }
 }
 

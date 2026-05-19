@@ -1,5 +1,8 @@
 import { formatMoney, formatPhone } from "@/lib/format";
-import type { Conversation, Order } from "@/lib/api/types";
+import type {
+  DashboardActivityConversation,
+  DashboardActivityOrder,
+} from "@/lib/api/types";
 
 export type ActivityItem = {
   kind: "conversation" | "order";
@@ -10,48 +13,9 @@ export type ActivityItem = {
   href: string;
 };
 
-/** Statuses where money has hit the merchant's account. */
-const REVENUE_STATUSES = new Set<Order["status"]>([
-  "PAID",
-  "PROCESSING",
-  "SHIPPED",
-  "DELIVERED",
-]);
-
-/**
- * West Africa is at or near UTC, so anchoring "today" to UTC midnight is a
- * sane proxy for the merchant's local day. Refine if we add merchant TZ.
- */
-export function startOfTodayUtc(): Date {
-  const d = new Date();
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
-
-export function computeTodayMetrics(
-  conversations: Conversation[],
-  orders: Order[],
-  todayStart: Date,
-): { conversations: number; orders: number; revenue: number } {
-  const t = todayStart.getTime();
-  const todayConvs = conversations.filter(
-    (c) => new Date(c.createdAt).getTime() >= t,
-  );
-  const todayOrders = orders.filter(
-    (o) => new Date(o.createdAt).getTime() >= t,
-  );
-  const revenue = todayOrders
-    .filter((o) => REVENUE_STATUSES.has(o.status))
-    .reduce((sum, o) => sum + o.totalAmount, 0);
-  return {
-    conversations: todayConvs.length,
-    orders: todayOrders.length,
-    revenue,
-  };
-}
-
 export function buildActivity(
-  conversations: Conversation[],
-  orders: Order[],
+  conversations: DashboardActivityConversation[],
+  orders: DashboardActivityOrder[],
 ): ActivityItem[] {
   const fromConvs: ActivityItem[] = conversations.map((c) => ({
     kind: "conversation",
@@ -77,7 +41,7 @@ export function buildActivity(
   );
 }
 
-function conversationLabel(status: Conversation["status"]): string {
+function conversationLabel(status: DashboardActivityConversation["status"]): string {
   switch (status) {
     case "AI_HANDLING":
       return "AI replying";
@@ -90,7 +54,7 @@ function conversationLabel(status: Conversation["status"]): string {
   }
 }
 
-function orderLabel(status: Order["status"]): string {
+function orderLabel(status: DashboardActivityOrder["status"]): string {
   switch (status) {
     case "PENDING":
       return "Pending";
