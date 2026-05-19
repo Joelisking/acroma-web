@@ -29,6 +29,7 @@ export type Business = {
   aiEnabled: boolean;
   acceptsCashOnDelivery: boolean;
   openingHours: OpeningHours | null;
+  dashboardDefaultFilter: DashboardFilter | null;
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
@@ -370,4 +371,77 @@ export type BroadcastRecipient = {
   deliveredAt: string | null;
   readAt: string | null;
   createdAt: string;
+};
+
+// ---------------------------------------------------------------------------
+// Dashboard filtering
+// ---------------------------------------------------------------------------
+
+export type DashboardRange =
+  | "TODAY"
+  | "YESTERDAY"
+  | "THIS_WEEK"
+  | "THIS_MONTH"
+  | "LAST_7_DAYS"
+  | "LAST_30_DAYS"
+  | "LAST_90_DAYS"
+  | "THIS_YEAR"
+  | "LIFETIME"
+  | "CUSTOM";
+
+export type CustomerSegment = "NEW" | "RETURNING";
+
+/** Mirrors the backend DashboardStatsQueryDto. Character-identical enums. */
+export type DashboardFilter = {
+  range: DashboardRange;
+  startDate?: string;
+  endDate?: string;
+  orderStatus?: OrderStatus;
+  conversationStatus?: ConversationStatus;
+  customerSegment?: CustomerSegment;
+  customerPhone?: string;
+  compare?: boolean;
+};
+
+type DashboardMetrics = {
+  conversations: number;
+  orders: number;
+  revenue: number;
+};
+
+export type DashboardStats = {
+  range: { start: string; end: string; label: string };
+  metrics: DashboardMetrics;
+  previous?: {
+    range: { start: string; end: string };
+    metrics: DashboardMetrics;
+    change: {
+      conversations: number | null;
+      orders: number | null;
+      revenue: number | null;
+    };
+  };
+};
+
+export type DashboardActivityConversation = {
+  id: string;
+  customerName: string | null;
+  customerPhone: string;
+  status: ConversationStatus;
+  lastMessageAt: string;
+};
+
+export type DashboardActivityOrder = {
+  id: string;
+  customerName: string | null;
+  customerPhone: string;
+  status: OrderStatus;
+  totalAmount: number;
+  currency: string;
+  createdAt: string;
+};
+
+export type DashboardActivity = {
+  conversations: DashboardActivityConversation[];
+  orders: DashboardActivityOrder[];
 };
