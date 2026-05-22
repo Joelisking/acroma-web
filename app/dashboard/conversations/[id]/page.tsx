@@ -23,7 +23,7 @@ export default async function ConversationDetailPage({ params }: PageProps) {
   if (!conversation) notFound();
 
   return (
-    <div className="mx-auto flex h-[calc(100svh-7rem)] w-full max-w-3xl flex-col lg:h-[calc(100svh-6rem)]">
+    <div className="mx-auto flex h-full w-full max-w-3xl flex-col">
       <ConversationHeader conversation={conversation} />
       <ChatThread conversation={conversation} businessId={business.id} />
       <LiveRefresh

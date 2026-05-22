@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
-import { countUrgentConversations } from "@/lib/api/conversations";
+import { countUnreadConversations } from "@/lib/api/conversations";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
@@ -12,10 +12,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [business, onboarding, urgentCount] = await Promise.all([
+  const [business, onboarding, unreadCount] = await Promise.all([
     getCurrentBusiness(),
     safeStatus(),
-    countUrgentConversations(),
+    countUnreadConversations(),
   ]);
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
@@ -23,10 +23,10 @@ export default async function DashboardLayout({
   if (!business) redirect("/api/auth/expired");
   if (onboarding && !onboarding.onboardingCompleted) redirect("/onboarding");
 
-  const badges = { "/dashboard/conversations": urgentCount };
+  const badges = { "/dashboard/conversations": unreadCount };
 
   return (
-    <div className="bg-background text-foreground flex min-h-svh">
+    <div className="bg-background text-foreground flex h-dvh overflow-hidden">
       <Sidebar
         businessName={business.name}
         email={business.email}
@@ -39,8 +39,11 @@ export default async function DashboardLayout({
           whatsappActive={business.whatsappWebhookActive}
         />
 
+        {/* main is the single scroll container; the shell itself never scrolls,
+            so full-height pages (e.g. a conversation) can keep their own inner
+            scroll without a second page-level scrollbar. */}
         <main
-          className="flex-1 px-4 pt-6 pb-24 sm:px-6 lg:px-10 lg:pb-10"
+          className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 lg:px-10 lg:pb-10"
           // pb-24 on mobile reserves space for the fixed bottom nav
         >
           {children}

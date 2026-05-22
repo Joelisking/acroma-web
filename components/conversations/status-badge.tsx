@@ -23,7 +23,7 @@ const META: Record<ConversationStatus, Meta> = {
   WITH_OWNER: {
     label: "You",
     Icon: User,
-    className: "bg-secondary/10 text-secondary",
+    className: "bg-secondary text-secondary-foreground",
   },
   RESOLVED: {
     label: "Resolved",

@@ -79,7 +79,7 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
     <>
       <div
         ref={scrollRef}
-        className="flex flex-1 flex-col gap-3 overflow-y-auto py-4"
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-4"
       >
         {messages.length === 0 ? (
           <p className="text-muted-foreground mx-auto mt-10 max-w-xs text-center text-sm">

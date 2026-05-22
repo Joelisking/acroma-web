@@ -19,11 +19,13 @@ export async function listConversations(
   return apiFetch<Conversation[]>(`/conversations${qs}`);
 }
 
-/** Count conversations the AI has escalated to the owner. */
-export async function countUrgentConversations(): Promise<number> {
+/** Count conversations with customer messages the owner hasn't opened yet. */
+export async function countUnreadConversations(): Promise<number> {
   try {
-    const list = await listConversations("WAITING_FOR_OWNER");
-    return list.length;
+    const { count } = await apiFetch<{ count: number }>(
+      "/conversations/unread-count",
+    );
+    return count;
   } catch {
     return 0;
   }

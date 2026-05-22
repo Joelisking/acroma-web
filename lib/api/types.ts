@@ -82,6 +82,7 @@ export type Conversation = {
   customerName: string | null;
   status: ConversationStatus;
   lastMessageAt: string;
+  unread: boolean;
   createdAt: string;
   updatedAt: string;
 };
