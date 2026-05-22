@@ -1,13 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Send, Loader2, Bot, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, Loader2, Bot, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  replyAction,
-  handoffAction,
-} from "@/lib/api/conversations-actions";
+import { replyAction } from "@/lib/api/conversations-actions";
 import { Button } from "@/components/ui/button";
 import type { ConversationStatus, Message } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
@@ -24,18 +21,21 @@ type ReplyComposerProps = {
 } & OptimisticHandlers;
 
 const MAX_LENGTH = 4000;
+const MAX_HEIGHT_PX = 160; // matches max-h-40 on the textarea
 
+// The owner can type whenever the AI is not in control: both after an explicit
+// take-over (WITH_OWNER) and when the AI has escalated the thread to them
+// (WAITING_FOR_OWNER). The take-over / hand-back button lives in the header's
+// HandoffToggle, so the composer never renders one of its own.
 export function ReplyComposer({
   conversationId,
   status,
   ...optimistic
 }: ReplyComposerProps) {
-  if (status === "WITH_OWNER") {
-    return (
-      <ActiveComposer conversationId={conversationId} {...optimistic} />
-    );
+  if (status === "WITH_OWNER" || status === "WAITING_FOR_OWNER") {
+    return <ActiveComposer conversationId={conversationId} {...optimistic} />;
   }
-  return <DisabledBanner conversationId={conversationId} status={status} />;
+  return <DisabledBanner status={status} />;
 }
 
 function ActiveComposer({
@@ -47,6 +47,15 @@ function ActiveComposer({
   const [value, setValue] = React.useState("");
   const [pending, startTransition] = React.useTransition();
   const taRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // Grow the textarea to fit its content (up to a cap) so a multi-line draft
+  // stays fully visible instead of scrolling out of view as you press Enter.
+  React.useLayoutEffect(() => {
+    const ta = taRef.current;
+    if (!ta) return;
+    ta.style.height = "auto";
+    ta.style.height = `${Math.min(ta.scrollHeight, MAX_HEIGHT_PX)}px`;
+  }, [value]);
 
   function send() {
     const trimmed = value.trim();
@@ -106,7 +115,7 @@ function ActiveComposer({
           rows={1}
           placeholder="Type a message…   (⌘↵ to send)"
           aria-label="Message"
-          className="placeholder:text-muted-foreground text-foreground max-h-40 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm leading-relaxed outline-none"
+          className="placeholder:text-muted-foreground text-foreground max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-sm leading-relaxed outline-none"
         />
         <Button
           type="submit"
@@ -125,26 +134,8 @@ function ActiveComposer({
   );
 }
 
-function DisabledBanner({
-  conversationId,
-  status,
-}: {
-  conversationId: string;
-  status: Exclude<ConversationStatus, "WITH_OWNER">;
-}) {
-  const [pending, startTransition] = React.useTransition();
+function DisabledBanner({ status }: { status: "AI_HANDLING" | "RESOLVED" }) {
   const copy = bannerCopy(status);
-
-  function takeOver() {
-    startTransition(async () => {
-      const result = await handoffAction(conversationId, "TAKE_OVER");
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("You're now in the chat");
-    });
-  }
 
   return (
     <div className="border-border/70 bg-background sticky bottom-0 border-t p-3 sm:p-4">
@@ -163,43 +154,26 @@ function DisabledBanner({
             {copy.subtitle}
           </p>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          onClick={takeOver}
-          disabled={pending}
-          className="bg-brand-orange hover:bg-brand-orange/90 shrink-0 gap-1.5"
-        >
-          {pending ? <Loader2 className="animate-spin" /> : null}
-          {status === "RESOLVED" ? "Reopen" : "Take over"}
-        </Button>
       </div>
     </div>
   );
 }
 
-function bannerCopy(status: Exclude<ConversationStatus, "WITH_OWNER">) {
+function bannerCopy(status: "AI_HANDLING" | "RESOLVED") {
   switch (status) {
     case "AI_HANDLING":
       return {
         Icon: Bot,
         tone: "bg-brand-blue-soft text-brand-blue",
         title: "Acroma AI is replying to this customer.",
-        subtitle: "Take over to step in and send messages yourself.",
-      };
-    case "WAITING_FOR_OWNER":
-      return {
-        Icon: AlertCircle,
-        tone: "bg-brand-orange-soft text-brand-orange",
-        title: "Acroma escalated this thread to you.",
-        subtitle: "Take over to start replying.",
+        subtitle: "Use Take over above to step in and reply yourself.",
       };
     case "RESOLVED":
       return {
         Icon: CheckCircle2,
         tone: "bg-brand-green-soft text-brand-green",
         title: "This conversation is resolved.",
-        subtitle: "Reopen it to send another message.",
+        subtitle: "Use Take over above to reopen and send another message.",
       };
   }
 }

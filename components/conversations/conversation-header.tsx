@@ -20,7 +20,7 @@ export function ConversationHeader({
       <Link
         href="/dashboard/conversations"
         aria-label="Back to conversations"
-        className="text-muted-foreground hover:text-foreground -ml-1 inline-flex size-9 items-center justify-center rounded-lg lg:hidden"
+        className="text-muted-foreground hover:text-foreground -ml-1 inline-flex size-9 items-center justify-center rounded-lg"
       >
         <ChevronLeft className="size-5" />
       </Link>
