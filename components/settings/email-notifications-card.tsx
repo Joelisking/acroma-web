@@ -120,9 +120,9 @@ export function EmailNotificationsCard({ business }: { business: Business }) {
       </div>
 
       <p className="text-muted-foreground text-xs">
-        To change the email address, update your business profile.
-        Browser push notifications are off by design — we&apos;ll keep an eye
-        on demand and add them back if there&apos;s a real need.
+        To change the email address, update your business profile. Want alerts
+        on your phone or laptop even when the dashboard is closed? Turn on
+        device notifications above.
       </p>
     </div>
   );

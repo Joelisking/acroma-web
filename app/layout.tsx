@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   description:
     "The AI-powered order management and customer service layer for commerce in Ghana and across West Africa. Built for WhatsApp. Built for now.",
   metadataBase: new URL("https://asera.tech"),
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Acroma", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F26F21",
 };
 
 export default function RootLayout({
