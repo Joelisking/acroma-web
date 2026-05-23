@@ -17,8 +17,8 @@ export default function SettingsLayout({
         </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
+        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <SectionNav />
         </aside>
         <div className="min-w-0">{children}</div>

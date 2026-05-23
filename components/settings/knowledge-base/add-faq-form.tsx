@@ -50,7 +50,7 @@ export function AddFaqForm({ onAdd }: AddFaqFormProps) {
     >
       <p className="text-foreground text-sm font-medium">Add your own FAQ</p>
 
-      <div className="grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[160px_minmax(0,1fr)]">
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value as FaqCategory)}
