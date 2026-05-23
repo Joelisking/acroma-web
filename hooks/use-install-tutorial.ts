@@ -41,9 +41,15 @@ export function pickStep(args: {
   notificationsOn: boolean;
   canInstall: boolean;
   platform: InstallPlatform;
+  supported: boolean;
 }): TutorialStep | null {
-  const { installed, notificationsOn, canInstall, platform } = args;
-  if (installed) return notificationsOn ? null : "enable";
+  const { installed, notificationsOn, canInstall, platform, supported } = args;
+  if (installed) {
+    if (notificationsOn) return null;
+    // Installed but push can't actually run here (no VAPID key configured, or
+    // the browser lacks push). Don't show a dead "enable" button.
+    return supported ? "enable" : null;
+  }
   if (canInstall) return "install";
   return platform === "ios" ? "ios-steps" : "manual-steps";
 }
@@ -61,13 +67,19 @@ export type InstallTutorial = {
 };
 
 export function useInstallTutorial(): InstallTutorial {
-  const { permission, subscribed, busy, enable } = useWebPush();
+  const { supported, permission, subscribed, busy, enable } = useWebPush();
   const { canInstall, promptInstall } = useInstallPrompt();
   const installed = useClientValue(isStandalone, false);
   const platform = useClientValue<InstallPlatform>(getInstallPlatform, "other");
 
   const notificationsOn = subscribed && permission === "granted";
-  const step = pickStep({ installed, notificationsOn, canInstall, platform });
+  const step = pickStep({
+    installed,
+    notificationsOn,
+    canInstall,
+    platform,
+    supported,
+  });
 
   const [dismissed, setDismissed] = React.useState(false);
   // Suppress (and avoid any flash before hydration) when snoozed or completed.
