@@ -21,7 +21,7 @@ export function MobileBottomNav({ badges }: MobileBottomNavProps) {
       className={cn(
         "lg:hidden",
         "border-border/70 bg-background/85 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md",
-        "[padding-bottom:env(safe-area-inset-bottom)]",
+        "[padding-bottom:calc(env(safe-area-inset-bottom)+0.75rem)]",
       )}
       aria-label="Primary"
     >
