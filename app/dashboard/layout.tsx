@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
+import { InstallTutorial } from "@/components/pwa/install-tutorial";
 
 export default async function DashboardLayout({
   children,
@@ -57,6 +58,9 @@ export default async function DashboardLayout({
         businessId={business.id}
         events={["conversation_updated", "new_message", "order_updated"]}
       />
+
+      {/* Nudge to install the PWA + enable push (self-decides whether to show). */}
+      <InstallTutorial />
     </div>
   );
 }

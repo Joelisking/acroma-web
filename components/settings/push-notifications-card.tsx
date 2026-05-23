@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { useWebPush } from "@/hooks/use-web-push";
 import { useClientValue } from "@/hooks/use-client-value";
+import { isIos, isStandalone } from "@/lib/pwa/detect";
 import { cn } from "@/lib/utils";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 
@@ -13,20 +14,6 @@ const TRIGGERS = [
   "A customer's payment is confirmed (or fails)",
   "Acroma escalates a chat that needs you",
 ];
-
-function isIos() {
-  if (typeof navigator === "undefined") return false;
-  return /iPad|iPhone|iPod/.test(navigator.userAgent);
-}
-
-function isStandalone() {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as Navigator & { standalone?: boolean }).standalone ===
-      true
-  );
-}
 
 export function PushNotificationsCard() {
   const { supported, permission, subscribed, busy, enable, disable } =
