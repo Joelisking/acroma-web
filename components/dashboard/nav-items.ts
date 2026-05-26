@@ -6,6 +6,7 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react";
+import type { Vocabulary } from "@/lib/vocabulary";
 
 export type NavItem = {
   href: string;
@@ -28,14 +29,19 @@ export type NavBadge = {
 export type NavBadges = Partial<Record<string, NavBadge>>;
 
 /**
- * Single source of truth for primary dashboard navigation.
- * Used by the desktop sidebar and the mobile bottom nav.
- * Keep at 5 items max for bottom-nav-limit.
+ * Build the primary dashboard navigation. Used by the desktop sidebar and
+ * the mobile bottom nav. Keep at 5 items max for bottom-nav-limit.
+ *
+ * The `vocab` argument lets us swap the "Catalog" label per merchant
+ * (food merchants see "Menu") without touching the underlying route, which
+ * stays `/dashboard/catalog`.
  */
-export const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/conversations", label: "Chats", icon: MessageSquare },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
-  { href: "/dashboard/catalog", label: "Catalog", icon: Package },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
+export function getNavItems(vocab: Vocabulary): NavItem[] {
+  return [
+    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard/conversations", label: "Chats", icon: MessageSquare },
+    { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
+    { href: "/dashboard/catalog", label: vocab.catalog, icon: Package },
+    { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  ];
+}

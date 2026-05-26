@@ -6,10 +6,8 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  setBusinessTypeAction,
-  type BusinessType,
-} from "@/lib/api/onboarding-actions";
+import { setBusinessTypeAction } from "@/lib/api/onboarding-actions";
+import type { BusinessType } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 const TYPES: { value: BusinessType; label: string; emoji: string }[] = [

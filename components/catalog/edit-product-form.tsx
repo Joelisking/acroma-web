@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { updateProductAction } from "@/lib/api/products-actions";
 import { autofillProductAction } from "@/lib/api/products-ai-actions";
 import { ImageUploader } from "@/components/shared/image-uploader";
+import { useVocab } from "@/components/vocabulary-provider";
 
 const schema = z.object({
   name: z.string().min(2, "Name is required").max(120),
@@ -48,6 +49,7 @@ type Props = {
 
 export function EditProductForm({ productId, defaults }: Props) {
   const router = useRouter();
+  const vocab = useVocab();
   const [pending, startTransition] = React.useTransition();
   const [autofilling, startAutofill] = React.useTransition();
 
@@ -67,7 +69,7 @@ export function EditProductForm({ productId, defaults }: Props) {
   function autofillFromName() {
     const name = form.getValues("name").trim();
     if (!name) {
-      toast.info("Type a product name first");
+      toast.info(`Type a ${vocab.itemLower} name first`);
       return;
     }
     startAutofill(async () => {
@@ -100,7 +102,7 @@ export function EditProductForm({ productId, defaults }: Props) {
         toast.error(result.error);
         return;
       }
-      toast.success("Product updated");
+      toast.success(`${vocab.item} updated`);
       router.replace(`/dashboard/catalog/${result.data.id}`);
       router.refresh();
     });

@@ -13,10 +13,12 @@ import { ManualProductForm } from "@/components/catalog/manual-product-form";
 import { VariantOptionImages } from "@/components/catalog/variant-option-images";
 import { useNewProduct } from "@/hooks/use-new-product";
 import { InlineVariantsEditor } from "@/components/catalog/variants/inline-variants-editor";
+import { useVocab } from "@/components/vocabulary-provider";
 
 export function NewProductPageClient() {
   const router = useRouter();
   const np = useNewProduct();
+  const vocab = useVocab();
 
   const showVariantImages =
     np.formValues.hasVariants && np.formValues.variantDimensions.length > 0;
@@ -50,7 +52,7 @@ export function NewProductPageClient() {
       ) : null}
 
       <div className="space-y-2">
-        <Label>Product image</Label>
+        <Label>{vocab.item} image</Label>
         <ImageUploader
           kind="product"
           aspect="aspect-[4/3]"
@@ -87,7 +89,7 @@ export function NewProductPageClient() {
           className="bg-brand-orange hover:bg-brand-orange/90 h-10 gap-2 rounded-xl px-5"
         >
           {np.saving ? <Loader2 className="animate-spin" /> : null}
-          Add product
+          Add {vocab.itemLower}
         </Button>
       </div>
     </div>

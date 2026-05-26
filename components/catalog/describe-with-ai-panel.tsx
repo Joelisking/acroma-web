@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Pencil, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ParsedProduct } from "@/lib/api/types";
+import { useVocab } from "@/components/vocabulary-provider";
 
 const MAX_LENGTH = 800;
 const MIN_LENGTH = 3;
@@ -49,6 +50,7 @@ function PreParse({
   initialText: string;
   onParse: (description: string) => void;
 }) {
+  const vocab = useVocab();
   const [text, setText] = React.useState(initialText);
 
   return (
@@ -57,7 +59,7 @@ function PreParse({
         value={text}
         onChange={(e) => setText(e.target.value.slice(0, MAX_LENGTH))}
         rows={5}
-        placeholder='Describe your product in a sentence or two. e.g. "Nike Air Max in black, sizes 8 to 12, GHS 850. White also available, only sizes 9 to 11."'
+        placeholder={`Describe your ${vocab.itemLower} in a sentence or two. e.g. "Nike Air Max in black, sizes 8 to 12, GHS 850. White also available, only sizes 9 to 11."`}
         className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[120px] w-full resize-y rounded-xl border p-3 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
       />
       <div className="flex justify-end">

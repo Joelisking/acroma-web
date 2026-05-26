@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems, type NavBadges } from "./nav-items";
+import { getNavItems, type NavBadges } from "./nav-items";
 import { cn } from "@/lib/utils";
+import type { Vocabulary } from "@/lib/vocabulary";
 
 type MobileBottomNavProps = {
   badges?: NavBadges;
+  vocab: Vocabulary;
 };
 
 /**
  * Bottom navigation for mobile. Five items, labels under icons.
  * Sticky to the safe-area bottom; lifted card surface above body content.
  */
-export function MobileBottomNav({ badges }: MobileBottomNavProps) {
+export function MobileBottomNav({ badges, vocab }: MobileBottomNavProps) {
   const pathname = usePathname();
+  const navItems = getNavItems(vocab);
 
   return (
     <nav

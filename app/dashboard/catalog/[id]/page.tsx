@@ -5,6 +5,7 @@ import { ChevronLeft, Pencil, Layers } from "lucide-react";
 
 import { getProduct } from "@/lib/api/products";
 import { getCurrentBusiness } from "@/lib/api/business";
+import { getVocabulary } from "@/lib/vocabulary";
 import { ApiError } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import { VariantsList } from "@/components/catalog/variants-list";
@@ -24,6 +25,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!business) return null;
   if (!product) notFound();
 
+  const vocab = getVocabulary(business.businessType);
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <header className="flex flex-col gap-4">
@@ -32,7 +35,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-xs font-medium"
         >
           <ChevronLeft className="size-4" />
-          Catalog
+          {vocab.catalog}
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>

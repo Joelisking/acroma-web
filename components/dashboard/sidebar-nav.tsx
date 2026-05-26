@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems, type NavBadges } from "./nav-items";
+import { getNavItems, type NavBadges } from "./nav-items";
 import { cn } from "@/lib/utils";
+import type { Vocabulary } from "@/lib/vocabulary";
 
 type SidebarNavProps = {
   badges?: NavBadges;
+  vocab: Vocabulary;
 };
 
 /**
  * Vertical navigation list used inside the desktop sidebar.
  * Highlights the active route and renders an unread/urgent badge per item.
  */
-export function SidebarNav({ badges }: SidebarNavProps) {
+export function SidebarNav({ badges, vocab }: SidebarNavProps) {
   const pathname = usePathname();
+  const navItems = getNavItems(vocab);
 
   return (
     <nav className="flex flex-col gap-1" aria-label="Primary">

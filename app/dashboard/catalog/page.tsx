@@ -4,6 +4,7 @@ import { Plus, Tag, Users, Megaphone } from "lucide-react"
 
 import { listProducts } from "@/lib/api/products"
 import { getCurrentBusiness } from "@/lib/api/business"
+import { getVocabulary } from "@/lib/vocabulary"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/catalog/product-card"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
@@ -17,13 +18,15 @@ export default async function CatalogPage() {
   ])
   if (!business) return null
 
+  const vocab = getVocabulary(business.businessType)
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow text-muted-foreground">Items</p>
+          <p className="eyebrow text-muted-foreground">{vocab.items}</p>
           <h1 className="mt-1 font-display text-3xl font-medium tracking-tight text-foreground">
-            Catalog
+            {vocab.catalog}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Everything Acroma can offer your customers.
@@ -36,7 +39,7 @@ export default async function CatalogPage() {
         >
           <Link href="/dashboard/catalog/new">
             <Plus />
-            Add product
+            Add {vocab.itemLower}
           </Link>
         </Button>
       </header>
@@ -96,7 +99,7 @@ export default async function CatalogPage() {
       </Link>
 
       {products.length === 0 ? (
-        <CatalogEmpty />
+        <CatalogEmpty vocab={vocab} />
       ) : (
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((p) => (

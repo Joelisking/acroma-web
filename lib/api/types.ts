@@ -17,12 +17,28 @@ export type OpeningHours = {
   sunday: DayHours | null;
 };
 
+/**
+ * Mirrors Prisma's `BusinessType` enum. Character-identical to the backend
+ * so socket payloads / REST responses round-trip cleanly. Source of truth:
+ * `acroma-backend/prisma/schema.prisma` (enum BusinessType).
+ */
+export type BusinessType =
+  | "ELECTRONICS"
+  | "FASHION_CLOTHING"
+  | "FOOD_BEVERAGES"
+  | "BEAUTY_COSMETICS"
+  | "HOME_FURNITURE"
+  | "SERVICES"
+  | "GENERAL_STORE"
+  | "OTHER";
+
 export type Business = {
   id: string;
   name: string;
   email: string;
   currency: string;
   country: string;
+  businessType: BusinessType;
   logoUrl: string | null;
   whatsappPhoneNumberId: string | null;
   whatsappWebhookActive: boolean;

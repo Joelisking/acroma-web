@@ -3,18 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiFetch, ApiError } from "./server";
+import type { BusinessType } from "./types";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
-
-export type BusinessType =
-  | "ELECTRONICS"
-  | "FASHION_CLOTHING"
-  | "FOOD_BEVERAGES"
-  | "BEAUTY_COSMETICS"
-  | "HOME_FURNITURE"
-  | "SERVICES"
-  | "GENERAL_STORE"
-  | "OTHER";
 
 export async function setBusinessTypeAction(input: {
   businessType: BusinessType;

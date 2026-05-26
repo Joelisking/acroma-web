@@ -7,6 +7,8 @@ import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
 import { InstallTutorial } from "@/components/pwa/install-tutorial";
+import { getVocabulary } from "@/lib/vocabulary";
+import { VocabularyProvider } from "@/components/vocabulary-provider";
 
 export default async function DashboardLayout({
   children,
@@ -36,12 +38,19 @@ export default async function DashboardLayout({
     },
   };
 
+  // Per-merchant vocabulary (e.g. "Catalog" → "Menu" for food merchants).
+  // Resolved once here and threaded down to the nav components, which are
+  // client-side and would otherwise need a separate round trip to learn it.
+  const vocab = getVocabulary(business.businessType);
+
   return (
+    <VocabularyProvider businessType={business.businessType}>
     <div className="bg-background text-foreground flex h-dvh overflow-hidden">
       <Sidebar
         businessName={business.name}
         email={business.email}
         badges={badges}
+        vocab={vocab}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -60,7 +69,7 @@ export default async function DashboardLayout({
           {children}
         </main>
 
-        <MobileBottomNav badges={badges} />
+        <MobileBottomNav badges={badges} vocab={vocab} />
       </div>
 
       {/* Refresh layout (re-fetching urgent count) on relevant events. */}
@@ -72,6 +81,7 @@ export default async function DashboardLayout({
       {/* Nudge to install the PWA + enable push (self-decides whether to show). */}
       <InstallTutorial />
     </div>
+    </VocabularyProvider>
   );
 }
 

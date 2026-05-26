@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
 
 import { getProduct } from "@/lib/api/products";
+import { getCurrentBusiness } from "@/lib/api/business";
+import { getVocabulary } from "@/lib/vocabulary";
 import { ApiError } from "@/lib/api/server";
 import { EditProductForm } from "@/components/catalog/edit-product-form";
 
@@ -13,8 +15,12 @@ export const metadata: Metadata = { title: "Edit product · Acroma" };
 
 export default async function EditProductPage({ params }: PageProps) {
   const { id } = await params;
-  const product = await safeGetProduct(id);
+  const [product, business] = await Promise.all([
+    safeGetProduct(id),
+    getCurrentBusiness(),
+  ]);
   if (!product) notFound();
+  const vocab = getVocabulary(business?.businessType);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
@@ -27,7 +33,7 @@ export default async function EditProductPage({ params }: PageProps) {
           {product.name}
         </Link>
         <h1 className="font-display text-foreground text-3xl font-medium tracking-tight">
-          Edit product
+          Edit {vocab.itemLower}
         </h1>
       </header>
       <EditProductForm

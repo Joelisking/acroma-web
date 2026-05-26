@@ -17,7 +17,7 @@ export default function Error({
     <div className="mx-auto max-w-md py-20 text-center">
       <p className="eyebrow text-brand-orange">Couldn&apos;t load</p>
       <h2 className="font-display mt-3 text-2xl font-medium tracking-tight">
-        Catalog unavailable
+        Something went wrong
       </h2>
       <p className="text-muted-foreground mt-2 text-sm">
         {error.message || "Try again."}
