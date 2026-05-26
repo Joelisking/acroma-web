@@ -11,6 +11,7 @@ import {
   BookOpen,
   Bell,
   ShieldCheck,
+  AlarmClock,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,11 @@ export const SETTINGS_SECTIONS: Section[] = [
     href: "/dashboard/settings/notifications",
     label: "Notifications",
     icon: Bell,
+  },
+  {
+    href: "/dashboard/settings/reminders",
+    label: "Reminders",
+    icon: AlarmClock,
   },
   {
     href: "/dashboard/settings/security",

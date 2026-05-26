@@ -83,6 +83,19 @@ export type Conversation = {
   status: ConversationStatus;
   lastMessageAt: string;
   unread: boolean;
+  /**
+   * Set when AI escalated and the merchant hasn't replied yet (real OWNER
+   * message). Survives auto-takeover — the conversation flips back to
+   * AI-handling but this flag stays set until the merchant either replies or
+   * marks the conversation resolved.
+   */
+  pendingOwnerSince: string | null;
+  /** First time the merchant ever acknowledged this conversation. Historical. */
+  ownerAcknowledgedAt: string | null;
+  /** Free-text reason captured at escalation, used by the dashboard banner. */
+  escalationReason: string | null;
+  /** Number of reminders fired so far in the current pending cycle. */
+  reminderCount: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -92,6 +105,19 @@ export type ConversationWithMessages = Conversation & {
 };
 
 export type HandoffAction = "TAKE_OVER" | "RESUME_AI";
+
+/**
+ * Per-merchant escalation reminder cadence. Backend bounds:
+ *   - minute fields: 1–1440
+ *   - maxReminders: 1–10
+ */
+export type ReminderSettings = {
+  reminderFirstMinutes: number;
+  reminderSecondMinutes: number;
+  reminderThirdMinutes: number;
+  autoTakeoverMinutes: number;
+  maxReminders: number;
+};
 
 // ---------------------------------------------------------------------------
 // Discounts

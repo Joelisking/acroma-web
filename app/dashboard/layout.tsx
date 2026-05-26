@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
-import { countUnreadConversations } from "@/lib/api/conversations";
+import { getConversationBadgeCounts } from "@/lib/api/conversations";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
@@ -13,10 +13,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [business, onboarding, unreadCount] = await Promise.all([
+  const [business, onboarding, badgeCounts] = await Promise.all([
     getCurrentBusiness(),
     safeStatus(),
-    countUnreadConversations(),
+    getConversationBadgeCounts(),
   ]);
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
@@ -24,7 +24,17 @@ export default async function DashboardLayout({
   if (!business) redirect("/api/auth/expired");
   if (onboarding && !onboarding.onboardingCompleted) redirect("/onboarding");
 
-  const badges = { "/dashboard/conversations": unreadCount };
+  // Chat tab badge prefers the urgent "you still owe a reply" count over the
+  // "unopened messages" count when one is set. Both numbers travel together
+  // so the nav can render a distinct tone for waiting (orange) vs unread.
+  const badges = {
+    "/dashboard/conversations": {
+      count: Math.max(badgeCounts.unread, badgeCounts.waiting),
+      tone: (badgeCounts.waiting > 0 ? "waiting" : "unread") as
+        | "waiting"
+        | "unread",
+    },
+  };
 
   return (
     <div className="bg-background text-foreground flex h-dvh overflow-hidden">

@@ -50,6 +50,14 @@ export function ConversationRow({
         </div>
         <div className="mt-1 flex items-center gap-2">
           <StatusBadge status={conversation.status} />
+          {conversation.pendingOwnerSince ? (
+            <span
+              className="bg-brand-orange-soft text-brand-orange inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium"
+              aria-label="Customer is waiting on a personal reply from you"
+            >
+              Waiting on you
+            </span>
+          ) : null}
           {conversation.customerName ? (
             <span className="text-muted-foreground truncate text-xs">
               {formatPhone(conversation.customerPhone)}

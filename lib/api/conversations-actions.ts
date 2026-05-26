@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
-import type { HandoffAction, Message } from "./types";
+import type { Conversation, HandoffAction, Message } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -42,6 +42,28 @@ export async function handoffAction(
     return { ok: true, data: undefined };
   } catch (err) {
     return { ok: false, error: humanError(err, "Handoff failed") };
+  }
+}
+
+/**
+ * Mark a conversation as RESOLVED — the "stop reminding me" action.
+ * Clears `pendingOwnerSince`, the escalation reason, and reminder counters
+ * on the backend; the cron stops ticking on this conversation.
+ */
+export async function markConversationResolvedAction(
+  conversationId: string,
+): Promise<ActionResult<Conversation>> {
+  try {
+    const conversation = await apiFetch<Conversation>(
+      `/conversations/${conversationId}/resolve`,
+      { method: "POST" },
+    );
+    revalidatePath(`/dashboard/conversations/${conversationId}`);
+    revalidatePath("/dashboard/conversations");
+    revalidatePath("/dashboard");
+    return { ok: true, data: conversation };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't mark as resolved") };
   }
 }
 

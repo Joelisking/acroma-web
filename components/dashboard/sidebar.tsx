@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { SidebarNav } from "./sidebar-nav";
 import { AccountMenu } from "./account-menu";
+import type { NavBadges } from "./nav-items";
 
 type SidebarProps = {
   businessName: string;
   email: string;
-  badges?: Partial<Record<string, number>>;
+  badges?: NavBadges;
 };
 
 /**

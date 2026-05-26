@@ -7,6 +7,7 @@ import { ApiError } from "@/lib/api/server";
 import { ConversationHeader } from "@/components/conversations/conversation-header";
 import { ChatThread } from "@/components/conversations/chat-thread";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
+import { PendingOwnerBanner } from "@/components/conversations/pending-owner-banner";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -25,6 +26,12 @@ export default async function ConversationDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto flex h-full w-full max-w-3xl flex-col">
       <ConversationHeader conversation={conversation} />
+      <PendingOwnerBanner
+        conversationId={conversation.id}
+        pendingOwnerSince={conversation.pendingOwnerSince}
+        escalationReason={conversation.escalationReason}
+        aiHoldingLine={conversation.status === "AI_HANDLING"}
+      />
       <ChatThread conversation={conversation} businessId={business.id} />
       <LiveRefresh
         businessId={business.id}

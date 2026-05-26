@@ -1,6 +1,7 @@
 import "server-only";
 
 import { apiFetch } from "./server";
+import type { ReminderSettings } from "./types";
 
 export type WhatsappSettings = {
   whatsappPhoneNumberId: string | null;
@@ -12,4 +13,8 @@ export type WhatsappSettings = {
 
 export async function getWhatsappSettings(): Promise<WhatsappSettings> {
   return apiFetch<WhatsappSettings>("/settings/whatsapp");
+}
+
+export async function getReminderSettings(): Promise<ReminderSettings> {
+  return apiFetch<ReminderSettings>("/settings/reminders");
 }

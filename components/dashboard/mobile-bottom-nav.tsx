@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems } from "./nav-items";
+import { navItems, type NavBadges } from "./nav-items";
 import { cn } from "@/lib/utils";
 
 type MobileBottomNavProps = {
-  badges?: Partial<Record<string, number>>;
+  badges?: NavBadges;
 };
 
 /**
@@ -49,12 +49,21 @@ export function MobileBottomNav({ badges }: MobileBottomNavProps) {
                     className="size-5"
                     strokeWidth={active ? 2 : 1.75}
                   />
-                  {badge && badge > 0 ? (
+                  {badge && badge.count > 0 ? (
                     <span
-                      aria-label={`${badge} waiting`}
-                      className="bg-brand-orange text-primary-foreground absolute -top-1 -right-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6rem] font-semibold tabular-nums"
+                      aria-label={
+                        badge.tone === "waiting"
+                          ? `${badge.count} conversations waiting on you`
+                          : `${badge.count} unread`
+                      }
+                      className={cn(
+                        "absolute -top-1 -right-2 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.6rem] font-semibold tabular-nums",
+                        badge.tone === "waiting"
+                          ? "bg-brand-orange text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground",
+                      )}
                     >
-                      {badge > 9 ? "9+" : badge}
+                      {badge.count > 9 ? "9+" : badge.count}
                     </span>
                   ) : null}
                 </span>

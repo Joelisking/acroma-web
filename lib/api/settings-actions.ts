@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
 import type { WhatsappSettings } from "./settings";
-import type { OpeningHours } from "./types";
+import type { OpeningHours, ReminderSettings } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -115,6 +115,24 @@ export async function clearOpeningHoursAction(): Promise<
     return {
       ok: false,
       error: humanError(err, "Couldn't clear opening hours"),
+    };
+  }
+}
+
+export async function updateReminderSettingsAction(
+  patch: Partial<ReminderSettings>,
+): Promise<ActionResult<ReminderSettings>> {
+  try {
+    const data = await apiFetch<ReminderSettings>("/settings/reminders", {
+      method: "PATCH",
+      body: patch,
+    });
+    revalidatePath("/dashboard/settings/reminders");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save reminder settings"),
     };
   }
 }
