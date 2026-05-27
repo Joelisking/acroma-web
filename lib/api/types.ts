@@ -246,6 +246,13 @@ export type Product = {
   category: string | null;
   hasVariants: boolean;
   variantDimensions: VariantDimension[] | null;
+  /**
+   * Manually set by the merchant when an item runs out for the day.
+   * Distinct from the permanent `stock = 0` state. Auto-resets at the
+   * start of the next UTC day (Ghana is UTC+0, so this is local midnight)
+   * via lazy check on the backend — no cron involved.
+   */
+  soldOutAt: string | null;
   createdAt: string;
   updatedAt: string;
   variants?: ProductVariant[];

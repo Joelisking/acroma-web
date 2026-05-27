@@ -10,6 +10,7 @@ import { ApiError } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import { VariantsList } from "@/components/catalog/variants-list";
 import { DeleteProductButton } from "@/components/catalog/delete-product-button";
+import { SoldOutTodayButton } from "@/components/catalog/sold-out-today-button";
 import { formatMoney } from "@/lib/format";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -51,14 +52,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {formatMoney(product.basePrice, business.currency)}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-1.5">
-              <Link href={`/dashboard/catalog/${product.id}/edit`}>
-                <Pencil />
-                Edit
-              </Link>
-            </Button>
-            <DeleteProductButton productId={product.id} />
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm" className="gap-1.5">
+                <Link href={`/dashboard/catalog/${product.id}/edit`}>
+                  <Pencil />
+                  Edit
+                </Link>
+              </Button>
+              <DeleteProductButton productId={product.id} />
+            </div>
+            <SoldOutTodayButton
+              productId={product.id}
+              soldOutAt={product.soldOutAt}
+            />
           </div>
         </div>
       </header>

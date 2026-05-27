@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
 import type { Product } from "@/lib/api/types";
+import { isSoldOutToday } from "@/lib/catalog/sold-out";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,7 @@ export function ProductCard({
   product: Product;
   currency: string;
 }) {
+  const soldOutToday = isSoldOutToday(product.soldOutAt);
   return (
     <Link
       href={`/dashboard/catalog/${product.id}`}
@@ -37,6 +39,10 @@ export function ProductCard({
           <span className="bg-background/85 text-muted-foreground absolute top-2 left-2 rounded-full px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wider">
             Hidden
           </span>
+        ) : soldOutToday ? (
+          <span className="bg-brand-orange/90 text-white absolute top-2 left-2 rounded-full px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-wider">
+            Sold out today
+          </span>
         ) : null}
       </div>
 
@@ -54,7 +60,7 @@ export function ProductCard({
             {formatMoney(product.basePrice, currency)}
           </span>
           <span className="text-muted-foreground text-xs tabular-nums">
-            {product.stock} in stock
+            {soldOutToday ? "Back tomorrow" : `${product.stock} in stock`}
           </span>
         </div>
       </div>

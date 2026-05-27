@@ -51,6 +51,44 @@ export async function updateProductAction(
   }
 }
 
+type SoldOutToggleResult = {
+  id: string;
+  name: string;
+  soldOutAt: string | null;
+};
+
+export async function markSoldOutTodayAction(
+  id: string,
+): Promise<ActionResult<SoldOutToggleResult>> {
+  try {
+    const result = await apiFetch<SoldOutToggleResult>(
+      `/products/${id}/sold-out-today`,
+      { method: "POST" },
+    );
+    revalidatePath("/dashboard/catalog");
+    revalidatePath(`/dashboard/catalog/${id}`);
+    return { ok: true, data: result };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't mark sold out") };
+  }
+}
+
+export async function clearSoldOutTodayAction(
+  id: string,
+): Promise<ActionResult<SoldOutToggleResult>> {
+  try {
+    const result = await apiFetch<SoldOutToggleResult>(
+      `/products/${id}/sold-out-today`,
+      { method: "DELETE" },
+    );
+    revalidatePath("/dashboard/catalog");
+    revalidatePath(`/dashboard/catalog/${id}`);
+    return { ok: true, data: result };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't bring item back") };
+  }
+}
+
 export async function deleteProductAction(id: string): Promise<void> {
   try {
     await apiFetch<void>(`/products/${id}`, { method: "DELETE" });
