@@ -183,6 +183,8 @@ export type OrderStatus =
   | "PAYMENT_PENDING"
   | "PAID"
   | "PROCESSING"
+  | "PREPARING"
+  | "READY_FOR_PICKUP"
   | "SHIPPED"
   | "DELIVERED"
   | "CANCELLED"

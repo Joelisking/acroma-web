@@ -14,6 +14,8 @@ const VALID_STATUSES: OrderStatus[] = [
   "PAYMENT_PENDING",
   "PAID",
   "PROCESSING",
+  "PREPARING",
+  "READY_FOR_PICKUP",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
@@ -54,7 +56,11 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       ) : (
         <section className="border-border/70 bg-card overflow-hidden rounded-2xl border">
           {orders.map((order) => (
-            <OrderRow key={order.id} order={order} />
+            <OrderRow
+              key={order.id}
+              order={order}
+              businessType={business.businessType}
+            />
           ))}
         </section>
       )}

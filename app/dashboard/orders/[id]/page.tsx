@@ -29,7 +29,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
-      <OrderHeader order={order} />
+      <OrderHeader order={order} businessType={business.businessType} />
 
       <section
         className="rounded-2xl border border-border/70 bg-card p-6"
@@ -40,6 +40,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           <OrderStatusStepper
             status={order.status}
             paymentMethod={order.paymentMethod}
+            businessType={business.businessType}
           />
         </div>
         <div className="mt-6">
@@ -47,6 +48,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             orderId={order.id}
             status={order.status}
             paymentMethod={order.paymentMethod}
+            businessType={business.businessType}
           />
         </div>
       </section>

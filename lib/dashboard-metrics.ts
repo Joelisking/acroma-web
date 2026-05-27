@@ -64,6 +64,10 @@ function orderLabel(status: DashboardActivityOrder["status"]): string {
       return "Paid";
     case "PROCESSING":
       return "Processing";
+    case "PREPARING":
+      return "Preparing";
+    case "READY_FOR_PICKUP":
+      return "Ready for pickup";
     case "SHIPPED":
       return "Shipped";
     case "DELIVERED":

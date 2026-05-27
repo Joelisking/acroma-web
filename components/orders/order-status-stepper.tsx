@@ -1,30 +1,59 @@
 import { Check } from "lucide-react";
-import type { OrderStatus, PaymentMethod } from "@/lib/api/types";
+import type {
+  BusinessType,
+  OrderStatus,
+  PaymentMethod,
+} from "@/lib/api/types";
+import { getVocabulary } from "@/lib/vocabulary";
 import { cn } from "@/lib/utils";
 
 type Step = { status: OrderStatus; label: string };
 
-const MOMO_STEPS: Step[] = [
-  { status: "PENDING", label: "Received" },
-  { status: "PAID", label: "Paid" },
-  { status: "PROCESSING", label: "Processing" },
-  { status: "SHIPPED", label: "Shipped" },
-  { status: "DELIVERED", label: "Delivered" },
-];
+/**
+ * Progress stepper. Non-food merchants keep the five-stage flow
+ * (RECEIVED, PAID, PROCESSING, SHIPPED, DELIVERED). Food merchants
+ * see "Preparing" instead of "Processing" and "Out for delivery"
+ * instead of "Shipped". PREPARING and READY_FOR_PICKUP collapse onto
+ * the same visual slot as PROCESSING and SHIPPED so the stepper
+ * width stays stable across verticals.
+ */
+function momoSteps(businessType: BusinessType | null | undefined): Step[] {
+  const vocab = getVocabulary(businessType);
+  const isFood = businessType === "FOOD_BEVERAGES";
+  return [
+    { status: "PENDING", label: "Received" },
+    { status: "PAID", label: "Paid" },
+    {
+      status: isFood ? "PREPARING" : "PROCESSING",
+      label: isFood ? "Preparing" : "Processing",
+    },
+    { status: "SHIPPED", label: vocab.shippedLabel },
+    { status: "DELIVERED", label: "Delivered" },
+  ];
+}
 
-const COD_STEPS: Step[] = [
-  { status: "PENDING", label: "Received" },
-  { status: "PROCESSING", label: "Processing" },
-  { status: "SHIPPED", label: "Shipped" },
-  { status: "DELIVERED", label: "Delivered" },
-  { status: "PAID", label: "Cash received" },
-];
+function codSteps(businessType: BusinessType | null | undefined): Step[] {
+  const vocab = getVocabulary(businessType);
+  const isFood = businessType === "FOOD_BEVERAGES";
+  return [
+    { status: "PENDING", label: "Received" },
+    {
+      status: isFood ? "PREPARING" : "PROCESSING",
+      label: isFood ? "Preparing" : "Processing",
+    },
+    { status: "SHIPPED", label: vocab.shippedLabel },
+    { status: "DELIVERED", label: "Delivered" },
+    { status: "PAID", label: "Cash received" },
+  ];
+}
 
 const MOMO_INDEX: Record<OrderStatus, number> = {
   PENDING: 0,
   PAYMENT_PENDING: 0,
   PAID: 1,
   PROCESSING: 2,
+  PREPARING: 2,
+  READY_FOR_PICKUP: 3,
   SHIPPED: 3,
   DELIVERED: 4,
   CANCELLED: -1,
@@ -34,6 +63,8 @@ const MOMO_INDEX: Record<OrderStatus, number> = {
 const COD_INDEX: Record<OrderStatus, number> = {
   PENDING: 0,
   PROCESSING: 1,
+  PREPARING: 1,
+  READY_FOR_PICKUP: 2,
   SHIPPED: 2,
   DELIVERED: 3,
   PAID: 4,
@@ -45,11 +76,16 @@ const COD_INDEX: Record<OrderStatus, number> = {
 export function OrderStatusStepper({
   status,
   paymentMethod,
+  businessType,
 }: {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
+  businessType?: BusinessType | null;
 }) {
-  const steps = paymentMethod === "CASH_ON_DELIVERY" ? COD_STEPS : MOMO_STEPS;
+  const steps =
+    paymentMethod === "CASH_ON_DELIVERY"
+      ? codSteps(businessType)
+      : momoSteps(businessType);
   const index = paymentMethod === "CASH_ON_DELIVERY" ? COD_INDEX : MOMO_INDEX;
   const current = index[status];
   const halted =

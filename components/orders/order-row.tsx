@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import type { Order } from "@/lib/api/types";
+import type { BusinessType, Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
 import {
   formatMoney,
@@ -9,7 +9,13 @@ import {
   shortId,
 } from "@/lib/format";
 
-export function OrderRow({ order }: { order: Order }) {
+export function OrderRow({
+  order,
+  businessType,
+}: {
+  order: Order;
+  businessType?: BusinessType | null;
+}) {
   const customer =
     order.customerName?.trim() || formatPhone(order.customerPhone);
   const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
@@ -42,7 +48,7 @@ export function OrderRow({ order }: { order: Order }) {
         <span className="font-display text-foreground text-lg font-medium tabular-nums">
           {formatMoney(order.totalAmount, order.currency)}
         </span>
-        <OrderStatusBadge status={order.status} />
+        <OrderStatusBadge status={order.status} businessType={businessType} />
       </div>
 
       <ChevronRight

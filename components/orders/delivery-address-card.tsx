@@ -24,6 +24,7 @@ const EDITABLE_STATUSES: OrderStatus[] = [
   "PAYMENT_PENDING",
   "PAID",
   "PROCESSING",
+  "PREPARING",
 ];
 
 type Props = {

@@ -23,6 +23,10 @@ export type Vocabulary = {
   itemLower: string;
   /** "products" | "menu items" — plural, lower case (mid-sentence). */
   itemsLower: string;
+  /** "Shipped" | "Out for delivery" — display label for the SHIPPED status. */
+  shippedLabel: string;
+  /** "Mark as shipped" | "Mark out for delivery" — action verb for the SHIPPED transition. */
+  markShippedLabel: string;
 };
 
 const FOOD: Vocabulary = {
@@ -31,6 +35,8 @@ const FOOD: Vocabulary = {
   items: "Menu items",
   itemLower: "menu item",
   itemsLower: "menu items",
+  shippedLabel: "Out for delivery",
+  markShippedLabel: "Mark out for delivery",
 };
 
 const GENERAL: Vocabulary = {
@@ -39,6 +45,8 @@ const GENERAL: Vocabulary = {
   items: "Products",
   itemLower: "product",
   itemsLower: "products",
+  shippedLabel: "Shipped",
+  markShippedLabel: "Mark as shipped",
 };
 
 /**

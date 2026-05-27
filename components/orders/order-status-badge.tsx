@@ -3,13 +3,16 @@ import {
   Hourglass,
   CheckCircle2,
   Cog,
+  ChefHat,
+  Bell,
   Truck,
   PackageCheck,
   XCircle,
   AlertCircle,
   type LucideIcon,
 } from "lucide-react";
-import type { OrderStatus } from "@/lib/api/types";
+import type { BusinessType, OrderStatus } from "@/lib/api/types";
+import { getVocabulary } from "@/lib/vocabulary";
 import { cn } from "@/lib/utils";
 
 type Meta = {
@@ -18,61 +21,97 @@ type Meta = {
   className: string;
 };
 
-const META: Record<OrderStatus, Meta> = {
-  PENDING: {
-    label: "Pending",
-    Icon: Clock,
-    className: "bg-muted text-muted-foreground",
-  },
-  PAYMENT_PENDING: {
-    label: "Awaiting payment",
-    Icon: Hourglass,
-    className: "bg-brand-orange-soft text-brand-orange",
-  },
-  PAID: {
-    label: "Paid",
-    Icon: CheckCircle2,
-    className: "bg-brand-green-soft text-brand-green",
-  },
-  PROCESSING: {
-    label: "Processing",
-    Icon: Cog,
-    className: "bg-brand-blue-soft text-brand-blue",
-  },
-  SHIPPED: {
-    label: "Shipped",
-    Icon: Truck,
-    className: "bg-brand-blue-soft text-brand-blue",
-  },
-  DELIVERED: {
-    label: "Delivered",
-    Icon: PackageCheck,
-    className: "bg-brand-green-soft text-brand-green",
-  },
-  CANCELLED: {
-    label: "Cancelled",
-    Icon: XCircle,
-    className: "bg-muted text-muted-foreground",
-  },
-  PAYMENT_FAILED: {
-    label: "Payment failed",
-    Icon: AlertCircle,
-    className: "bg-destructive/10 text-destructive",
-  },
-};
+/**
+ * Status badge metadata. The SHIPPED label varies by vertical
+ * ("Shipped" vs "Out for delivery") via the vocabulary helper —
+ * pass the merchant's businessType so the badge reads naturally for
+ * food merchants. PREPARING and READY_FOR_PICKUP are food-vertical
+ * intermediate states; non-food orders will never carry them, but
+ * the badge still renders them gracefully if seen.
+ */
+export function statusMeta(
+  status: OrderStatus,
+  businessType?: BusinessType | null,
+): Meta {
+  const vocab = getVocabulary(businessType);
+  switch (status) {
+    case "PENDING":
+      return {
+        label: "Pending",
+        Icon: Clock,
+        className: "bg-muted text-muted-foreground",
+      };
+    case "PAYMENT_PENDING":
+      return {
+        label: "Awaiting payment",
+        Icon: Hourglass,
+        className: "bg-brand-orange-soft text-brand-orange",
+      };
+    case "PAID":
+      return {
+        label: "Paid",
+        Icon: CheckCircle2,
+        className: "bg-brand-green-soft text-brand-green",
+      };
+    case "PROCESSING":
+      return {
+        label: "Processing",
+        Icon: Cog,
+        className: "bg-brand-blue-soft text-brand-blue",
+      };
+    case "PREPARING":
+      return {
+        label: "Preparing",
+        Icon: ChefHat,
+        className: "bg-brand-orange-soft text-brand-orange",
+      };
+    case "READY_FOR_PICKUP":
+      return {
+        label: "Ready for pickup",
+        Icon: Bell,
+        className: "bg-brand-blue-soft text-brand-blue",
+      };
+    case "SHIPPED":
+      return {
+        label: vocab.shippedLabel,
+        Icon: Truck,
+        className: "bg-brand-blue-soft text-brand-blue",
+      };
+    case "DELIVERED":
+      return {
+        label: "Delivered",
+        Icon: PackageCheck,
+        className: "bg-brand-green-soft text-brand-green",
+      };
+    case "CANCELLED":
+      return {
+        label: "Cancelled",
+        Icon: XCircle,
+        className: "bg-muted text-muted-foreground",
+      };
+    case "PAYMENT_FAILED":
+      return {
+        label: "Payment failed",
+        Icon: AlertCircle,
+        className: "bg-destructive/10 text-destructive",
+      };
+  }
+}
 
 type Size = "sm" | "md";
 
 export function OrderStatusBadge({
   status,
+  businessType,
   size = "sm",
   className,
 }: {
   status: OrderStatus;
+  businessType?: BusinessType | null;
   size?: Size;
   className?: string;
 }) {
-  const meta = META[status];
+  const meta = statusMeta(status, businessType);
   const { Icon } = meta;
   return (
     <span
@@ -91,5 +130,3 @@ export function OrderStatusBadge({
     </span>
   );
 }
-
-export const ORDER_STATUS_META = META;
