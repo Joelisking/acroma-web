@@ -44,6 +44,12 @@ export type Business = {
   whatsappWebhookActive: boolean;
   aiEnabled: boolean;
   acceptsCashOnDelivery: boolean;
+  /**
+   * Whether this merchant offers pickup alongside delivery. When true the
+   * AI will ask "delivery or pickup?" before requesting an address, and
+   * pickup orders skip the address ask entirely.
+   */
+  acceptsPickup: boolean;
   openingHours: OpeningHours | null;
   dashboardDefaultFilter: DashboardFilter | null;
   businessDescription: string | null;
@@ -170,6 +176,8 @@ export type OrderDiscount = {
 
 export type PaymentMethod = "MOMO" | "CASH_ON_DELIVERY";
 
+export type OrderFulfillment = "DELIVERY" | "PICKUP";
+
 export type OrderStatus =
   | "PENDING"
   | "PAYMENT_PENDING"
@@ -290,6 +298,7 @@ export type Order = {
   paystackPreviousRefs: string[];
   notes: string | null;
   deliveryAddress: string | null;
+  fulfillment: OrderFulfillment;
   paymentMethod: PaymentMethod;
   subtotal: number;
   discountId: string | null;

@@ -4,6 +4,7 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { PayoutAccountSummary } from "@/components/payments/payout-account-summary";
 import { AcceptCodToggle } from "@/components/settings/accept-cod-toggle";
+import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
 
 export const metadata: Metadata = { title: "Payments · Settings · Acroma" };
 
@@ -34,6 +35,15 @@ export default async function PaymentsSettingsPage() {
           description="Choose which payment options Acroma offers your customers on WhatsApp."
         >
           <AcceptCodToggle initial={business.acceptsCashOnDelivery} />
+        </SettingsCard>
+      ) : null}
+
+      {business ? (
+        <SettingsCard
+          title="Order handling"
+          description="Choose how customers can receive their orders."
+        >
+          <AcceptPickupToggle initial={business.acceptsPickup} />
         </SettingsCard>
       ) : null}
     </div>

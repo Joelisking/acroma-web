@@ -34,6 +34,7 @@ export function OrderRow({ order }: { order: Order }) {
         </p>
         <p className="text-muted-foreground mt-0.5 text-xs">
           {itemCount} {itemCount === 1 ? "item" : "items"}
+          {order.fulfillment === "PICKUP" ? " · Pickup" : null}
         </p>
       </div>
 

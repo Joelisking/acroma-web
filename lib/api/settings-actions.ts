@@ -76,6 +76,28 @@ export async function updateAcceptsCashOnDeliveryAction(
   }
 }
 
+export async function updateAcceptsPickupAction(
+  acceptsPickup: boolean,
+): Promise<ActionResult<{ id: string; acceptsPickup: boolean }>> {
+  try {
+    const data = await apiFetch<{ id: string; acceptsPickup: boolean }>(
+      "/settings/order-options",
+      {
+        method: "PATCH",
+        body: { acceptsPickup },
+      },
+    );
+    revalidatePath("/dashboard/settings/payments");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save pickup preference"),
+    };
+  }
+}
+
 export async function updateOpeningHoursAction(
   hours: OpeningHours,
 ): Promise<ActionResult<{ id: string; openingHours: OpeningHours | null }>> {

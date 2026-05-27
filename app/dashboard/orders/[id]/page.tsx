@@ -10,6 +10,7 @@ import { OrderStatusStepper } from "@/components/orders/order-status-stepper"
 import { OrderStatusControl } from "@/components/orders/order-status-control"
 import { PaymentLinkPanel } from "@/components/orders/payment-link-panel"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
+import { PickupCard } from "@/components/orders/pickup-card"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
 
 type PageProps = { params: Promise<{ id: string }> }
@@ -52,11 +53,15 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       <PaymentLinkPanel order={order} />
 
-      <DeliveryAddressCard
-        orderId={order.id}
-        status={order.status}
-        deliveryAddress={order.deliveryAddress}
-      />
+      {order.fulfillment === "PICKUP" ? (
+        <PickupCard />
+      ) : (
+        <DeliveryAddressCard
+          orderId={order.id}
+          status={order.status}
+          deliveryAddress={order.deliveryAddress}
+        />
+      )}
 
       <section aria-label="Items" className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground">Items</h2>
