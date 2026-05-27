@@ -50,6 +50,50 @@ export async function regeneratePaymentLinkAction(
   }
 }
 
+// Quick-reply: "Sold out, cancel order". Cancels the order, marks every
+// product on it sold-out-today, and sends a customer apology.
+export async function markOrderSoldOutAction(
+  orderId: string,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/sold-out-now`, {
+      method: "POST",
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't cancel the order" };
+    }
+    return { ok: false, error: "Couldn't cancel the order" };
+  }
+}
+
+// Quick-reply: "Running a few minutes late". Sends the customer a templated
+// wait message without changing order status.
+export async function delayOrderAction(
+  orderId: string,
+  minutes?: number,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/delay`, {
+      method: "POST",
+      body: typeof minutes === "number" ? { minutes } : {},
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return {
+        ok: false,
+        error: err.message || "Couldn't send the delay message",
+      };
+    }
+    return { ok: false, error: "Couldn't send the delay message" };
+  }
+}
+
 export async function updateDeliveryAddressAction(
   orderId: string,
   deliveryAddress: string,

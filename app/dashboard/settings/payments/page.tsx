@@ -5,6 +5,7 @@ import { SettingsCard } from "@/components/settings/settings-card";
 import { PayoutAccountSummary } from "@/components/payments/payout-account-summary";
 import { AcceptCodToggle } from "@/components/settings/accept-cod-toggle";
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
+import { OrderAlertsToggle } from "@/components/settings/order-alerts-toggle";
 
 export const metadata: Metadata = { title: "Payments · Settings · Acroma" };
 
@@ -43,7 +44,10 @@ export default async function PaymentsSettingsPage() {
           title="Order handling"
           description="Choose how customers can receive their orders."
         >
-          <AcceptPickupToggle initial={business.acceptsPickup} />
+          <div className="space-y-6">
+            <AcceptPickupToggle initial={business.acceptsPickup} />
+            <OrderAlertsToggle initial={business.orderAlertsEnabled} />
+          </div>
         </SettingsCard>
       ) : null}
     </div>

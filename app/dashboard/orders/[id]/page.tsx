@@ -9,6 +9,7 @@ import { OrderItems } from "@/components/orders/order-items"
 import { OrderStatusStepper } from "@/components/orders/order-status-stepper"
 import { OrderStatusControl } from "@/components/orders/order-status-control"
 import { PaymentLinkPanel } from "@/components/orders/payment-link-panel"
+import { OrderQuickReplies } from "@/components/orders/order-quick-replies"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
 import { PickupCard } from "@/components/orders/pickup-card"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
@@ -54,6 +55,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
       </section>
 
       <PaymentLinkPanel order={order} />
+
+      <OrderQuickReplies orderId={order.id} status={order.status} />
 
       {order.fulfillment === "PICKUP" ? (
         <PickupCard />

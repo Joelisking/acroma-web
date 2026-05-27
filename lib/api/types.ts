@@ -50,6 +50,11 @@ export type Business = {
    * pickup orders skip the address ask entirely.
    */
   acceptsPickup: boolean;
+  /**
+   * When true, the merchant gets the "order coming in" heads-up push the
+   * moment the AI is about to create an order. Defaults to true.
+   */
+  orderAlertsEnabled: boolean;
   openingHours: OpeningHours | null;
   dashboardDefaultFilter: DashboardFilter | null;
   businessDescription: string | null;

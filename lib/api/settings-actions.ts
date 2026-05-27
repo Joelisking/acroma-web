@@ -98,6 +98,35 @@ export async function updateAcceptsPickupAction(
   }
 }
 
+export async function updateOrderAlertsEnabledAction(
+  orderAlertsEnabled: boolean,
+): Promise<
+  ActionResult<{
+    id: string;
+    acceptsPickup: boolean;
+    orderAlertsEnabled: boolean;
+  }>
+> {
+  try {
+    const data = await apiFetch<{
+      id: string;
+      acceptsPickup: boolean;
+      orderAlertsEnabled: boolean;
+    }>("/settings/order-options", {
+      method: "PATCH",
+      body: { orderAlertsEnabled },
+    });
+    revalidatePath("/dashboard/settings/payments");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save alert preference"),
+    };
+  }
+}
+
 export async function updateOpeningHoursAction(
   hours: OpeningHours,
 ): Promise<ActionResult<{ id: string; openingHours: OpeningHours | null }>> {
