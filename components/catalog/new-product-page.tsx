@@ -67,6 +67,12 @@ export function NewProductPageClient({ businessType }: Props = {}) {
             np.setFormValues({ ...np.formValues, imageUrl: url ?? "" })
           }
         />
+        {businessType === "FOOD_BEVERAGES" ? (
+          <p className="text-muted-foreground text-xs">
+            A clear photo of each dish helps customers decide. The AI can send
+            these in chat.
+          </p>
+        ) : null}
       </div>
 
       {showVariantImages ? (
