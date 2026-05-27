@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { VariantsList } from "@/components/catalog/variants-list";
 import { DeleteProductButton } from "@/components/catalog/delete-product-button";
 import { SoldOutTodayButton } from "@/components/catalog/sold-out-today-button";
+import { tagLabel } from "@/lib/catalog/product-tags";
 import { formatMoney } from "@/lib/format";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -69,6 +70,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
       </header>
+
+      {product.tags && product.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {product.tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-brand-blue-soft text-brand-blue rounded-full px-2.5 py-1 text-xs font-medium"
+            >
+              {tagLabel(tag)}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       {product.imageUrl ? (
         <div className="border-border/70 bg-muted relative overflow-hidden rounded-2xl border">

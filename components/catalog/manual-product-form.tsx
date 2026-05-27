@@ -3,18 +3,25 @@
 import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import type { ProductFormValues } from "@/lib/api/types";
+import { ProductTagsPicker } from "@/components/catalog/product-tags-picker";
+import type { BusinessType, ProductFormValues } from "@/lib/api/types";
 
 type Props = {
   values: ProductFormValues;
   onChange: (next: ProductFormValues) => void;
+  /**
+   * Drives whether the dietary / allergen tag picker starts expanded.
+   * Food merchants get it expanded by default; everyone else still has
+   * access via the collapsible header.
+   */
+  businessType?: BusinessType | null;
 };
 
 /**
  * Controlled create-mode product form. Image upload, save, and variants
  * live on the parent page; this component only renders the scalar fields.
  */
-export function ManualProductForm({ values, onChange }: Props) {
+export function ManualProductForm({ values, onChange, businessType }: Props) {
   function set<K extends keyof ProductFormValues>(
     key: K,
     value: ProductFormValues[K],
@@ -113,6 +120,12 @@ export function ManualProductForm({ values, onChange }: Props) {
           }}
         />
       </div>
+
+      <ProductTagsPicker
+        value={values.tags}
+        onChange={(tags) => set("tags", tags)}
+        expandedByDefault={businessType === "FOOD_BEVERAGES"}
+      />
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>

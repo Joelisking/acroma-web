@@ -3,6 +3,7 @@ import { Package } from "lucide-react";
 import type { Product } from "@/lib/api/types";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
 import { formatMoney } from "@/lib/format";
+import { tagLabel } from "@/lib/catalog/product-tags";
 import { cn } from "@/lib/utils";
 
 export function ProductCard({
@@ -55,6 +56,18 @@ export function ProductCard({
         <p className="text-foreground line-clamp-2 text-sm font-medium">
           {product.name}
         </p>
+        {product.tags && product.tags.length > 0 ? (
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {product.tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-brand-blue-soft text-brand-blue rounded-full px-2 py-0.5 text-[0.65rem] font-medium"
+              >
+                {tagLabel(tag)}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="mt-auto flex items-baseline justify-between pt-2">
           <span className="font-display text-foreground text-lg font-medium tabular-nums">
             {formatMoney(product.basePrice, currency)}

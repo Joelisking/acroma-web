@@ -38,6 +38,7 @@ export default async function EditProductPage({ params }: PageProps) {
       </header>
       <EditProductForm
         productId={id}
+        businessType={business?.businessType}
         defaults={{
           name: product.name,
           description: product.description ?? "",
@@ -46,6 +47,7 @@ export default async function EditProductPage({ params }: PageProps) {
           category: product.category ?? "",
           imageUrl: product.imageUrl ?? "",
           isActive: product.isActive,
+          tags: product.tags ?? [],
         }}
       />
     </div>

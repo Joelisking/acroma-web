@@ -22,7 +22,19 @@ import { Button } from "@/components/ui/button";
 import { updateProductAction } from "@/lib/api/products-actions";
 import { autofillProductAction } from "@/lib/api/products-ai-actions";
 import { ImageUploader } from "@/components/shared/image-uploader";
+import { ProductTagsPicker } from "@/components/catalog/product-tags-picker";
 import { useVocab } from "@/components/vocabulary-provider";
+import type { BusinessType, ProductTag } from "@/lib/api/types";
+
+const PRODUCT_TAG_VALUES = [
+  "HALAL",
+  "VEGETARIAN",
+  "VEGAN",
+  "GLUTEN_FREE",
+  "DAIRY_FREE",
+  "CONTAINS_NUTS",
+  "SPICY",
+] as const;
 
 const schema = z.object({
   name: z.string().min(2, "Name is required").max(120),
@@ -32,6 +44,7 @@ const schema = z.object({
   category: z.string().max(40).optional().or(z.literal("")),
   imageUrl: z.string().url().or(z.literal("")).optional(),
   isActive: z.boolean(),
+  tags: z.array(z.enum(PRODUCT_TAG_VALUES)).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -45,9 +58,11 @@ function toNumber(v: string): number {
 type Props = {
   productId: string;
   defaults: Partial<FormValues>;
+  /** Drives whether the tag picker starts expanded (food merchants do). */
+  businessType?: BusinessType | null;
 };
 
-export function EditProductForm({ productId, defaults }: Props) {
+export function EditProductForm({ productId, defaults, businessType }: Props) {
   const router = useRouter();
   const vocab = useVocab();
   const [pending, startTransition] = React.useTransition();
@@ -63,6 +78,7 @@ export function EditProductForm({ productId, defaults }: Props) {
       category: defaults.category ?? "",
       imageUrl: defaults.imageUrl ?? "",
       isActive: defaults.isActive ?? true,
+      tags: defaults.tags ?? [],
     },
   });
 
@@ -97,6 +113,11 @@ export function EditProductForm({ productId, defaults }: Props) {
         category: values.category || undefined,
         imageUrl: values.imageUrl || undefined,
         isActive: values.isActive,
+        // Always send the tags array (even when empty) so the backend
+        // applies the merchant's exact selection via Prisma `set:`. The
+        // server-side handler treats an explicit empty array as "clear",
+        // which is what the merchant means by deselecting all chips.
+        tags: values.tags ?? [],
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -239,6 +260,23 @@ export function EditProductForm({ productId, defaults }: Props) {
                   onChange={(url) => field.onChange(url ?? "")}
                   kind="product"
                   aspect="aspect-[4/3]"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <ProductTagsPicker
+                  value={(field.value ?? []) as ProductTag[]}
+                  onChange={(tags) => field.onChange(tags)}
+                  expandedByDefault={businessType === "FOOD_BEVERAGES"}
                 />
               </FormControl>
               <FormMessage />

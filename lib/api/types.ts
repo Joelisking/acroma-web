@@ -236,6 +236,21 @@ export type ParsedProduct = {
   stock: number | null;
 };
 
+/**
+ * Mirrors Prisma's `ProductTag` enum. Optional dietary / allergen flags a
+ * merchant marks on a product. Surfaced inline in the AI catalog string so
+ * the model can answer "is this halal/vegetarian/etc?" without escalating.
+ * Empty array == merchant has not made any claims either way.
+ */
+export type ProductTag =
+  | "HALAL"
+  | "VEGETARIAN"
+  | "VEGAN"
+  | "GLUTEN_FREE"
+  | "DAIRY_FREE"
+  | "CONTAINS_NUTS"
+  | "SPICY";
+
 export type Product = {
   id: string;
   businessId: string;
@@ -255,6 +270,12 @@ export type Product = {
    * via lazy check on the backend — no cron involved.
    */
   soldOutAt: string | null;
+  /**
+   * Dietary / allergen tags marked by the merchant. Always an array
+   * (possibly empty) from the API. Drives the AI's grounded answers to
+   * "is this halal?", "is it vegetarian?", etc.
+   */
+  tags: ProductTag[];
   createdAt: string;
   updatedAt: string;
   variants?: ProductVariant[];
@@ -288,6 +309,12 @@ export type ProductFormValues = {
   hasVariants: boolean;
   variantDimensions: VariantDimension[];
   variants: ProductVariantFormRow[];
+  /**
+   * Dietary / allergen tags the merchant has marked on this product.
+   * Optional; defaults to an empty array. See `ProductTag` for the
+   * canonical list.
+   */
+  tags: ProductTag[];
 };
 
 // ---------------------------------------------------------------------------

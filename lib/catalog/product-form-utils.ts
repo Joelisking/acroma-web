@@ -11,6 +11,7 @@ export const EMPTY_FORM_VALUES: ProductFormValues = {
   hasVariants: false,
   variantDimensions: [],
   variants: [],
+  tags: [],
 };
 
 /**
@@ -38,5 +39,9 @@ export function parsedToFormValues(
       priceOverride: v.priceOverride,
       isActive: true,
     })),
+    // AI parsing doesn't (yet) infer dietary tags. Preserve whatever the
+    // merchant already selected manually so a re-parse never clobbers
+    // tags they've picked.
+    tags: prev.tags,
   };
 }

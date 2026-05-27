@@ -14,8 +14,13 @@ import { VariantOptionImages } from "@/components/catalog/variant-option-images"
 import { useNewProduct } from "@/hooks/use-new-product";
 import { InlineVariantsEditor } from "@/components/catalog/variants/inline-variants-editor";
 import { useVocab } from "@/components/vocabulary-provider";
+import type { BusinessType } from "@/lib/api/types";
 
-export function NewProductPageClient() {
+type Props = {
+  businessType?: BusinessType | null;
+};
+
+export function NewProductPageClient({ businessType }: Props = {}) {
   const router = useRouter();
   const np = useNewProduct();
   const vocab = useVocab();
@@ -41,6 +46,7 @@ export function NewProductPageClient() {
         <ManualProductForm
           values={np.formValues}
           onChange={np.setFormValues}
+          businessType={businessType}
         />
       )}
 

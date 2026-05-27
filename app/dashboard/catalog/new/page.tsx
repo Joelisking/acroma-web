@@ -24,7 +24,7 @@ export default async function NewProductPage() {
           Add a {vocab.itemLower}
         </h1>
       </header>
-      <NewProductPageClient />
+      <NewProductPageClient businessType={business?.businessType} />
     </div>
   );
 }

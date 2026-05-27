@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiFetch, ApiError } from "./server";
-import type { Product } from "./types";
+import type { Product, ProductTag } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -17,6 +17,12 @@ export type ProductInput = {
   imageUrl?: string;
   isActive?: boolean;
   category?: string;
+  /**
+   * Optional dietary / allergen tags. Sending an empty array clears any
+   * previously-set tags on update; omitting the field entirely leaves
+   * existing tags alone (backend uses Prisma `set:` semantics).
+   */
+  tags?: ProductTag[];
 };
 
 export async function createProductAction(

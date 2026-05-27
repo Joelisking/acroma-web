@@ -86,6 +86,7 @@ export function useNewProduct() {
         category: formValues.category.trim() || undefined,
         imageUrl: formValues.imageUrl.trim() || undefined,
         isActive: formValues.isActive,
+        tags: formValues.tags,
       });
       if (!create.ok) {
         toast.error(create.error);
