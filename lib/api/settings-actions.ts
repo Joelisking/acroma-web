@@ -207,6 +207,23 @@ export async function updateCatalogImagesAction(
   }
 }
 
+export async function updateAiEnabledAction(
+  aiEnabled: boolean,
+): Promise<ActionResult<{ id: string; aiEnabled: boolean }>> {
+  try {
+    const data = await apiFetch<{ id: string; aiEnabled: boolean }>(
+      '/settings/ai',
+      { method: 'PATCH', body: { aiEnabled } },
+    );
+    revalidatePath('/dashboard');
+    revalidatePath('/dashboard/conversations');
+    revalidatePath('/dashboard/settings/ai');
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't update AI mode") };
+  }
+}
+
 function humanError(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error) return err.message || fallback;

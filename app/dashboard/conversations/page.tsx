@@ -4,6 +4,7 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import type { ConversationStatus } from "@/lib/api/types";
 import { ConversationRow } from "@/components/conversations/conversation-row";
 import { StatusFilter } from "@/components/conversations/status-filter";
+import { AiModeToggle } from "@/components/conversations/ai-mode-toggle";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
 import { ConversationsEmpty } from "@/components/conversations/conversations-empty";
 
@@ -44,7 +45,10 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
             Every customer thread, live across WhatsApp.
           </p>
         </div>
-        <StatusFilter />
+        <div className="flex items-center gap-3">
+          <AiModeToggle initialEnabled={business.aiEnabled} />
+          <StatusFilter />
+        </div>
       </header>
 
       {conversations.length === 0 ? (

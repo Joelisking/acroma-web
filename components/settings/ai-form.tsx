@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { updateBusinessAction } from "@/lib/api/business-actions";
+import { updateAiEnabledAction } from "@/lib/api/settings-actions";
 import type { Business } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -51,13 +52,16 @@ export function AiForm({ business }: { business: Business }) {
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
-      const result = await updateBusinessAction({
-        aiEnabled: values.aiEnabled,
-        businessDescription: values.businessDescription || undefined,
-        aiBusinessContext: values.aiBusinessContext || undefined,
-      });
-      if (!result.ok) toast.error(result.error);
-      else toast.success("AI settings saved");
+      const [aiResult, bizResult] = await Promise.all([
+        updateAiEnabledAction(values.aiEnabled),
+        updateBusinessAction({
+          businessDescription: values.businessDescription || undefined,
+          aiBusinessContext: values.aiBusinessContext || undefined,
+        }),
+      ]);
+      if (!aiResult.ok) { toast.error(aiResult.error); return; }
+      if (!bizResult.ok) { toast.error(bizResult.error); return; }
+      toast.success("AI settings saved");
     });
   }
 
