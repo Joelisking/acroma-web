@@ -4,6 +4,7 @@ import { SettingsCard } from "@/components/settings/settings-card";
 import { BusinessForm } from "@/components/settings/business-form";
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
 import { OrderAlertsToggle } from "@/components/settings/order-alerts-toggle";
+import { CatalogImagesForm } from "@/components/settings/catalog-images-form";
 
 export const metadata: Metadata = { title: "Business · Settings · Acroma" };
 
@@ -25,6 +26,13 @@ export default async function BusinessSettingsPage() {
             logoUrl: business.logoUrl ?? "",
           }}
         />
+      </SettingsCard>
+
+      <SettingsCard
+        title="Catalog images"
+        description="Upload up to 3 images of your catalog. When customers ask what you have, Acroma sends these images on WhatsApp."
+      >
+        <CatalogImagesForm defaultUrls={business.catalogImageUrls ?? []} />
       </SettingsCard>
 
       <SettingsCard

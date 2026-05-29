@@ -16,7 +16,7 @@ type ImageUploaderProps = {
   value: string | null | undefined;
   onChange: (url: string | null) => void;
   /** Cloudinary folder; uploaded asset lives at `acroma/<kind>/…`. */
-  kind: "logo" | "product" | "variant";
+  kind: "logo" | "product" | "variant" | "catalog";
   /** Tailwind aspect ratio class. Defaults to square. */
   aspect?: string;
   className?: string;
