@@ -1,0 +1,51 @@
+<h2>How should the catalog step work?</h2>
+<p class="subtitle">The full catalog form has name, price, stock, category, variants, tags, image. Three options for what to show in onboarding:</p>
+
+<div class="options" style="gap: 16px;">
+
+  <div class="option" data-choice="quick-add" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Quick-add list — name + price only</h3>
+      <p>A minimal inline row (name + price), tap "Add another" to keep going. Items stack up in a simple list. Fastest for getting a few things in — zero friction. They flesh out descriptions and images in the catalog later.</p>
+      <div style="margin-top:10px; padding:12px; background:var(--muted); border-radius:8px; font-size:12px; color:var(--muted-foreground)">
+        [ Jollof Rice ·········· GHS 35 ] [×]<br>
+        [ Grilled Chicken ···· GHS 60 ] [×]<br>
+        [ ____name____ ] [ __price__ ] [+ Add]<br>
+        <br>
+        <span style="color:var(--foreground)">[Skip for now]  [Continue →]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="full-form" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Full add-item form, one at a time</h3>
+      <p>The same form from the catalog page (name, description, price, stock, image upload) embedded in the wizard shell. After saving, ask "Add another?" or "Continue". Full detail from the start — but heavier to fill out.</p>
+      <div style="margin-top:10px; padding:12px; background:var(--muted); border-radius:8px; font-size:12px; color:var(--muted-foreground)">
+        Name: [ _________________ ]<br>
+        Description: [ ___________ ]<br>
+        Price: [ __ ]  Stock: [ __ ]<br>
+        Image: [ Upload ]<br>
+        <br>
+        <span style="color:var(--foreground)">[Skip for now]  [Save &amp; add another]  [Done →]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="redirect" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Prompt + redirect to catalog</h3>
+      <p>The wizard step just explains why the catalog matters and has two buttons: "Set up catalog now" (goes to /dashboard/catalog/new, bypassing the wizard) and "Skip for now". Simplest to build — but breaks the wizard flow.</p>
+      <div style="margin-top:10px; padding:12px; background:var(--muted); border-radius:8px; font-size:12px; color:var(--muted-foreground)">
+        "Your catalog is what the AI uses to take orders.<br>
+        Add your items now or come back any time."<br>
+        <br>
+        <span style="color:var(--foreground)">[Skip for now]  [Go to catalog →]</span>
+      </div>
+    </div>
+  </div>
+
+</div>
