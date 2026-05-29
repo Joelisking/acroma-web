@@ -40,6 +40,7 @@ export type Business = {
   country: string;
   businessType: BusinessType;
   logoUrl: string | null;
+  catalogImageUrls: string[];
   whatsappPhoneNumberId: string | null;
   whatsappWebhookActive: boolean;
   aiEnabled: boolean;

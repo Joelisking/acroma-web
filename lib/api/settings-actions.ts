@@ -188,6 +188,25 @@ export async function updateReminderSettingsAction(
   }
 }
 
+export async function updateCatalogImagesAction(
+  urls: string[],
+): Promise<ActionResult<{ id: string; catalogImageUrls: string[] }>> {
+  try {
+    const data = await apiFetch<{ id: string; catalogImageUrls: string[] }>(
+      "/settings/catalog-images",
+      {
+        method: "PUT",
+        body: { urls },
+      },
+    );
+    revalidatePath("/dashboard/settings/business");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't save catalog images") };
+  }
+}
+
 function humanError(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error) return err.message || fallback;
