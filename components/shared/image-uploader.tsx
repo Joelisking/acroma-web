@@ -20,6 +20,7 @@ type ImageUploaderProps = {
   /** Tailwind aspect ratio class. Defaults to square. */
   aspect?: string;
   className?: string;
+  "aria-label"?: string;
 };
 
 type CloudinaryResponse = {
@@ -37,6 +38,7 @@ export function ImageUploader({
   kind,
   aspect = "aspect-square",
   className,
+  "aria-label": ariaLabel,
 }: ImageUploaderProps) {
   const [pending, setPending] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -80,7 +82,7 @@ export function ImageUploader({
   }
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-2", className)} aria-label={ariaLabel}>
       <div
         className={cn(
           "border-border/70 bg-muted relative overflow-hidden rounded-2xl border",

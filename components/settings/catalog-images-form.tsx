@@ -45,6 +45,7 @@ export function CatalogImagesForm({ defaultUrls }: Props) {
             onChange={(v) => handleChange(i, v)}
             kind="catalog"
             aspect="aspect-[3/4]"
+            aria-label={`Catalog image ${i + 1}`}
           />
         ))}
       </div>
