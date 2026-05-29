@@ -47,6 +47,18 @@ export async function completeOnboardingAndConnectWhatsappAction(): Promise<void
   redirect("/dashboard/settings/whatsapp?from=onboarding");
 }
 
+export async function completeOnboardingAndGoToCatalogAction(): Promise<void> {
+  try {
+    await apiFetch<{ success: boolean }>("/onboarding/complete", {
+      method: "POST",
+    });
+  } catch (err) {
+    console.error(err);
+  }
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard/catalog/new");
+}
+
 function humanError(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error) return err.message || fallback;
