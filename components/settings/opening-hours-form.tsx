@@ -54,6 +54,7 @@ export function OpeningHoursForm({ initial }: Props) {
   const [hours, setHours] = React.useState<OpeningHours>(
     initial ?? EMPTY_WEEK,
   );
+  const [clearedToAlwaysOpen, setClearedToAlwaysOpen] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
 
   const errors = React.useMemo(() => {
@@ -75,7 +76,7 @@ export function OpeningHoursForm({ initial }: Props) {
   );
 
   const statusLine = React.useMemo(() => {
-    if (initial === null && allDaysClosed) {
+    if ((initial === null || clearedToAlwaysOpen) && allDaysClosed) {
       return "Currently: always open. Add hours below to start auto-replying when closed.";
     }
     const now = new Date();
@@ -84,7 +85,7 @@ export function OpeningHoursForm({ initial }: Props) {
     }
     const friendly = formatNextOpen(now, nextOpenTime(hours, now));
     return `Currently: closed. Opens ${friendly}.`;
-  }, [hours, initial, allDaysClosed]);
+  }, [hours, initial, allDaysClosed, clearedToAlwaysOpen]);
 
   function setDay(key: DayKey, value: DayHours | null) {
     setHours((prev) => ({ ...prev, [key]: value }));
@@ -92,6 +93,7 @@ export function OpeningHoursForm({ initial }: Props) {
 
   function toggleDay(key: DayKey, on: boolean) {
     setDay(key, on ? DEFAULT_HOURS : null);
+    if (on) setClearedToAlwaysOpen(false);
   }
 
   function setOpen(key: DayKey, open: string) {
@@ -124,6 +126,7 @@ export function OpeningHoursForm({ initial }: Props) {
       } else {
         toast.success("Set to always open");
         setHours(EMPTY_WEEK);
+        setClearedToAlwaysOpen(true);
       }
     });
   }
