@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/catalog/product-card"
 import { MenuList } from "@/components/catalog/menu-list"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
+import { CatalogImagesManager } from "@/components/catalog/catalog-images-manager"
 
 export const metadata: Metadata = { title: "Catalog · Acroma" }
 
@@ -49,6 +50,23 @@ export default async function CatalogPage() {
           </Link>
         </Button>
       </header>
+
+      <section className="border-border/70 bg-card flex flex-col gap-4 rounded-2xl border p-5">
+        <div>
+          <p className="text-foreground text-sm font-medium">
+            {vocab.catalog} images
+          </p>
+          <p className="text-muted-foreground text-sm">
+            Upload up to 8 photos of your {vocab.catalog.toLowerCase()}. When
+            customers ask what you have, Acroma sends them on WhatsApp, in the
+            order you set.
+          </p>
+        </div>
+        <CatalogImagesManager
+          defaultUrls={business.catalogImageUrls ?? []}
+          noun={vocab.catalog}
+        />
+      </section>
 
       <Link
         href="/dashboard/discounts"

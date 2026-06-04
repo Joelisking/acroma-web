@@ -61,6 +61,18 @@ export function shortId(id: string): string {
   return id.replace(/-/g, "").slice(-6).toUpperCase();
 }
 
+/**
+ * Compact summary of what was ordered, e.g. "2× Jollof Rice, 1× Soft Drink".
+ * Returns "" for an empty list so callers can branch on it.
+ */
+export function formatItemsSummary(
+  items: { quantity: number; product: { name: string } }[],
+): string {
+  return items
+    .map((item) => `${item.quantity}× ${item.product.name}`)
+    .join(", ");
+}
+
 export function getInitials(name: string | null | undefined, fallback = "?") {
   if (!name) return fallback;
   return (

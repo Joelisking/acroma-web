@@ -5,7 +5,13 @@ import { OrderStatusBadge } from "./order-status-badge";
 import { PaymentMethodBadge } from "./payment-method-badge";
 import { FulfillmentBadge } from "./fulfillment-badge";
 import { DiscountBadge } from "./discount-badge";
-import { formatMoney, formatPhone, shortId } from "@/lib/format";
+import { CopyButton } from "@/components/ui/copy-button";
+import {
+  formatItemsSummary,
+  formatMoney,
+  formatPhone,
+  shortId,
+} from "@/lib/format";
 
 export function OrderHeader({
   order,
@@ -15,6 +21,7 @@ export function OrderHeader({
   businessType?: BusinessType | null;
 }) {
   const customer = order.customerName?.trim();
+  const itemsSummary = formatItemsSummary(order.items);
 
   return (
     <header className="flex flex-col gap-4">
@@ -34,17 +41,25 @@ export function OrderHeader({
           <h1 className="font-display text-foreground mt-2 text-3xl font-medium tracking-tight tabular-nums sm:text-4xl">
             {formatMoney(order.totalAmount, order.currency)}
           </h1>
-          <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-3 text-sm">
+          <div className="text-muted-foreground mt-3 flex flex-col gap-1.5 text-sm">
             {customer ? (
               <span className="text-foreground font-medium">{customer}</span>
             ) : null}
-            <a
-              href={`tel:${order.customerPhone}`}
-              className="hover:text-foreground inline-flex items-center gap-1.5"
-            >
-              <Phone className="size-3.5" />
-              {formatPhone(order.customerPhone)}
-            </a>
+            {itemsSummary ? <span>{itemsSummary}</span> : null}
+            <span className="inline-flex items-center gap-1">
+              <a
+                href={`tel:${order.customerPhone}`}
+                className="hover:text-foreground inline-flex items-center gap-1.5"
+              >
+                <Phone className="size-3.5" />
+                {formatPhone(order.customerPhone)}
+              </a>
+              <CopyButton
+                value={order.customerPhone}
+                label="Copy phone number"
+                className="-my-1"
+              />
+            </span>
           </div>
         </div>
 

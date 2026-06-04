@@ -200,6 +200,7 @@ export async function updateCatalogImagesAction(
       },
     );
     revalidatePath("/dashboard/settings/business");
+    revalidatePath("/dashboard/catalog");
     revalidatePath("/dashboard");
     return { ok: true, data };
   } catch (err) {

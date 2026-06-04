@@ -4,33 +4,28 @@ import * as React from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+  uploadImage,
+  ImageUploadError,
+  IMAGE_ACCEPT,
+  type UploadKind,
+} from "@/lib/cloudinary-upload";
 import { cn } from "@/lib/utils";
-
-const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
-const ACCEPT = "image/png, image/jpeg, image/webp, image/avif";
-
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
 type ImageUploaderProps = {
   value: string | null | undefined;
   onChange: (url: string | null) => void;
   /** Cloudinary folder; uploaded asset lives at `acroma/<kind>/…`. */
-  kind: "logo" | "product" | "variant" | "catalog";
+  kind: UploadKind;
   /** Tailwind aspect ratio class. Defaults to square. */
   aspect?: string;
   className?: string;
   "aria-label"?: string;
 };
 
-type CloudinaryResponse = {
-  secure_url: string;
-};
-
 /**
- * Direct browser → Cloudinary uploader using an unsigned upload preset.
- * Same cloud + preset the mobile app uses, so a single asset library
- * covers both clients. The backend never sees the file.
+ * Single-image picker built on the shared `uploadImage` helper. Same cloud +
+ * preset the mobile app uses, so a single asset library covers both clients.
  */
 export function ImageUploader({
   value,
@@ -44,33 +39,16 @@ export function ImageUploader({
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
-    if (!CLOUD_NAME || !UPLOAD_PRESET) {
-      toast.error("Cloudinary is not configured");
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      toast.error("Image is over 5 MB");
-      return;
-    }
     setPending(true);
     try {
-      const form = new FormData();
-      form.append("file", file);
-      form.append("upload_preset", UPLOAD_PRESET);
-      form.append("folder", `acroma/${kind}`);
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-        { method: "POST", body: form },
+      const url = await uploadImage(file, kind);
+      onChange(url);
+    } catch (err) {
+      toast.error(
+        err instanceof ImageUploadError
+          ? err.message
+          : "Upload failed. Please try again",
       );
-      if (!res.ok) {
-        toast.error("Upload failed. Please try again");
-        return;
-      }
-      const json = (await res.json()) as CloudinaryResponse;
-      onChange(json.secure_url);
-    } catch {
-      toast.error("Upload failed. Please try again");
     } finally {
       setPending(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -113,7 +91,7 @@ export function ImageUploader({
         <input
           ref={inputRef}
           type="file"
-          accept={ACCEPT}
+          accept={IMAGE_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

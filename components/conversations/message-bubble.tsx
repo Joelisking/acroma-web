@@ -20,7 +20,7 @@ export function MessageBubble({ message }: { message: Message }) {
     >
       <div
         className={cn(
-          "max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+          "max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]",
           isCustomer && "bg-muted text-foreground rounded-bl-sm",
           isAi &&
             "bg-brand-blue-soft text-brand-navy rounded-br-sm border border-brand-blue/15",

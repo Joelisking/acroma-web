@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@/lib/utils";
 import { updateDeliveryAddressAction } from "@/lib/api/orders-actions";
 import type { Order, OrderStatus } from "@/lib/api/types";
@@ -59,12 +60,20 @@ export function DeliveryAddressCard({
             {deliveryAddress ?? "Not provided yet"}
           </p>
         </div>
-        {editable ? (
-          <EditDialog
-            orderId={orderId}
-            currentAddress={deliveryAddress ?? ""}
-          />
-        ) : null}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {deliveryAddress ? (
+            <CopyButton
+              value={deliveryAddress}
+              label="Copy delivery address"
+            />
+          ) : null}
+          {editable ? (
+            <EditDialog
+              orderId={orderId}
+              currentAddress={deliveryAddress ?? ""}
+            />
+          ) : null}
+        </div>
       </div>
     </section>
   );

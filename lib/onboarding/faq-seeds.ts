@@ -27,36 +27,12 @@ const GENERIC_SEEDS: FaqSeed[] = [
 
 const FOOD_SEEDS: FaqSeed[] = [
   {
-    category: "OTHER",
-    question: "What's on your menu? What do you sell?",
-  },
-  {
-    category: "OTHER",
-    question: "What food do you have available today?",
-  },
-  {
-    category: "OTHER",
-    question: "How much does your food cost? What are the portion sizes and add-ons?",
-  },
-  {
     category: "DELIVERY",
     question: "Do you deliver? Which areas do you cover, and what are the delivery fees?",
   },
   {
     category: "DELIVERY",
-    question: "How long does delivery take?",
-  },
-  {
-    category: "OTHER",
-    question: "Can I pre-order food or order in advance?",
-  },
-  {
-    category: "OTHER",
-    question: "What protein comes with the meal? Can I choose my protein?",
-  },
-  {
-    category: "OTHER",
-    question: "How spicy is the food? Can I get it less spicy?",
+    question: "How long does an order take?",
   },
   {
     category: "PAYMENT",
@@ -64,7 +40,15 @@ const FOOD_SEEDS: FaqSeed[] = [
   },
   {
     category: "OTHER",
-    question: "Can I customize my order? (e.g. no salad, extra meat, more shito)",
+    question: "Can I pre-order food or order in advance?",
+  },
+  {
+    category: "OTHER",
+    question: "Do you have vegetarian or other dietary options?",
+  },
+  {
+    category: "OTHER",
+    question: "Can I customize my order? (e.g. less spicy, no salad, extra meat, more shito)",
   },
 ];
 

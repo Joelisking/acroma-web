@@ -5,7 +5,7 @@ import { SettingsCard } from "@/components/settings/settings-card";
 import { BusinessForm } from "@/components/settings/business-form";
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
 import { OrderAlertsToggle } from "@/components/settings/order-alerts-toggle";
-import { CatalogImagesForm } from "@/components/settings/catalog-images-form";
+import { CatalogImagesManager } from "@/components/catalog/catalog-images-manager";
 
 export const metadata: Metadata = { title: "Business · Settings · Acroma" };
 
@@ -33,9 +33,9 @@ export default async function BusinessSettingsPage() {
 
       <SettingsCard
         title={`${vocab.catalog} images`}
-        description={`Upload up to 3 images of your ${vocab.catalog.toLowerCase()}. When customers ask what you have, Acroma sends these images on WhatsApp.`}
+        description={`Upload up to 8 images of your ${vocab.catalog.toLowerCase()}. When customers ask what you have, Acroma sends these images on WhatsApp, in the order you set.`}
       >
-        <CatalogImagesForm
+        <CatalogImagesManager
           defaultUrls={business.catalogImageUrls ?? []}
           noun={vocab.catalog}
         />
