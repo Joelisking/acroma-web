@@ -9,9 +9,15 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CustomerCombobox } from "./customer-combobox";
 import { CustomRangePicker } from "./custom-range-picker";
-import { RANGE_OPTIONS, canCompare } from "@/lib/dashboard-filter";
+import { RANGE_OPTIONS, canCompare, compareHint } from "@/lib/dashboard-filter";
 import type {
   ConversationStatus,
   DashboardFilter,
@@ -160,21 +166,28 @@ export function DashboardFilterBar({
         onChange={(customerPhone) => onChange({ ...filter, customerPhone })}
       />
 
-      <div className="flex items-center gap-2">
-        <Switch
-          id="dashboard-compare"
-          checked={Boolean(filter.compare) && canCompare(filter)}
-          disabled={!canCompare(filter)}
-          onCheckedChange={(compare) => onChange({ ...filter, compare })}
-          aria-label="Compare to previous period"
-        />
-        <label
-          htmlFor="dashboard-compare"
-          className="text-muted-foreground cursor-pointer text-sm"
-        >
-          Compare
-        </label>
-      </div>
+      <TooltipProvider delayDuration={150}>
+        <Tooltip>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="dashboard-compare"
+              checked={Boolean(filter.compare) && canCompare(filter)}
+              disabled={!canCompare(filter)}
+              onCheckedChange={(compare) => onChange({ ...filter, compare })}
+              aria-label="Compare to previous period"
+            />
+            <TooltipTrigger asChild>
+              <label
+                htmlFor="dashboard-compare"
+                className="text-muted-foreground cursor-pointer text-sm"
+              >
+                Compare
+              </label>
+            </TooltipTrigger>
+          </div>
+          <TooltipContent>{compareHint(filter)}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <Button
         variant="ghost"

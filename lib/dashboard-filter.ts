@@ -22,6 +22,28 @@ export function canCompare(filter: DashboardFilter): boolean {
   return filter.range !== "LIFETIME";
 }
 
+/** What each range's "previous period" actually is, for the Compare tooltip. */
+const COMPARE_TARGETS: Record<DashboardRange, string> = {
+  TODAY: "yesterday",
+  YESTERDAY: "the day before",
+  THIS_WEEK: "last week",
+  THIS_MONTH: "last month",
+  LAST_7_DAYS: "the previous 7 days",
+  LAST_30_DAYS: "the previous 30 days",
+  LAST_90_DAYS: "the previous 90 days",
+  THIS_YEAR: "last year",
+  LIFETIME: "",
+  CUSTOM: "the equal-length period right before it",
+};
+
+/** Tooltip copy explaining what the Compare toggle measures against. */
+export function compareHint(filter: DashboardFilter): string {
+  if (!canCompare(filter)) {
+    return "Comparison isn't available for Lifetime, there's no earlier period to measure against.";
+  }
+  return `Shows each metric's change vs ${COMPARE_TARGETS[filter.range]}.`;
+}
+
 /** Builds the query string for GET /dashboard/stats from a filter. */
 export function filterToQuery(filter: DashboardFilter): string {
   const params = new URLSearchParams();
@@ -40,7 +62,7 @@ export function filterToQuery(filter: DashboardFilter): string {
 
 /** Human label for a compare delta, e.g. "+12% vs previous period". */
 export function changeLabel(change: number | null): string {
-  if (change === null) return "vs previous period";
+  if (change === null) return "no prior data";
   const sign = change > 0 ? "+" : "";
   return `${sign}${change}% vs previous period`;
 }
