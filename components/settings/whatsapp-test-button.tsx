@@ -29,7 +29,7 @@ export function WhatsappTestButton({ disabled }: Props) {
         toast.error(result.error);
         return;
       }
-      toast.success(`Test message sent — check WhatsApp on ${phone}.`);
+      toast.success(`Test message sent. Check WhatsApp on ${phone}.`);
       setOpen(false);
       setPhone("");
     });
@@ -69,7 +69,7 @@ export function WhatsappTestButton({ disabled }: Props) {
           className="h-10 font-mono text-xs"
         />
         <p className="text-muted-foreground text-xs leading-relaxed">
-          A WhatsApp-active number with country code, digits only — no{" "}
+          A WhatsApp-active number with country code, digits only, no{" "}
           <code className="font-mono">+</code> or spaces. We&apos;ll send a
           single test message there.
         </p>

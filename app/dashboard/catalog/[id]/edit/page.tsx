@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
 
-import { getProduct } from "@/lib/api/products";
+import { getProduct, listProducts } from "@/lib/api/products";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getVocabulary } from "@/lib/vocabulary";
+import { distinctCategories } from "@/lib/catalog/categories";
 import { ApiError } from "@/lib/api/server";
 import { EditProductForm } from "@/components/catalog/edit-product-form";
 
@@ -15,12 +16,14 @@ export const metadata: Metadata = { title: "Edit product · Acroma" };
 
 export default async function EditProductPage({ params }: PageProps) {
   const { id } = await params;
-  const [product, business] = await Promise.all([
+  const [product, business, products] = await Promise.all([
     safeGetProduct(id),
     getCurrentBusiness(),
+    listProducts().catch(() => []),
   ]);
   if (!product) notFound();
   const vocab = getVocabulary(business?.businessType);
+  const categories = distinctCategories(products);
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
@@ -39,6 +42,7 @@ export default async function EditProductPage({ params }: PageProps) {
       <EditProductForm
         productId={id}
         businessType={business?.businessType}
+        categories={categories}
         defaults={{
           name: product.name,
           description: product.description ?? "",

@@ -23,7 +23,7 @@ const fontDisplay = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Acroma — AI commerce, built for WhatsApp",
+  title: "Acroma, AI commerce built for WhatsApp",
   description:
     "The AI-powered order management and customer service layer for commerce in Ghana and across West Africa. Built for WhatsApp. Built for now.",
   metadataBase: new URL("https://asera.tech"),

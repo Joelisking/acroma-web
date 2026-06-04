@@ -5,6 +5,7 @@ import type { VariantDimension } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useVocab } from "@/components/vocabulary-provider";
 
 type DimensionEditorProps = {
   dimensions: VariantDimension[];
@@ -22,6 +23,9 @@ export function DimensionEditor({
   dimensions,
   onChange,
 }: DimensionEditorProps) {
+  const vocab = useVocab();
+  const groupLower = vocab.optionGroup.toLowerCase();
+
   function setName(idx: number, name: string) {
     onChange(dimensions.map((d, i) => (i === idx ? { ...d, name } : d)));
   }
@@ -48,11 +52,11 @@ export function DimensionEditor({
         >
           <div className="flex items-end gap-2">
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs">Dimension</Label>
+              <Label className="text-xs">{vocab.optionGroup}</Label>
               <Input
                 value={dim.name}
                 onChange={(e) => setName(idx, e.target.value)}
-                placeholder="e.g. Color, Size"
+                placeholder={vocab.optionGroupExample}
                 className="h-10"
               />
             </div>
@@ -60,7 +64,7 @@ export function DimensionEditor({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Remove dimension"
+              aria-label={`Remove ${groupLower}`}
               onClick={() => removeDimension(idx)}
             >
               <X />
@@ -82,7 +86,7 @@ export function DimensionEditor({
           className="w-full gap-2 rounded-xl"
         >
           <Plus />
-          Add dimension
+          Add {groupLower}
         </Button>
       ) : null}
     </div>

@@ -75,6 +75,8 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
     setMessages((prev) => prev.filter((m) => m.id !== tempId));
   }, []);
 
+  const firstOwnerIdx = messages.findIndex((m) => m.sender === "OWNER");
+
   return (
     <>
       <div
@@ -86,13 +88,19 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
             No messages yet.
           </p>
         ) : (
-          messages.map((m) => (
-            <div
-              key={m.id}
-              className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-300"
-            >
-              <MessageBubble message={m} />
-            </div>
+          messages.map((m, i) => (
+            <React.Fragment key={m.id}>
+              {i === firstOwnerIdx && firstOwnerIdx > 0 ? (
+                <div className="text-muted-foreground my-1 flex items-center gap-3 px-2 text-[0.7rem] font-medium">
+                  <span className="bg-border h-px flex-1" />
+                  You stepped in. Acroma paused.
+                  <span className="bg-border h-px flex-1" />
+                </div>
+              ) : null}
+              <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-300">
+                <MessageBubble message={m} />
+              </div>
+            </React.Fragment>
           ))
         )}
       </div>

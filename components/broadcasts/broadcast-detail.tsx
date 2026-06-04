@@ -87,7 +87,7 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
           </p>
         ) : (
           <p className="text-muted-foreground mt-3 text-xs">
-            In-window (free-text) send — only customers active in the last 24h.
+            In-window (free-text) send. Only customers active in the last 24h.
           </p>
         )}
         {broadcast.discount ? (

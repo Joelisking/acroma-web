@@ -73,7 +73,7 @@ export function ProductTagsPicker({
                   "focus-visible:ring-ring/40 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                   "focus-visible:ring-2 focus-visible:outline-none",
                   selected
-                    ? "bg-brand-blue-soft text-brand-blue border-brand-blue/30"
+                    ? "bg-brand-orange border-transparent text-white"
                     : "border-border bg-background text-foreground hover:bg-muted",
                 )}
               >

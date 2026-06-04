@@ -45,7 +45,7 @@ export default async function DashboardLayout({
 
   return (
     <VocabularyProvider businessType={business.businessType}>
-    <div className="bg-background text-foreground flex h-dvh overflow-hidden">
+    <div className="theme-warm bg-background text-foreground flex h-dvh overflow-hidden">
       <Sidebar
         businessName={business.name}
         email={business.email}

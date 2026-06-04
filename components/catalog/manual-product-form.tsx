@@ -1,27 +1,38 @@
 "use client";
 
 import * as React from "react";
+import { Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ProductTagsPicker } from "@/components/catalog/product-tags-picker";
+import { CategoryCombobox } from "@/components/catalog/category-combobox";
 import type { BusinessType, ProductFormValues } from "@/lib/api/types";
 
 type Props = {
   values: ProductFormValues;
   onChange: (next: ProductFormValues) => void;
   /**
-   * Drives whether the dietary / allergen tag picker starts expanded.
-   * Food merchants get it expanded by default; everyone else still has
-   * access via the collapsible header.
+   * Food merchants get the dietary picker expanded by default and no Stock
+   * field (they use the "sold out today, resets tomorrow" model instead of
+   * stock counts).
    */
   businessType?: BusinessType | null;
+  /** Existing categories to offer in the category combobox. */
+  categories?: string[];
 };
 
 /**
- * Controlled create-mode product form. Image upload, save, and variants
- * live on the parent page; this component only renders the scalar fields.
+ * Controlled create-mode form. Image upload, save, and variants live on the
+ * parent page; this renders the scalar fields, grouped in a warm card.
  */
-export function ManualProductForm({ values, onChange, businessType }: Props) {
+export function ManualProductForm({
+  values,
+  onChange,
+  businessType,
+  categories = [],
+}: Props) {
+  const isFood = businessType === "FOOD_BEVERAGES";
+
   function set<K extends keyof ProductFormValues>(
     key: K,
     value: ProductFormValues[K],
@@ -31,74 +42,87 @@ export function ManualProductForm({ values, onChange, businessType }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label htmlFor="product-name">Name</Label>
-        <Input
-          id="product-name"
-          className="h-11"
-          autoFocus
-          value={values.name}
-          onChange={(e) => set("name", e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="product-description">Description</Label>
-        <textarea
-          id="product-description"
-          rows={3}
-          className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[80px] w-full resize-y rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-          value={values.description}
-          onChange={(e) => set("description", e.target.value)}
-        />
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="card-warm space-y-5 p-4 sm:p-5">
         <div className="space-y-1.5">
-          <Label htmlFor="product-price">Price</Label>
+          <Label htmlFor="product-name">Name</Label>
           <Input
-            id="product-price"
-            type="number"
-            inputMode="decimal"
-            step="0.01"
-            min={0}
-            className="h-11 tabular-nums"
-            value={values.basePrice}
-            onChange={(e) => set("basePrice", e.target.value)}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="product-stock">Stock</Label>
-          <Input
-            id="product-stock"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            className="h-11 tabular-nums"
-            value={values.stock}
-            onChange={(e) => set("stock", e.target.value)}
-            disabled={values.hasVariants}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="product-category">Category</Label>
-          <Input
-            id="product-category"
+            id="product-name"
             className="h-11"
-            placeholder="Optional"
-            value={values.category}
-            onChange={(e) => set("category", e.target.value)}
+            autoFocus
+            value={values.name}
+            onChange={(e) => set("name", e.target.value)}
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="product-description">Description</Label>
+          <textarea
+            id="product-description"
+            rows={3}
+            className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[80px] w-full resize-y rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            value={values.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
+        </div>
+
+        <div
+          className={
+            isFood ? "grid gap-5 sm:grid-cols-2" : "grid gap-5 sm:grid-cols-3"
+          }
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="product-price">Price</Label>
+            <Input
+              id="product-price"
+              type="number"
+              inputMode="decimal"
+              step="0.01"
+              min={0}
+              className="h-11 tabular-nums"
+              value={values.basePrice}
+              onChange={(e) => set("basePrice", e.target.value)}
+            />
+          </div>
+
+          {!isFood ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="product-stock">Stock</Label>
+              <Input
+                id="product-stock"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                className="h-11 tabular-nums"
+                value={values.stock}
+                onChange={(e) => set("stock", e.target.value)}
+                disabled={values.hasVariants}
+              />
+            </div>
+          ) : null}
+
+          <div className="space-y-1.5">
+            <Label htmlFor="product-category">Category</Label>
+            <CategoryCombobox
+              id="product-category"
+              value={values.category}
+              onChange={(c) => set("category", c)}
+              categories={categories}
+            />
+          </div>
         </div>
       </div>
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>
           <Label htmlFor="product-has-variants">
-            Has options (size, color, etc.)
+            {isFood
+              ? "Comes in sizes or extras"
+              : "Has options (size, color, etc.)"}
           </Label>
           <p className="text-muted-foreground text-xs">
-            Turn on to manage stock and price per option.
+            {isFood
+              ? "e.g. full or half, extra protein. Set a price per option."
+              : "Turn on to manage stock and price per option."}
           </p>
         </div>
         <input
@@ -124,14 +148,14 @@ export function ManualProductForm({ values, onChange, businessType }: Props) {
       <ProductTagsPicker
         value={values.tags}
         onChange={(tags) => set("tags", tags)}
-        expandedByDefault={businessType === "FOOD_BEVERAGES"}
+        expandedByDefault={isFood}
       />
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>
           <Label htmlFor="product-active">Visible to customers</Label>
           <p className="text-muted-foreground text-xs">
-            Hidden products won&apos;t appear in AI replies or menus.
+            Hidden items won&apos;t appear in AI replies or menus.
           </p>
         </div>
         <input
@@ -142,6 +166,17 @@ export function ManualProductForm({ values, onChange, businessType }: Props) {
           onChange={(e) => set("isActive", e.target.checked)}
         />
       </div>
+
+      {isFood ? (
+        <div className="text-muted-foreground flex items-start gap-2 px-1">
+          <Clock className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
+          <p className="text-xs leading-relaxed">
+            When a dish runs out, mark it{" "}
+            <strong className="text-brand-navy">sold out</strong> from your menu.
+            It comes back automatically tomorrow, no stock counts to keep.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -49,7 +49,7 @@ export function PaymentLinkPanel({ order }: { order: Order }) {
           <p className="eyebrow text-muted-foreground">Payment link</p>
           <p className="text-foreground mt-1 text-sm">
             {order.status === "PAYMENT_FAILED"
-              ? "The last attempt failed — send a fresh link to the customer."
+              ? "The last attempt failed. Send a fresh link to the customer."
               : "Awaiting payment. The customer was sent this link on WhatsApp."}
           </p>
         </div>

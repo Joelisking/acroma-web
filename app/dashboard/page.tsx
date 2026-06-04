@@ -10,11 +10,13 @@ import { DashboardStatsSection } from "@/components/dashboard/dashboard-stats";
 import { SetupCallout } from "@/components/dashboard/setup-callout";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { PayoutNudgeBanner } from "@/components/payments/payout-nudge-banner";
-import { buildActivity } from "@/lib/dashboard-metrics";
+import { buildActivity, selectHomeConversations } from "@/lib/dashboard-metrics";
 import { DEFAULT_DASHBOARD_FILTER } from "@/lib/dashboard-filter";
+import { NeedsYouHero, CaughtUpHero } from "@/components/dashboard/needs-you-hero";
+import { AcromaHandlingList } from "@/components/dashboard/acroma-handling-list";
 import type { DashboardActivity, DashboardStats } from "@/lib/api/types";
 
-export const metadata: Metadata = { title: "Overview · Acroma" };
+export const metadata: Metadata = { title: "Today · Acroma" };
 
 const ACTIVITY_LIMIT = 6;
 
@@ -44,9 +46,13 @@ export default async function OverviewPage() {
     activity.orders,
   ).slice(0, ACTIVITY_LIMIT);
 
+  const { needsYou, handling } = selectHomeConversations(activity.conversations);
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:gap-8">
-      <MobileGreeting name={business.name} />
+      <Greeting name={business.name} />
+
+      {needsYou ? <NeedsYouHero conversation={needsYou} /> : <CaughtUpHero />}
 
       {!business.whatsappWebhookActive ? <SetupCallout /> : null}
 
@@ -57,6 +63,8 @@ export default async function OverviewPage() {
         initialStats={stats}
         currency={business.currency}
       />
+
+      <AcromaHandlingList conversations={handling} />
 
       <RecentActivity items={activityItems} />
     </div>
@@ -71,10 +79,13 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-function MobileGreeting({ name }: { name: string }) {
+function Greeting({ name }: { name: string }) {
+  const hour = new Date().getHours();
+  const part =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   return (
-    <div className="lg:hidden">
-      <p className="eyebrow text-muted-foreground">Welcome back</p>
+    <div>
+      <p className="eyebrow text-muted-foreground">{part}</p>
       <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
         {name}
       </h1>

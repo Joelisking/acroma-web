@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCurrentBusiness } from "@/lib/api/business";
+import { getVocabulary } from "@/lib/vocabulary";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { BusinessForm } from "@/components/settings/business-form";
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
@@ -11,6 +12,8 @@ export const metadata: Metadata = { title: "Business · Settings · Acroma" };
 export default async function BusinessSettingsPage() {
   const business = await getCurrentBusiness();
   if (!business) return null;
+
+  const vocab = getVocabulary(business.businessType);
 
   return (
     <div className="space-y-6">
@@ -29,10 +32,13 @@ export default async function BusinessSettingsPage() {
       </SettingsCard>
 
       <SettingsCard
-        title="Catalog images"
-        description="Upload up to 3 images of your catalog. When customers ask what you have, Acroma sends these images on WhatsApp."
+        title={`${vocab.catalog} images`}
+        description={`Upload up to 3 images of your ${vocab.catalog.toLowerCase()}. When customers ask what you have, Acroma sends these images on WhatsApp.`}
       >
-        <CatalogImagesForm defaultUrls={business.catalogImageUrls ?? []} />
+        <CatalogImagesForm
+          defaultUrls={business.catalogImageUrls ?? []}
+          noun={vocab.catalog}
+        />
       </SettingsCard>
 
       <SettingsCard

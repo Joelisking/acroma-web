@@ -13,6 +13,7 @@ import { DimensionEditor } from "./dimension-editor";
 import { VariantGrid } from "./variant-grid";
 import type { VariantRow } from "./variant-row-input";
 import { SuggestButton } from "./suggest-button";
+import { useVocab } from "@/components/vocabulary-provider";
 
 type VariantsEditorProps = {
   product: Product;
@@ -20,6 +21,7 @@ type VariantsEditorProps = {
 
 export function VariantsEditor({ product }: VariantsEditorProps) {
   const router = useRouter();
+  const vocab = useVocab();
   const [pending, startTransition] = React.useTransition();
 
   const [dimensions, setDimensions] = React.useState<VariantDimension[]>(
@@ -73,7 +75,9 @@ export function VariantsEditor({ product }: VariantsEditorProps) {
 
   function onSave() {
     if (dimensions.some((d) => !d.name.trim() || d.options.length === 0)) {
-      toast.error("Every dimension needs a name and at least one option");
+      toast.error(
+        `Every ${vocab.optionGroup.toLowerCase()} needs a name and at least one option`,
+      );
       return;
     }
 
@@ -96,7 +100,9 @@ export function VariantsEditor({ product }: VariantsEditorProps) {
     <div className="space-y-8">
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-foreground text-sm font-semibold">Dimensions</h2>
+          <h2 className="text-foreground text-sm font-semibold">
+            {vocab.optionGroups}
+          </h2>
           <SuggestButton
             productId={product.id}
             productName={product.name}
@@ -110,7 +116,9 @@ export function VariantsEditor({ product }: VariantsEditorProps) {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-foreground text-sm font-semibold">Variants</h2>
+        <h2 className="text-foreground text-sm font-semibold">
+          {vocab.variantsHeading}
+        </h2>
         <VariantGrid
           rows={rows}
           basePrice={product.basePrice}

@@ -10,7 +10,7 @@ type Props = { items: ActivityItem[] };
 export function RecentActivity({ items }: Props) {
   return (
     <section
-      className="border-border/70 bg-card rounded-2xl border p-6"
+      className="card-warm p-6"
       aria-labelledby="recent-activity-heading"
     >
       <div className="flex items-center justify-between">

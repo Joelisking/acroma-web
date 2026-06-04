@@ -34,7 +34,7 @@ export default async function PaymentCompletePage({
         <h1 className="text-2xl font-semibold">No payment reference</h1>
         <p className="text-muted-foreground">
           We couldn&rsquo;t find a payment reference in this link. If you just
-          paid, please give it a moment and refresh — the business will hear
+          paid, please give it a moment and refresh. The business will hear
           from us on WhatsApp either way.
         </p>
       </Shell>
@@ -49,7 +49,7 @@ export default async function PaymentCompletePage({
         <h1 className="text-2xl font-semibold">Still confirming…</h1>
         <p className="text-muted-foreground">
           We&rsquo;re waiting on confirmation from Paystack. You can close this
-          tab — the business will reach out on WhatsApp shortly.
+          tab. The business will reach out on WhatsApp shortly.
         </p>
       </Shell>
     );
@@ -60,7 +60,7 @@ export default async function PaymentCompletePage({
       <Shell tone="success" icon={<CheckCircle2 className="h-7 w-7" />}>
         <h1 className="text-2xl font-semibold">Payment received</h1>
         <p className="text-muted-foreground">
-          Thanks — we&rsquo;ve got it. The business will reach out on WhatsApp
+          Thanks, we&rsquo;ve got it. The business will reach out on WhatsApp
           shortly to confirm next steps.
         </p>
         <p className="pt-2 text-sm text-muted-foreground">
@@ -100,7 +100,7 @@ export default async function PaymentCompletePage({
     <Shell tone="pending" icon={<Clock className="h-7 w-7" />}>
       <h1 className="text-2xl font-semibold">Still processing</h1>
       <p className="text-muted-foreground">
-        Your payment is in flight. You can close this tab — we&rsquo;ll
+        Your payment is in flight. You can close this tab. We&rsquo;ll
         message you on WhatsApp once it clears.
       </p>
     </Shell>

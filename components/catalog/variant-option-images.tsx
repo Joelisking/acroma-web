@@ -105,7 +105,7 @@ export function VariantOptionImages({ dimensions, onChange }: Props) {
           onClick={confirm}
           className="bg-brand-orange hover:bg-brand-orange/90 h-10 w-full rounded-xl"
         >
-          {selected.length === 0 ? "Skip — no option photos" : "Continue"}
+          {selected.length === 0 ? "Skip, no option photos" : "Continue"}
         </Button>
       </div>
     );

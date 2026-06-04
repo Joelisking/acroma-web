@@ -30,7 +30,7 @@ export default async function VariantsPage({ params }: PageProps) {
           Variants
         </h1>
         <p className="text-muted-foreground text-sm">
-          Add the dimensions your product varies by — color, size, storage —
+          Add the dimensions your product varies by (color, size, storage),
           then set stock and pricing per combination.
         </p>
       </header>

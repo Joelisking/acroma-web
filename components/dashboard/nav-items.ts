@@ -38,7 +38,7 @@ export type NavBadges = Partial<Record<string, NavBadge>>;
  */
 export function getNavItems(vocab: Vocabulary): NavItem[] {
   return [
-    { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard", label: "Today", icon: LayoutDashboard },
     { href: "/dashboard/conversations", label: "Chats", icon: MessageSquare },
     { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
     { href: "/dashboard/catalog", label: vocab.catalog, icon: Package },

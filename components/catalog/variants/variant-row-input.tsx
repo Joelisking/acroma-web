@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useVocab } from "@/components/vocabulary-provider";
 
 type VariantRow = {
   attributes: Record<string, string>;
@@ -34,6 +35,7 @@ export function VariantRowInput({
   basePrice,
   onChange,
 }: VariantRowInputProps) {
+  const vocab = useVocab();
   const label = Object.entries(row.attributes)
     .map(([k, v]) => `${k}: ${v}`)
     .join(" · ");
@@ -41,26 +43,31 @@ export function VariantRowInput({
   return (
     <div
       className={cn(
-        "border-border/70 grid grid-cols-1 items-center gap-3 border-b px-4 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_auto]",
+        "border-border/70 grid grid-cols-1 items-center gap-3 border-b px-4 py-3 last:border-b-0",
+        vocab.tracksStock
+          ? "sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+          : "sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]",
         !row.isActive && "opacity-60",
       )}
     >
       <p className="text-foreground truncate text-sm font-medium">{label}</p>
 
-      <div>
-        <span className="text-muted-foreground sm:hidden text-[0.65rem]">
-          Stock
-        </span>
-        <Input
-          type="number"
-          min={0}
-          value={row.stock}
-          onChange={(e) =>
-            onChange({ ...row, stock: toIntOrZero(e.target.value) })
-          }
-          className="h-9 tabular-nums"
-        />
-      </div>
+      {vocab.tracksStock ? (
+        <div>
+          <span className="text-muted-foreground sm:hidden text-[0.65rem]">
+            Stock
+          </span>
+          <Input
+            type="number"
+            min={0}
+            value={row.stock}
+            onChange={(e) =>
+              onChange({ ...row, stock: toIntOrZero(e.target.value) })
+            }
+            className="h-9 tabular-nums"
+          />
+        </div>
+      ) : null}
 
       <div>
         <span className="text-muted-foreground sm:hidden text-[0.65rem]">

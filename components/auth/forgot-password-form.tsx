@@ -105,8 +105,8 @@ function SentState({ email }: { email: string }) {
           sent a password-reset link. It expires in 1 hour.
         </p>
         <p className="text-muted-foreground text-xs">
-          Don&apos;t see it? Check your spam folder, or try a different email
-          — the one you registered with might not match.
+          Don&apos;t see it? Check your spam folder, or try a different email.
+          The one you registered with might not match.
         </p>
       </div>
       <Link

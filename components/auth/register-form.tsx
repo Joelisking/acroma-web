@@ -58,7 +58,7 @@ export function RegisterForm() {
           Create your account
         </h2>
         <p className="text-muted-foreground text-sm">
-          One account for every channel — WhatsApp today, Instagram and Telegram
+          One account for every channel. WhatsApp today, Instagram and Telegram
           next.
         </p>
       </header>

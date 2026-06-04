@@ -42,7 +42,7 @@ export function DeliveryAddressCard({
 
   return (
     <section
-      className="border-border/70 bg-card rounded-2xl border p-5"
+      className="card-warm p-5"
       aria-label="Delivery address"
     >
       <div className="flex items-start justify-between gap-4">
@@ -56,7 +56,7 @@ export function DeliveryAddressCard({
                 : "text-muted-foreground",
             )}
           >
-            {deliveryAddress ?? "—"}
+            {deliveryAddress ?? "Not provided yet"}
           </p>
         </div>
         {editable ? (
@@ -98,7 +98,7 @@ function EditDialog({
         <DialogHeader>
           <DialogTitle>Edit delivery address</DialogTitle>
           <DialogDescription>
-            Confirm the new address with the customer before saving — Acroma
+            Confirm the new address with the customer before saving. Acroma
             won&apos;t message them about this change.
           </DialogDescription>
         </DialogHeader>

@@ -33,7 +33,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       <OrderHeader order={order} businessType={business.businessType} />
 
       <section
-        className="rounded-2xl border border-border/70 bg-card p-6"
+        className="card-warm p-6"
         aria-label="Order progress"
       >
         <p className="eyebrow text-muted-foreground">Progress</p>
@@ -82,7 +82,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       {order.notes ? (
         <section
-          className="rounded-2xl border border-border/70 bg-card p-5"
+          className="card-warm p-5"
           aria-label="Notes"
         >
           <p className="eyebrow text-muted-foreground">Notes</p>

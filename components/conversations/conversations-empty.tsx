@@ -10,7 +10,7 @@ export function ConversationsEmpty() {
         No conversations yet.
       </p>
       <p className="text-muted-foreground mt-2 max-w-sm text-sm leading-relaxed">
-        When customers message your WhatsApp number, their threads land here —
+        When customers message your WhatsApp number, their threads land here,
         instantly, in real time.
       </p>
     </div>

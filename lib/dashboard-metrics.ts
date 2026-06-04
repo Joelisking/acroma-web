@@ -28,7 +28,7 @@ export function buildActivity(
   const fromOrders: ActivityItem[] = orders.map((o) => ({
     kind: "order",
     id: o.id,
-    title: `New order — ${formatMoney(o.totalAmount, o.currency)}`,
+    title: `New order, ${formatMoney(o.totalAmount, o.currency)}`,
     subtitle: `${
       o.customerName || formatPhone(o.customerPhone)
     } · ${orderLabel(o.status)}`,
@@ -77,4 +77,24 @@ function orderLabel(status: DashboardActivityOrder["status"]): string {
     case "PAYMENT_FAILED":
       return "Payment failed";
   }
+}
+
+/**
+ * Split the recent-activity conversations into the single most-urgent one the
+ * owner must answer (the "Needs you" hero) and the set the AI is currently
+ * handling. The hero is the first WAITING_FOR_OWNER conversation; the handling
+ * list is the AI_HANDLING conversations, excluding the hero.
+ */
+export function selectHomeConversations(
+  conversations: DashboardActivityConversation[],
+): {
+  needsYou: DashboardActivityConversation | null;
+  handling: DashboardActivityConversation[];
+} {
+  const needsYou =
+    conversations.find((c) => c.status === "WAITING_FOR_OWNER") ?? null;
+  const handling = conversations.filter(
+    (c) => c.status === "AI_HANDLING" && c.id !== needsYou?.id,
+  );
+  return { needsYou, handling };
 }

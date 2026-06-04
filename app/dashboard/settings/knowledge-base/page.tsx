@@ -14,7 +14,7 @@ export default async function KnowledgeBasePage() {
     <div className="space-y-6">
       <SettingsCard
         title="Knowledge base"
-        description="Common questions customers ask. Acroma uses the answers below as the source of truth — switch one on once the answer is right for your business."
+        description="Common questions customers ask. Acroma uses the answers below as the source of truth. Switch one on once the answer is right for your business."
       >
         <KnowledgeBaseManager initialEntries={entries} />
       </SettingsCard>

@@ -23,6 +23,7 @@ import { updateProductAction } from "@/lib/api/products-actions";
 import { autofillProductAction } from "@/lib/api/products-ai-actions";
 import { ImageUploader } from "@/components/shared/image-uploader";
 import { ProductTagsPicker } from "@/components/catalog/product-tags-picker";
+import { CategoryCombobox } from "@/components/catalog/category-combobox";
 import { useVocab } from "@/components/vocabulary-provider";
 import type { BusinessType, ProductTag } from "@/lib/api/types";
 
@@ -60,11 +61,19 @@ type Props = {
   defaults: Partial<FormValues>;
   /** Drives whether the tag picker starts expanded (food merchants do). */
   businessType?: BusinessType | null;
+  /** Existing categories to offer in the category combobox. */
+  categories?: string[];
 };
 
-export function EditProductForm({ productId, defaults, businessType }: Props) {
+export function EditProductForm({
+  productId,
+  defaults,
+  businessType,
+  categories = [],
+}: Props) {
   const router = useRouter();
   const vocab = useVocab();
+  const isFood = businessType === "FOOD_BEVERAGES";
   const [pending, startTransition] = React.useTransition();
   const [autofilling, startAutofill] = React.useTransition();
 
@@ -182,7 +191,7 @@ export function EditProductForm({ productId, defaults, businessType }: Props) {
           )}
         />
 
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className={isFood ? "grid gap-5 sm:grid-cols-2" : "grid gap-5 sm:grid-cols-3"}>
           <FormField
             control={form.control}
             name="basePrice"
@@ -206,28 +215,30 @@ export function EditProductForm({ productId, defaults, businessType }: Props) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    className="h-11 tabular-nums"
-                    name={field.name}
-                    ref={field.ref}
-                    onBlur={field.onBlur}
-                    value={field.value ?? 0}
-                    onChange={(e) => field.onChange(toNumber(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {!isFood ? (
+            <FormField
+              control={form.control}
+              name="stock"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stock</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      className="h-11 tabular-nums"
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={field.value ?? 0}
+                      onChange={(e) => field.onChange(toNumber(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
           <FormField
             control={form.control}
             name="category"
@@ -235,11 +246,10 @@ export function EditProductForm({ productId, defaults, businessType }: Props) {
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <FormControl>
-                  <Input
-                    className="h-11"
-                    placeholder="Optional"
-                    {...field}
+                  <CategoryCombobox
                     value={field.value ?? ""}
+                    onChange={field.onChange}
+                    categories={categories}
                   />
                 </FormControl>
                 <FormMessage />

@@ -118,8 +118,8 @@ export function FaqRow({ entry, onChange, onRemove }: FaqRowProps) {
       <div className="mt-3 flex items-center justify-between gap-3">
         <p className="text-muted-foreground text-xs">
           {active
-            ? "Live — Acroma uses this answer with customers."
-            : "Off — saved but not used until you turn it on."}
+            ? "Live. Acroma uses this answer with customers."
+            : "Off. Saved but not used until you turn it on."}
         </p>
         <Button
           type="button"

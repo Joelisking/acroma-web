@@ -64,13 +64,13 @@ export function ImageUploader({
         { method: "POST", body: form },
       );
       if (!res.ok) {
-        toast.error("Upload failed — please try again");
+        toast.error("Upload failed. Please try again");
         return;
       }
       const json = (await res.json()) as CloudinaryResponse;
       onChange(json.secure_url);
     } catch {
-      toast.error("Upload failed — please try again");
+      toast.error("Upload failed. Please try again");
     } finally {
       setPending(false);
       if (inputRef.current) inputRef.current.value = "";

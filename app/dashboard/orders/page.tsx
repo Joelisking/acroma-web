@@ -54,7 +54,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       {orders.length === 0 ? (
         <OrdersEmpty filtered={status !== undefined} />
       ) : (
-        <section className="border-border/70 bg-card overflow-hidden rounded-2xl border">
+        <div className="flex flex-col gap-3">
           {orders.map((order) => (
             <OrderRow
               key={order.id}
@@ -62,7 +62,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
               businessType={business.businessType}
             />
           ))}
-        </section>
+        </div>
       )}
 
       <LiveRefresh

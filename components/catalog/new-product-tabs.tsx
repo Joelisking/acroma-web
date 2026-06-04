@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles, Pencil } from "lucide-react";
+import { Pencil, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NewProductMode } from "@/hooks/use-new-product";
 
@@ -12,22 +12,18 @@ type Props = {
 
 export function NewProductTabs({ mode, onModeChange }: Props) {
   return (
-    <div
-      role="tablist"
-      aria-label="Add product method"
-      className="border-border/70 bg-card flex gap-1 rounded-full border p-1"
-    >
+    <div role="tablist" aria-label="Add item method" className="seg w-full">
+      <TabButton
+        active={mode === "manual"}
+        onClick={() => onModeChange("manual")}
+        icon={Pencil}
+        label="Enter manually"
+      />
       <TabButton
         active={mode === "describe"}
         onClick={() => onModeChange("describe")}
         icon={Sparkles}
         label="Describe with AI"
-      />
-      <TabButton
-        active={mode === "manual"}
-        onClick={() => onModeChange("manual")}
-        icon={Pencil}
-        label="Manual"
       />
     </div>
   );
@@ -51,10 +47,8 @@ function TabButton({
       aria-selected={active}
       onClick={onClick}
       className={cn(
-        "inline-flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors sm:text-sm",
-        active
-          ? "bg-brand-orange text-primary-foreground"
-          : "text-muted-foreground hover:text-foreground",
+        "flex flex-1 items-center justify-center gap-2",
+        active && "on",
       )}
     >
       <Icon className="size-4" />

@@ -15,7 +15,7 @@ export type NewProductMode = "describe" | "manual";
 export function useNewProduct() {
   const router = useRouter();
 
-  const [mode, setMode] = React.useState<NewProductMode>("describe");
+  const [mode, setMode] = React.useState<NewProductMode>("manual");
   const [formValues, setFormValues] = React.useState<ProductFormValues>(EMPTY_FORM_VALUES);
   const [parsedPreview, setParsedPreview] = React.useState<ParsedProduct | null>(null);
   const [originalDescription, setOriginalDescription] = React.useState("");

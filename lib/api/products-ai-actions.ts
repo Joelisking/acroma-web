@@ -21,7 +21,7 @@ export async function parseProductAction(input: {
   } catch (err) {
     return {
       ok: false,
-      error: humanError(err, "Couldn't read that — try a bit more detail"),
+      error: humanError(err, "Couldn't read that. Try a bit more detail"),
     };
   }
 }

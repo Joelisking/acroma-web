@@ -10,7 +10,7 @@ export default function Step3Page() {
       step={3}
       eyebrow="WhatsApp"
       title="Bring Acroma into your inbox."
-      subtitle="This is the moment Acroma starts working — once your number is connected, every message is handled in real time."
+      subtitle="This is the moment Acroma starts working. Once your number is connected, every message is handled in real time."
     >
       <WhatsappStep />
     </WizardShell>

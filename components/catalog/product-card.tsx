@@ -9,9 +9,12 @@ import { cn } from "@/lib/utils";
 export function ProductCard({
   product,
   currency,
+  tracksStock = true,
 }: {
   product: Product;
   currency: string;
+  /** Food merchants don't track stock — show availability instead of a count. */
+  tracksStock?: boolean;
 }) {
   const soldOutToday = isSoldOutToday(product.soldOutAt);
   return (
@@ -73,7 +76,11 @@ export function ProductCard({
             {formatMoney(product.basePrice, currency)}
           </span>
           <span className="text-muted-foreground text-xs tabular-nums">
-            {soldOutToday ? "Back tomorrow" : `${product.stock} in stock`}
+            {soldOutToday
+              ? "Back tomorrow"
+              : tracksStock
+                ? `${product.stock} in stock`
+                : "Available"}
           </span>
         </div>
       </div>

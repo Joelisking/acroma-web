@@ -8,9 +8,11 @@ import { updateCatalogImagesAction } from "@/lib/api/settings-actions";
 
 type Props = {
   defaultUrls: string[];
+  /** User-facing noun for this surface: "Catalog" or "Menu" (vertical-aware). */
+  noun: string;
 };
 
-export function CatalogImagesForm({ defaultUrls }: Props) {
+export function CatalogImagesForm({ defaultUrls, noun }: Props) {
   const [slots, setSlots] = React.useState<Array<string | null>>([
     defaultUrls[0] ?? null,
     defaultUrls[1] ?? null,
@@ -31,7 +33,7 @@ export function CatalogImagesForm({ defaultUrls }: Props) {
     startTransition(async () => {
       const result = await updateCatalogImagesAction(urls);
       if (!result.ok) toast.error(result.error);
-      else toast.success("Catalog images saved");
+      else toast.success(`${noun} images saved`);
     });
   }
 
@@ -45,7 +47,7 @@ export function CatalogImagesForm({ defaultUrls }: Props) {
             onChange={(v) => handleChange(i, v)}
             kind="catalog"
             aspect="aspect-[3/4]"
-            aria-label={`Catalog image ${i + 1}`}
+            aria-label={`${noun} image ${i + 1}`}
           />
         ))}
       </div>

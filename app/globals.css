@@ -72,6 +72,7 @@
     --------------------------------------------------------------- */
     --brand-orange:       oklch(0.690 0.183 44);
     --brand-orange-soft:  oklch(0.965 0.025 60);
+    --brand-orange-bright: oklch(0.751 0.163 48.1); /* gradient companion for warm hero */
     --brand-navy:         oklch(0.250 0.040 263);
     --brand-blue:         oklch(0.550 0.220 262);
     --brand-blue-soft:    oklch(0.970 0.018 250);
@@ -186,6 +187,20 @@
   html {
     @apply font-sans;
   }
+
+  /* Warm Concierge — scoped to the dashboard shell (.theme-warm).
+     Light mode only: rounder geometry + warm hairlines/fills on a white bg.
+     Dark mode keeps the existing navy tokens. */
+  .theme-warm {
+    --radius: 0.95rem;
+    --border: oklch(0.930 0.012 70);
+    --muted: oklch(0.975 0.008 70);
+  }
+  .dark .theme-warm {
+    /* restore dark hairlines/fills; the warmth is a light-paper effect */
+    --border: oklch(1 0 0 / 12%);
+    --muted: oklch(0.290 0.030 263);
+  }
 }
 
 @layer utilities {
@@ -220,6 +235,103 @@
     opacity: 0.035;
     background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.65 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
     background-size: 240px 240px;
+  }
+
+  /* Warm card: white surface, soft brown-tinted lift, rounder corners. */
+  .card-warm {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 1.4);
+    box-shadow:
+      0 1px 2px rgba(60, 40, 20, 0.04),
+      0 8px 24px -16px rgba(60, 40, 20, 0.18);
+  }
+
+  /* "Needs you" hero — warm orange gradient. */
+  .needs-hero {
+    background: linear-gradient(
+      135deg,
+      var(--brand-orange) 0%,
+      var(--brand-orange-bright) 100%
+    );
+    color: #fff;
+    border-radius: calc(var(--radius) * 1.4);
+    box-shadow: 0 12px 30px -12px
+      color-mix(in srgb, var(--brand-orange) 55%, transparent);
+  }
+
+  /* AI suggestion / hint card — dashed blue on blue-soft. */
+  .suggest-card {
+    background: var(--brand-blue-soft);
+    border: 1px dashed color-mix(in srgb, var(--brand-blue) 35%, transparent);
+    border-radius: var(--radius);
+  }
+
+  /* Rounded-pill composer surface. */
+  .composer-warm {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 6px 18px -12px rgba(60, 40, 20, 0.3);
+  }
+
+  /* Slide-to-take-over track (used in Phase 2). */
+  .slideover {
+    position: relative;
+    height: 52px;
+    border-radius: 999px;
+    background: var(--brand-blue-soft);
+    border: 1px solid color-mix(in srgb, var(--brand-blue) 18%, transparent);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .slideover .track-label {
+    flex: 1;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--brand-blue);
+    padding-left: 44px;
+  }
+  .slideover .knob {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--brand-orange);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--brand-orange) 40%, transparent);
+  }
+
+  /* Segmented control (manual/AI tabs, etc.). */
+  .seg {
+    display: inline-flex;
+    background: var(--muted);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .seg button {
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+  }
+  .seg button.on {
+    background: var(--card);
+    color: var(--foreground);
+    box-shadow: 0 1px 3px rgba(20, 30, 50, 0.1);
   }
 
   /* Editorial diagonal divider — echoes the deck cover slash */

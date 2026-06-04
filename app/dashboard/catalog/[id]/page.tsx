@@ -124,10 +124,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             variants={product.variants}
             basePrice={product.basePrice}
             currency={business.currency}
+            tracksStock={vocab.tracksStock}
           />
         ) : (
           <p className="text-muted-foreground text-sm">
-            No variants. {product.stock} units in stock at base price.
+            No {vocab.variantsHeading.toLowerCase()}.
+            {vocab.tracksStock
+              ? ` ${product.stock} units in stock at base price.`
+              : ""}
           </p>
         )}
       </section>

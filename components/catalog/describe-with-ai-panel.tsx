@@ -59,7 +59,11 @@ function PreParse({
         value={text}
         onChange={(e) => setText(e.target.value.slice(0, MAX_LENGTH))}
         rows={5}
-        placeholder={`Describe your ${vocab.itemLower} in a sentence or two. e.g. "Nike Air Max in black, sizes 8 to 12, GHS 850. White also available, only sizes 9 to 11."`}
+        placeholder={
+          vocab.tracksStock
+            ? `Describe your ${vocab.itemLower} in a sentence or two. e.g. "Nike Air Max in black, sizes 8 to 12, GHS 850. White also available, only sizes 9 to 11."`
+            : `Describe your ${vocab.itemLower} in a sentence or two. e.g. "Jollof rice with grilled chicken, GHS 45. Regular or large, large is GHS 60."`
+        }
         className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[120px] w-full resize-y rounded-xl border p-3 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
       />
       <div className="flex justify-end">
@@ -88,6 +92,7 @@ function PostParse({
   onRefine: (followUp: string) => void;
   onEditOriginal: () => void;
 }) {
+  const vocab = useVocab();
   const [followUp, setFollowUp] = React.useState("");
 
   function handleRefine() {
@@ -129,7 +134,9 @@ function PostParse({
           onChange={(e) => setFollowUp(e.target.value.slice(0, MAX_LENGTH))}
           rows={3}
           placeholder={
-            'e.g. "Change the price to GHS 450"\n"Add a medium size"\n"Stock is 15, not 0"'
+            vocab.tracksStock
+              ? 'e.g. "Change the price to GHS 450"\n"Add a medium size"\n"Stock is 15, not 0"'
+              : 'e.g. "Change the price to GHS 45"\n"Add a large size"\n"Make it spicy"'
           }
           className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[80px] w-full resize-y rounded-xl border p-3 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
         />

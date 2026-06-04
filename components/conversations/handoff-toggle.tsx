@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bot, User } from "lucide-react";
+import { Bot } from "lucide-react";
 import { toast } from "sonner";
 import { handoffAction } from "@/lib/api/conversations-actions";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ type HandoffToggleProps = {
   status: ConversationStatus;
 };
 
-// Exactly one control is ever shown: take over when the AI is replying, hand
-// back when the owner is. WAITING_FOR_OWNER (the AI escalated to the owner)
-// counts as the owner being in control, so it offers "Hand back to AI" too —
-// never both buttons at once.
+// WAITING_FOR_OWNER (AI escalated) and WITH_OWNER both mean the owner is in
+// control, so the header offers "Hand back to AI". When the AI is in control
+// (AI_HANDLING / RESOLVED) the take-over path is the slide bar above the
+// composer, so the header shows nothing.
 function actionFor(status: ConversationStatus): HandoffAction {
   switch (status) {
     case "WAITING_FOR_OWNER":
@@ -32,6 +32,8 @@ export function HandoffToggle({ conversationId, status }: HandoffToggleProps) {
   const [pending, startTransition] = React.useTransition();
   const action = actionFor(status);
 
+  if (action === "TAKE_OVER") return null;
+
   function run() {
     startTransition(async () => {
       const result = await handoffAction(conversationId, action);
@@ -39,25 +41,8 @@ export function HandoffToggle({ conversationId, status }: HandoffToggleProps) {
         toast.error(result.error);
         return;
       }
-      toast.success(
-        action === "TAKE_OVER" ? "You're now in the chat" : "AI is back on",
-      );
+      toast.success("AI is back on");
     });
-  }
-
-  if (action === "TAKE_OVER") {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={pending}
-        onClick={run}
-        className="gap-1.5"
-      >
-        <User />
-        Take over
-      </Button>
-    );
   }
 
   return (

@@ -2,14 +2,20 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/api/business";
+import { listProducts } from "@/lib/api/products";
 import { getVocabulary } from "@/lib/vocabulary";
+import { distinctCategories } from "@/lib/catalog/categories";
 import { NewProductPageClient } from "@/components/catalog/new-product-page";
 
 export const metadata: Metadata = { title: "New product · Acroma" };
 
 export default async function NewProductPage() {
-  const business = await getCurrentBusiness();
+  const [business, products] = await Promise.all([
+    getCurrentBusiness(),
+    listProducts().catch(() => []),
+  ]);
   const vocab = getVocabulary(business?.businessType);
+  const categories = distinctCategories(products);
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <header className="space-y-2">
@@ -24,7 +30,10 @@ export default async function NewProductPage() {
           Add a {vocab.itemLower}
         </h1>
       </header>
-      <NewProductPageClient businessType={business?.businessType} />
+      <NewProductPageClient
+        businessType={business?.businessType}
+        categories={categories}
+      />
     </div>
   );
 }

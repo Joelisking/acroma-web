@@ -27,6 +27,22 @@ export type Vocabulary = {
   shippedLabel: string;
   /** "Mark as shipped" | "Mark out for delivery" — action verb for the SHIPPED transition. */
   markShippedLabel: string;
+  /** "Dimension" | "Option group" — a single variant axis (e.g. Size). Title case. */
+  optionGroup: string;
+  /** "Dimensions" | "Option groups" — plural, used as a section heading. Title case. */
+  optionGroups: string;
+  /** Placeholder example for naming a variant axis (e.g. "e.g. Color, Size"). */
+  optionGroupExample: string;
+  /** "Variants" | "Combinations" — heading for the generated per-option rows. */
+  variantsHeading: string;
+  /** "Variant" | "Combination" — singular label/column for one generated row. */
+  variantLabel: string;
+  /**
+   * Whether this vertical tracks numeric stock counts. Food merchants don't
+   * (they use the "sold out today" model), so stock inputs are hidden for
+   * them. This is the one behavioral flag here; every other field is copy.
+   */
+  tracksStock: boolean;
 };
 
 const FOOD: Vocabulary = {
@@ -37,6 +53,12 @@ const FOOD: Vocabulary = {
   itemsLower: "menu items",
   shippedLabel: "Out for delivery",
   markShippedLabel: "Mark out for delivery",
+  optionGroup: "Option group",
+  optionGroups: "Option groups",
+  optionGroupExample: "e.g. Size, Spice level",
+  variantsHeading: "Combinations",
+  variantLabel: "Combination",
+  tracksStock: false,
 };
 
 const GENERAL: Vocabulary = {
@@ -47,6 +69,12 @@ const GENERAL: Vocabulary = {
   itemsLower: "products",
   shippedLabel: "Shipped",
   markShippedLabel: "Mark as shipped",
+  optionGroup: "Dimension",
+  optionGroups: "Dimensions",
+  optionGroupExample: "e.g. Color, Size",
+  variantsHeading: "Variants",
+  variantLabel: "Variant",
+  tracksStock: true,
 };
 
 /**

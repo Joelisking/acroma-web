@@ -5,6 +5,8 @@ type VariantsListProps = {
   variants: ProductVariant[];
   basePrice: number;
   currency: string;
+  /** Food merchants don't track stock — show availability instead of a count. */
+  tracksStock?: boolean;
 };
 
 /**
@@ -15,6 +17,7 @@ export function VariantsList({
   variants,
   basePrice,
   currency,
+  tracksStock = true,
 }: VariantsListProps) {
   if (variants.length === 0) {
     return (
@@ -34,11 +37,14 @@ export function VariantsList({
               <p className="text-foreground truncate font-medium">
                 {Object.entries(v.attributes)
                   .map(([k, val]) => `${k}: ${val}`)
-                  .join(" · ") || "—"}
+                  .join(" · ") || "Default"}
               </p>
               <p className="text-muted-foreground text-xs tabular-nums">
-                {v.stock} in stock
-                {!v.isActive ? " · hidden" : ""}
+                {tracksStock
+                  ? `${v.stock} in stock${!v.isActive ? " · hidden" : ""}`
+                  : v.isActive
+                    ? "Available"
+                    : "Hidden"}
               </p>
             </div>
             <span className="font-display text-foreground text-base font-medium tabular-nums">

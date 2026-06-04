@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImagePlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { ImageUploader } from "@/components/shared/image-uploader";
 import { NewProductTabs } from "@/components/catalog/new-product-tabs";
 import { DescribeWithAiPanel } from "@/components/catalog/describe-with-ai-panel";
@@ -18,12 +17,17 @@ import type { BusinessType } from "@/lib/api/types";
 
 type Props = {
   businessType?: BusinessType | null;
+  categories?: string[];
 };
 
-export function NewProductPageClient({ businessType }: Props = {}) {
+export function NewProductPageClient({
+  businessType,
+  categories = [],
+}: Props = {}) {
   const router = useRouter();
   const np = useNewProduct();
   const vocab = useVocab();
+  const isFood = businessType === "FOOD_BEVERAGES";
 
   const showVariantImages =
     np.formValues.hasVariants && np.formValues.variantDimensions.length > 0;
@@ -31,6 +35,24 @@ export function NewProductPageClient({ businessType }: Props = {}) {
   return (
     <div className="space-y-6">
       <NewProductTabs mode={np.mode} onModeChange={np.setMode} />
+
+      {/* Photo first, as a friendly banner instead of a buried field. */}
+      <div className="space-y-1.5">
+        <ImageUploader
+          kind="product"
+          aspect="aspect-[16/9]"
+          value={np.formValues.imageUrl || null}
+          onChange={(url) =>
+            np.setFormValues({ ...np.formValues, imageUrl: url ?? "" })
+          }
+        />
+        <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
+          <ImagePlus className="size-3.5" />
+          {isFood
+            ? "Add a photo of the dish. Acroma can send it to customers in chat."
+            : "Add a photo. Acroma can send it to customers in chat."}
+        </p>
+      </div>
 
       {np.mode === "describe" ? (
         <DescribeWithAiPanel
@@ -47,6 +69,7 @@ export function NewProductPageClient({ businessType }: Props = {}) {
           values={np.formValues}
           onChange={np.setFormValues}
           businessType={businessType}
+          categories={categories}
         />
       )}
 
@@ -57,24 +80,6 @@ export function NewProductPageClient({ businessType }: Props = {}) {
         />
       ) : null}
 
-      <div className="space-y-2">
-        <Label>{vocab.item} image</Label>
-        <ImageUploader
-          kind="product"
-          aspect="aspect-[4/3]"
-          value={np.formValues.imageUrl || null}
-          onChange={(url) =>
-            np.setFormValues({ ...np.formValues, imageUrl: url ?? "" })
-          }
-        />
-        {businessType === "FOOD_BEVERAGES" ? (
-          <p className="text-muted-foreground text-xs">
-            A clear photo of each dish helps customers decide. The AI can send
-            these in chat.
-          </p>
-        ) : null}
-      </div>
-
       {showVariantImages ? (
         <VariantOptionImages
           dimensions={np.formValues.variantDimensions}
@@ -84,7 +89,9 @@ export function NewProductPageClient({ businessType }: Props = {}) {
         />
       ) : null}
 
-      <div className="flex justify-end gap-3 pt-2">
+      {/* Non-sticky on purpose: a fixed mobile bottom nav already sits at the
+          bottom of the dashboard shell. */}
+      <div className="flex gap-3 pt-2">
         <Button
           type="button"
           variant="ghost"
@@ -98,10 +105,10 @@ export function NewProductPageClient({ businessType }: Props = {}) {
           type="button"
           onClick={np.commit}
           disabled={!np.canSave || np.saving}
-          className="bg-brand-orange hover:bg-brand-orange/90 h-10 gap-2 rounded-xl px-5"
+          className="bg-brand-orange hover:bg-brand-orange/90 h-11 flex-1 gap-2 rounded-xl px-5"
         >
           {np.saving ? <Loader2 className="animate-spin" /> : null}
-          Add {vocab.itemLower}
+          {isFood ? "Add to menu" : `Add ${vocab.itemLower}`}
         </Button>
       </div>
     </div>

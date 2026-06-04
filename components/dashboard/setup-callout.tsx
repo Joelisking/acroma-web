@@ -27,7 +27,7 @@ export function SetupCallout() {
           </h2>
           <p className="text-secondary-foreground/70 mt-3 text-sm">
             Link your WhatsApp Business number and Acroma will start replying,
-            taking orders, and collecting payments — within minutes.
+            taking orders, and collecting payments, within minutes.
           </p>
         </div>
         <Button

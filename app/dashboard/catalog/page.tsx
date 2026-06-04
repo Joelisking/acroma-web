@@ -7,6 +7,7 @@ import { getCurrentBusiness } from "@/lib/api/business"
 import { getVocabulary } from "@/lib/vocabulary"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/catalog/product-card"
+import { MenuList } from "@/components/catalog/menu-list"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
 
 export const metadata: Metadata = { title: "Catalog · Acroma" }
@@ -19,17 +20,22 @@ export default async function CatalogPage() {
   if (!business) return null
 
   const vocab = getVocabulary(business.businessType)
+  const isFood = business.businessType === "FOOD_BEVERAGES"
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow text-muted-foreground">{vocab.items}</p>
+          <p className="eyebrow text-muted-foreground">
+            {isFood ? "Today" : vocab.items}
+          </p>
           <h1 className="mt-1 font-display text-3xl font-medium tracking-tight text-foreground">
-            {vocab.catalog}
+            {isFood ? "Today's menu" : vocab.catalog}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Everything Acroma can offer your customers.
+            {isFood
+              ? "Flip a switch to mark something sold out for today."
+              : "Everything Acroma can offer your customers."}
           </p>
         </div>
 
@@ -100,10 +106,17 @@ export default async function CatalogPage() {
 
       {products.length === 0 ? (
         <CatalogEmpty vocab={vocab} />
+      ) : isFood ? (
+        <MenuList products={products} currency={business.currency} />
       ) : (
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} currency={business.currency} />
+            <ProductCard
+              key={p.id}
+              product={p}
+              currency={business.currency}
+              tracksStock={vocab.tracksStock}
+            />
           ))}
         </section>
       )}

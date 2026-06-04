@@ -41,7 +41,7 @@ export function CatalogDoneStep() {
           </h2>
           <p className="text-secondary-foreground/75 max-w-md text-sm leading-relaxed">
             Acroma is set up. The moment a customer messages your WhatsApp,
-            you&apos;ll see it light up the dashboard in real time — orders,
+            you&apos;ll see it light up the dashboard in real time. Orders,
             payments, and all.
           </p>
         </div>

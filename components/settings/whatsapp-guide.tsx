@@ -33,7 +33,7 @@ export function WhatsappGuide() {
             App type: <strong>Business</strong>.
           </li>
           <li>
-            Give it a name (anything — e.g. &ldquo;Acroma WhatsApp&rdquo;) and
+            Give it a name (anything, e.g. &ldquo;Acroma WhatsApp&rdquo;) and
             link it to the business account that will own your number.
           </li>
         </ul>
@@ -44,7 +44,7 @@ export function WhatsappGuide() {
           On the new app&apos;s dashboard, scroll to{" "}
           <strong>Add a product</strong>, find <strong>WhatsApp</strong>, and
           click <strong>Set up</strong>. This creates your{" "}
-          <strong>WhatsApp Business Account (WABA)</strong> — the container
+          <strong>WhatsApp Business Account (WABA)</strong>, the container
           your business number will live under.
         </p>
       </WhatsappGuideStep>
@@ -60,7 +60,7 @@ export function WhatsappGuide() {
         <ul className="list-disc space-y-1 pl-5">
           <li>Verify it via SMS or voice call.</li>
           <li>
-            Set your <strong>display name</strong> — this is what your
+            Set your <strong>display name</strong>, this is what your
             customers see. Meta reviews it for approval.
           </li>
           <li>
@@ -83,11 +83,11 @@ export function WhatsappGuide() {
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Phone number ID</strong> — shown under the &ldquo;From&rdquo;
+            <strong>Phone number ID</strong>, shown under the &ldquo;From&rdquo;
             dropdown.
           </li>
           <li>
-            <strong>WhatsApp Business Account ID</strong> — listed just below
+            <strong>WhatsApp Business Account ID</strong>, listed just below
             it.
           </li>
         </ul>
@@ -152,7 +152,7 @@ export function WhatsappGuide() {
           </li>
         </ul>
         <p className="text-brand-orange">
-          Copy the token immediately — Meta only shows it once.
+          Copy the token immediately. Meta only shows it once.
         </p>
         <PasteHint>
           Paste the token into Acroma&apos;s <em>Access token</em> field.

@@ -168,7 +168,7 @@ export function AiForm({ business }: { business: Business }) {
                 <textarea
                   rows={6}
                   className="border-input bg-background hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-ring/40 placeholder:text-muted-foreground min-h-[140px] w-full resize-y rounded-md border px-3 py-2 text-sm leading-relaxed transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                  placeholder="The instruction Acroma uses when replying. Generated during onboarding — edit any time to fine-tune the AI's voice."
+                  placeholder="The instruction Acroma uses when replying. Generated during onboarding. Edit any time to fine-tune the AI's voice."
                   {...field}
                   value={field.value ?? ""}
                 />

@@ -9,6 +9,7 @@ import { cartesianAttributes, attributesKey } from "@/lib/cartesian";
 import { DimensionEditor } from "@/components/catalog/variants/dimension-editor";
 import { VariantGrid } from "@/components/catalog/variants/variant-grid";
 import type { VariantRow } from "@/components/catalog/variants/variant-row-input";
+import { useVocab } from "@/components/vocabulary-provider";
 
 type Props = {
   values: ProductFormValues;
@@ -24,6 +25,8 @@ type Props = {
  * the merchant has already set on rows whose attribute keys still exist.
  */
 export function InlineVariantsEditor({ values, onChange }: Props) {
+  const vocab = useVocab();
+
   const basePriceNumber = React.useMemo(() => {
     const n = Number(values.basePrice);
     return Number.isFinite(n) && n >= 0 ? n : 0;
@@ -81,7 +84,9 @@ export function InlineVariantsEditor({ values, onChange }: Props) {
   return (
     <div className="space-y-6">
       <section className="space-y-3">
-        <h2 className="text-foreground text-sm font-semibold">Dimensions</h2>
+        <h2 className="text-foreground text-sm font-semibold">
+          {vocab.optionGroups}
+        </h2>
         <DimensionEditor
           dimensions={values.variantDimensions}
           onChange={setDimensions}
@@ -89,7 +94,9 @@ export function InlineVariantsEditor({ values, onChange }: Props) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-foreground text-sm font-semibold">Variants</h2>
+        <h2 className="text-foreground text-sm font-semibold">
+          {vocab.variantsHeading}
+        </h2>
         <VariantGrid
           rows={rows}
           basePrice={basePriceNumber}

@@ -26,7 +26,7 @@ export function OrderItems({
 
   return (
     <>
-      <ul className="border-border/70 bg-card divide-border/70 divide-y overflow-hidden rounded-2xl border">
+      <ul className="card-warm divide-border/70 divide-y overflow-hidden">
         {items.map((item) => (
           <li
             key={item.id}
