@@ -16,7 +16,7 @@ export function ConversationHeader({
   const initials = getInitials(conversation.customerName, "·");
 
   return (
-    <header className="border-border/70 bg-background/85 sticky top-16 z-20 -mx-4 flex items-center gap-3 border-b px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:top-0 lg:-mx-10 lg:px-10">
+    <header className="border-border/70 bg-background/85 sticky top-0 z-20 -mx-4 flex items-center gap-3 border-b px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10">
       <Link
         href="/dashboard/conversations"
         aria-label="Back to conversations"
