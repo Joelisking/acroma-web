@@ -52,8 +52,36 @@ const FOOD_SEEDS: FaqSeed[] = [
   },
 ];
 
+const SERVICES_SEEDS: FaqSeed[] = [
+  {
+    category: "HOURS",
+    question: "What are your opening hours?",
+  },
+  {
+    category: "LOCATION",
+    question: "Where are you located, and is there parking?",
+  },
+  {
+    category: "PAYMENT",
+    question: "How do I pay? Do you take MoMo, or do I pay at the salon?",
+  },
+  {
+    category: "OTHER",
+    question: "How do I book an appointment, and can I reschedule?",
+  },
+  {
+    category: "OTHER",
+    question: "What services do you offer and how long do they take?",
+  },
+  {
+    category: "OTHER",
+    question: "What is your cancellation or no-show policy?",
+  },
+];
+
 const SEEDS_BY_TYPE: Partial<Record<BusinessType, FaqSeed[]>> = {
   FOOD_BEVERAGES: FOOD_SEEDS,
+  SERVICES: SERVICES_SEEDS,
 };
 
 export function getFaqSeeds(
