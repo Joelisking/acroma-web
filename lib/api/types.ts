@@ -138,6 +138,7 @@ export type HandoffAction = "TAKE_OVER" | "RESUME_AI";
  * Per-merchant escalation reminder cadence. Backend bounds:
  *   - minute fields: 1–1440
  *   - maxReminders: 1–10
+ *   - appointmentReminderHours: 1–168
  */
 export type ReminderSettings = {
   reminderFirstMinutes: number;
@@ -145,6 +146,14 @@ export type ReminderSettings = {
   reminderThirdMinutes: number;
   autoTakeoverMinutes: number;
   maxReminders: number;
+  /** SERVICES only. Hours before a scheduled appointment to send a reminder. */
+  appointmentReminderHours: number;
+  /**
+   * SERVICES only. Approved WhatsApp template name used to reach customers
+   * who last messaged more than 24 hours ago. Null means only customers
+   * inside the 24-hour window will receive the reminder.
+   */
+  appointmentReminderTemplateName: string | null;
 };
 
 // ---------------------------------------------------------------------------

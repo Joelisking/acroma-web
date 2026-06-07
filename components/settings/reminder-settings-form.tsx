@@ -102,10 +102,10 @@ export function ReminderSettingsForm({ initial }: ReminderSettingsFormProps) {
   const values = useWatch({ control: form.control });
   const dirty = React.useMemo(
     () =>
-      (Object.keys(serverValues) as (keyof ReminderSettings)[]).some(
+      (Object.keys(form.formState.defaultValues ?? {}) as (keyof FormValues)[]).some(
         (k) => Number(values?.[k]) !== serverValues[k],
       ),
-    [serverValues, values],
+    [form.formState.defaultValues, serverValues, values],
   );
 
   function onSubmit(submitted: FormValues) {
