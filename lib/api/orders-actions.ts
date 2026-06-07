@@ -94,6 +94,28 @@ export async function delayOrderAction(
   }
 }
 
+export async function markOrdersPaidAction(
+  orderIds: string[],
+  amountPaid?: number,
+): Promise<ActionResult<Order[]>> {
+  try {
+    const orders = await apiFetch<Order[]>(`/orders/mark-paid`, {
+      method: "PATCH",
+      body: { orderIds, ...(amountPaid != null ? { amountPaid } : {}) },
+    });
+    for (const id of orderIds) {
+      revalidatePath(`/dashboard/orders/${id}`);
+    }
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: orders };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't mark as paid" };
+    }
+    return { ok: false, error: "Couldn't mark as paid" };
+  }
+}
+
 export async function updateDeliveryAddressAction(
   orderId: string,
   deliveryAddress: string,
