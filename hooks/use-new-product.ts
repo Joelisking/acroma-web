@@ -83,6 +83,11 @@ export function useNewProduct() {
           : Number.isFinite(Number(formValues.stock))
             ? Number(formValues.stock)
             : 0,
+        estimatedDurationMinutes:
+          formValues.estimatedDurationMinutes.trim() !== "" &&
+          Number.isFinite(Number(formValues.estimatedDurationMinutes))
+            ? Number(formValues.estimatedDurationMinutes)
+            : undefined,
         category: formValues.category.trim() || undefined,
         imageUrl: formValues.imageUrl.trim() || undefined,
         isActive: formValues.isActive,

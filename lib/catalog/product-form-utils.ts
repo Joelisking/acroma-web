@@ -5,6 +5,7 @@ export const EMPTY_FORM_VALUES: ProductFormValues = {
   description: "",
   basePrice: "",
   stock: "",
+  estimatedDurationMinutes: "",
   category: "",
   imageUrl: "",
   isActive: true,
@@ -28,6 +29,10 @@ export function parsedToFormValues(
     description: p.description ?? "",
     basePrice: String(p.basePrice),
     stock: String(p.stock ?? 0),
+    estimatedDurationMinutes:
+      p.estimatedDurationMinutes != null
+        ? String(p.estimatedDurationMinutes)
+        : prev.estimatedDurationMinutes,
     category: p.category ?? "",
     imageUrl: prev.imageUrl,
     isActive: prev.isActive,

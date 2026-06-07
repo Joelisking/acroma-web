@@ -23,6 +23,8 @@ export type ProductInput = {
    * existing tags alone (backend uses Prisma `set:` semantics).
    */
   tags?: ProductTag[];
+  /** Services vertical: estimated service duration in minutes. Omit for non-services products. */
+  estimatedDurationMinutes?: number;
 };
 
 export async function createProductAction(

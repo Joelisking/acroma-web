@@ -240,6 +240,7 @@ export type ParsedProduct = {
     priceOverride: number | null;
   }>;
   stock: number | null;
+  estimatedDurationMinutes?: number | null;
 };
 
 /**
@@ -264,6 +265,7 @@ export type Product = {
   description: string | null;
   basePrice: number;
   stock: number;
+  estimatedDurationMinutes: number | null;
   imageUrl: string | null;
   isActive: boolean;
   category: string | null;
@@ -309,6 +311,8 @@ export type ProductFormValues = {
   description: string;
   basePrice: string;
   stock: string;
+  /** Services: estimated duration in minutes, as a string (converted at submit). */
+  estimatedDurationMinutes: string;
   category: string;
   imageUrl: string;
   isActive: boolean;
