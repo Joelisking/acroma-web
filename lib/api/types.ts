@@ -194,6 +194,7 @@ export type OrderStatus =
   | "SHIPPED"
   | "DELIVERED"
   | "CANCELLED"
+  | "NO_SHOW"
   | "PAYMENT_FAILED";
 
 export type OrderItem = {
@@ -349,6 +350,8 @@ export type Order = {
   subtotal: number;
   discountId: string | null;
   discountAmount: number;
+  scheduledFor: string | null;
+  amountPaid: number | null;
   discount: OrderDiscount | null;
   createdAt: string;
   updatedAt: string;
