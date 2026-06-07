@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { listOrders } from "@/lib/api/orders";
 import { getCurrentBusiness } from "@/lib/api/business";
 import type { OrderStatus } from "@/lib/api/types";
-import { OrderRow } from "@/components/orders/order-row";
+import { OrdersList } from "@/components/orders/orders-list";
 import { OrderStatusFilter } from "@/components/orders/order-status-filter";
 import { OrdersEmpty } from "@/components/orders/orders-empty";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
@@ -55,15 +55,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       {orders.length === 0 ? (
         <OrdersEmpty filtered={status !== undefined} />
       ) : (
-        <div className="flex flex-col gap-3">
-          {orders.map((order) => (
-            <OrderRow
-              key={order.id}
-              order={order}
-              businessType={business.businessType}
-            />
-          ))}
-        </div>
+        <OrdersList orders={orders} businessType={business.businessType} />
       )}
 
       <LiveRefresh
