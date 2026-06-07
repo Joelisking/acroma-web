@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ProductTagsPicker } from "@/components/catalog/product-tags-picker";
 import { CategoryCombobox } from "@/components/catalog/category-combobox";
 import type { BusinessType, ProductFormValues } from "@/lib/api/types";
+import { getVocabulary } from "@/lib/vocabulary";
 
 type Props = {
   values: ProductFormValues;
@@ -32,6 +33,8 @@ export function ManualProductForm({
   categories = [],
 }: Props) {
   const isFood = businessType === "FOOD_BEVERAGES";
+  const isServices = businessType === "SERVICES";
+  const tracksStock = getVocabulary(businessType).tracksStock;
 
   function set<K extends keyof ProductFormValues>(
     key: K,
@@ -84,7 +87,7 @@ export function ManualProductForm({
             />
           </div>
 
-          {!isFood ? (
+          {tracksStock ? (
             <div className="space-y-1.5">
               <Label htmlFor="product-stock">Stock</Label>
               <Input
@@ -109,6 +112,22 @@ export function ManualProductForm({
               categories={categories}
             />
           </div>
+
+          {isServices ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="product-duration">Duration (minutes)</Label>
+              <Input
+                id="product-duration"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="e.g. 45"
+                className="h-11 tabular-nums"
+                value={values.estimatedDurationMinutes}
+                onChange={(e) => set("estimatedDurationMinutes", e.target.value)}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
 
