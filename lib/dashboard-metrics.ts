@@ -74,6 +74,8 @@ function orderLabel(status: DashboardActivityOrder["status"]): string {
       return "Delivered";
     case "CANCELLED":
       return "Cancelled";
+    case "NO_SHOW":
+      return "No-show";
     case "PAYMENT_FAILED":
       return "Payment failed";
   }
