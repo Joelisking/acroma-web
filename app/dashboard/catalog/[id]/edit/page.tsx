@@ -48,6 +48,7 @@ export default async function EditProductPage({ params }: PageProps) {
           description: product.description ?? "",
           basePrice: product.basePrice,
           stock: product.stock,
+          estimatedDurationMinutes: product.estimatedDurationMinutes ?? undefined,
           category: product.category ?? "",
           imageUrl: product.imageUrl ?? "",
           isActive: product.isActive,

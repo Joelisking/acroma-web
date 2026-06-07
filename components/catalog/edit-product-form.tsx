@@ -42,6 +42,7 @@ const schema = z.object({
   description: z.string().max(2000).optional().or(z.literal("")),
   basePrice: z.number().min(0, "Must be 0 or more"),
   stock: z.number().int().min(0).optional(),
+  estimatedDurationMinutes: z.number().int().min(0).optional(),
   category: z.string().max(40).optional().or(z.literal("")),
   imageUrl: z.string().url().or(z.literal("")).optional(),
   isActive: z.boolean(),
@@ -74,6 +75,8 @@ export function EditProductForm({
   const router = useRouter();
   const vocab = useVocab();
   const isFood = businessType === "FOOD_BEVERAGES";
+  const isServices = businessType === "SERVICES";
+  const tracksStock = vocab.tracksStock;
   const [pending, startTransition] = React.useTransition();
   const [autofilling, startAutofill] = React.useTransition();
 
@@ -84,6 +87,7 @@ export function EditProductForm({
       description: defaults.description ?? "",
       basePrice: defaults.basePrice ?? 0,
       stock: defaults.stock ?? 0,
+      estimatedDurationMinutes: defaults.estimatedDurationMinutes ?? undefined,
       category: defaults.category ?? "",
       imageUrl: defaults.imageUrl ?? "",
       isActive: defaults.isActive ?? true,
@@ -119,6 +123,7 @@ export function EditProductForm({
         description: values.description || undefined,
         basePrice: values.basePrice,
         stock: values.stock ?? 0,
+        estimatedDurationMinutes: values.estimatedDurationMinutes,
         category: values.category || undefined,
         imageUrl: values.imageUrl || undefined,
         isActive: values.isActive,
@@ -215,7 +220,7 @@ export function EditProductForm({
               </FormItem>
             )}
           />
-          {!isFood ? (
+          {tracksStock ? (
             <FormField
               control={form.control}
               name="stock"
@@ -256,6 +261,37 @@ export function EditProductForm({
               </FormItem>
             )}
           />
+          {isServices ? (
+            <FormField
+              control={form.control}
+              name="estimatedDurationMinutes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Duration (minutes)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="e.g. 45"
+                      className="h-11 tabular-nums"
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === ""
+                            ? undefined
+                            : toNumber(e.target.value),
+                        )
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : null}
         </div>
 
         <FormField
