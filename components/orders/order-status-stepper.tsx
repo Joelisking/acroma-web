@@ -58,6 +58,7 @@ const MOMO_INDEX: Record<OrderStatus, number> = {
   DELIVERED: 4,
   CANCELLED: -1,
   PAYMENT_FAILED: -1,
+  NO_SHOW: -1,
 };
 
 const COD_INDEX: Record<OrderStatus, number> = {
@@ -71,6 +72,30 @@ const COD_INDEX: Record<OrderStatus, number> = {
   PAYMENT_PENDING: -1,
   PAYMENT_FAILED: -1,
   CANCELLED: -1,
+  NO_SHOW: -1,
+};
+
+function servicesSteps(): Step[] {
+  return [
+    { status: "PENDING", label: "Booking" },
+    { status: "PROCESSING", label: "Confirmed" },
+    { status: "DELIVERED", label: "Completed" },
+    { status: "PAID", label: "Paid" },
+  ];
+}
+
+const SERVICES_INDEX: Record<OrderStatus, number> = {
+  PENDING: 0,
+  PROCESSING: 1,
+  DELIVERED: 2,
+  PAID: 3,
+  PAYMENT_PENDING: 0,
+  PREPARING: 1,
+  READY_FOR_PICKUP: 2,
+  SHIPPED: 2,
+  CANCELLED: -1,
+  NO_SHOW: -1,
+  PAYMENT_FAILED: -1,
 };
 
 export function OrderStatusStepper({
@@ -82,14 +107,23 @@ export function OrderStatusStepper({
   paymentMethod: PaymentMethod;
   businessType?: BusinessType | null;
 }) {
-  const steps =
-    paymentMethod === "CASH_ON_DELIVERY"
+  const isServices = businessType === "SERVICES";
+  const steps = isServices
+    ? servicesSteps()
+    : paymentMethod === "CASH_ON_DELIVERY"
       ? codSteps(businessType)
       : momoSteps(businessType);
-  const index = paymentMethod === "CASH_ON_DELIVERY" ? COD_INDEX : MOMO_INDEX;
+  const index = isServices
+    ? SERVICES_INDEX
+    : paymentMethod === "CASH_ON_DELIVERY"
+      ? COD_INDEX
+      : MOMO_INDEX;
   const current = index[status];
   const halted =
-    status === "CANCELLED" || status === "PAYMENT_FAILED" || current === -1;
+    status === "CANCELLED" ||
+    status === "PAYMENT_FAILED" ||
+    status === "NO_SHOW" ||
+    current === -1;
 
   if (halted) {
     return (
@@ -100,7 +134,13 @@ export function OrderStatusStepper({
   }
 
   return (
-    <ol aria-label="Order progress" className="grid grid-cols-5 gap-2">
+    <ol
+      aria-label="Order progress"
+      className={cn(
+        "grid gap-2",
+        steps.length === 4 ? "grid-cols-4" : "grid-cols-5",
+      )}
+    >
       {steps.map((step, i) => {
         const reached = i <= current;
         const isCurrent = i === current;
