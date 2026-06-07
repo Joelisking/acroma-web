@@ -77,6 +77,25 @@ const GENERAL: Vocabulary = {
   tracksStock: true,
 };
 
+const SERVICES: Vocabulary = {
+  catalog: "Services",
+  item: "Service",
+  items: "Services",
+  itemLower: "service",
+  itemsLower: "services",
+  // Services are completed in person, not shipped. The services order-status
+  // UI (Phase 3) renders its own labels; these sane defaults cover any shared
+  // caller in the meantime.
+  shippedLabel: "Completed",
+  markShippedLabel: "Mark completed",
+  optionGroup: "Option group",
+  optionGroups: "Option groups",
+  optionGroupExample: "e.g. Hair length, Add-ons",
+  variantsHeading: "Options",
+  variantLabel: "Option",
+  tracksStock: false,
+};
+
 /**
  * Resolve the vocabulary for a merchant. Defaults to the generic copy —
  * if `businessType` is null/undefined (older account, missing field, etc.),
@@ -86,5 +105,6 @@ export function getVocabulary(
   businessType: BusinessType | null | undefined,
 ): Vocabulary {
   if (businessType === "FOOD_BEVERAGES") return FOOD;
+  if (businessType === "SERVICES") return SERVICES;
   return GENERAL;
 }
