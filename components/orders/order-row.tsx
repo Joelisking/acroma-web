@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, MapPin, Package, CalendarClock } from "lucide-react";
+import { Phone, MapPin, Package, CalendarClock, AlertCircle } from "lucide-react";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -13,6 +13,10 @@ import {
   shortId,
 } from "@/lib/format";
 import { formatAppointment } from "@/lib/format-datetime";
+
+function isAppointmentPast(scheduledFor: string): boolean {
+  return new Date(scheduledFor).getTime() < Date.now();
+}
 
 export function OrderRow({
   order,
@@ -32,6 +36,11 @@ export function OrderRow({
   const itemsSummary = formatItemsSummary(order.items);
   const isDelivery = order.fulfillment === "DELIVERY";
   const hasAddress = isDelivery && Boolean(order.deliveryAddress);
+  const needsReview =
+    businessType === "SERVICES" &&
+    !!order.scheduledFor &&
+    isAppointmentPast(order.scheduledFor) &&
+    (order.status === "PENDING" || order.status === "PROCESSING");
 
   return (
     <div className="card-warm hover:border-brand-orange/30 relative p-4 transition-colors">
@@ -65,6 +74,12 @@ export function OrderRow({
                   status={order.status}
                   businessType={businessType}
                 />
+                {needsReview ? (
+                  <span className="bg-brand-orange-soft text-brand-orange inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium">
+                    <AlertCircle className="size-3" />
+                    Needs review
+                  </span>
+                ) : null}
               </div>
               <p className="text-foreground mt-1.5 truncate text-sm font-semibold">
                 {customer}
