@@ -508,6 +508,8 @@ type DashboardMetrics = {
   conversations: number;
   orders: number;
   revenue: number;
+  noShowCount: number;
+  noShowRate: number;
 };
 
 export type DashboardStats = {

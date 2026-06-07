@@ -1,23 +1,26 @@
 "use client";
 
-import { MessageSquare, ShoppingBag, Wallet } from "lucide-react";
+import { MessageSquare, ShoppingBag, UserX, Wallet } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { DashboardFilterBar } from "./dashboard-filter-bar";
 import { useDashboardStats } from "./use-dashboard-stats";
 import { changeLabel } from "@/lib/dashboard-filter";
 import { formatMoney } from "@/lib/format";
-import type { DashboardFilter, DashboardStats } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
+import type { BusinessType, DashboardFilter, DashboardStats } from "@/lib/api/types";
 
 type Props = {
   initialFilter: DashboardFilter;
   initialStats: DashboardStats;
   currency: string;
+  businessType?: BusinessType | null;
 };
 
 export function DashboardStatsSection({
   initialFilter,
   initialStats,
   currency,
+  businessType,
 }: Props) {
   const {
     filter,
@@ -32,6 +35,7 @@ export function DashboardStatsSection({
 
   const { metrics, range, previous } = stats;
   const change = previous?.change;
+  const isServices = businessType === "SERVICES";
 
   return (
     <section className="flex flex-col gap-4" aria-label="Business metrics">
@@ -49,7 +53,7 @@ export function DashboardStatsSection({
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className={cn("grid gap-4 sm:grid-cols-3", isServices && "sm:grid-cols-4")}>
         <StatCard
           label="Conversations"
           value={String(metrics.conversations)}
@@ -89,6 +93,16 @@ export function DashboardStatsSection({
               : undefined
           }
         />
+        {isServices ? (
+          <StatCard
+            label="No-shows"
+            value={String(metrics.noShowCount)}
+            hint={`${metrics.noShowRate}% of bookings`}
+            icon={UserX}
+            tone="navy"
+            loading={isPending}
+          />
+        ) : null}
       </div>
     </section>
   );

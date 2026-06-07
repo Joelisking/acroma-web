@@ -22,7 +22,7 @@ const ACTIVITY_LIMIT = 6;
 
 const EMPTY_STATS: DashboardStats = {
   range: { start: "", end: "", label: "Today" },
-  metrics: { conversations: 0, orders: 0, revenue: 0 },
+  metrics: { conversations: 0, orders: 0, revenue: 0, noShowCount: 0, noShowRate: 0 },
 };
 
 const EMPTY_ACTIVITY: DashboardActivity = { conversations: [], orders: [] };
@@ -62,6 +62,7 @@ export default async function OverviewPage() {
         initialFilter={initialFilter}
         initialStats={stats}
         currency={business.currency}
+        businessType={business.businessType}
       />
 
       <AcromaHandlingList conversations={handling} />
