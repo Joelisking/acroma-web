@@ -13,6 +13,7 @@ import { OrderQuickReplies } from "@/components/orders/order-quick-replies"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
 import { PickupCard } from "@/components/orders/pickup-card"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
+import { formatAppointment } from "@/lib/format-datetime"
 
 type PageProps = { params: Promise<{ id: string }> }
 
@@ -55,6 +56,20 @@ export default async function OrderDetailPage({ params }: PageProps) {
           />
         </div>
       </section>
+
+      {order.scheduledFor ? (
+        <section className="card-warm p-5" aria-label="Appointment">
+          <p className="eyebrow text-muted-foreground">Appointment</p>
+          <p className="text-foreground mt-2 text-sm font-medium">
+            {formatAppointment(order.scheduledFor)}
+          </p>
+          {order.amountPaid != null ? (
+            <p className="text-muted-foreground mt-1 text-xs">
+              Paid: {order.currency} {order.amountPaid.toFixed(2)}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       <PaymentLinkPanel order={order} />
 

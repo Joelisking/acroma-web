@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, MapPin, Package } from "lucide-react";
+import { Phone, MapPin, Package, CalendarClock } from "lucide-react";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
 import { CopyButton } from "@/components/ui/copy-button";
@@ -10,6 +10,7 @@ import {
   formatRelativeShort,
   shortId,
 } from "@/lib/format";
+import { formatAppointment } from "@/lib/format-datetime";
 
 export function OrderRow({
   order,
@@ -54,6 +55,12 @@ export function OrderRow({
             {isDelivery ? "Delivery" : "Pickup"} ·{" "}
             {formatRelativeShort(order.createdAt)}
           </p>
+          {order.scheduledFor ? (
+            <span className="text-muted-foreground mt-0.5 inline-flex items-center gap-1 text-xs">
+              <CalendarClock className="size-3.5" />
+              {formatAppointment(order.scheduledFor)}
+            </span>
+          ) : null}
         </div>
         <span className="font-display text-foreground shrink-0 text-lg font-medium tabular-nums">
           {formatMoney(order.totalAmount, order.currency)}
