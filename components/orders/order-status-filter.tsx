@@ -14,6 +14,7 @@ const FILTERS: Filter[] = [
   { value: "PROCESSING", label: "Processing" },
   { value: "SHIPPED", label: "Shipped" },
   { value: "DELIVERED", label: "Delivered" },
+  { value: "NO_SHOW", label: "No-show" },
 ];
 
 export function OrderStatusFilter() {

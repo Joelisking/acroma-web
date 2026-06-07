@@ -19,6 +19,7 @@ const VALID_STATUSES: OrderStatus[] = [
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
+  "NO_SHOW",
   "PAYMENT_FAILED",
 ];
 
