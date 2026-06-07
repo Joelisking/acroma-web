@@ -50,6 +50,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
             status={order.status}
             paymentMethod={order.paymentMethod}
             businessType={business.businessType}
+            totalAmount={order.totalAmount}
+            currency={order.currency}
           />
         </div>
       </section>
