@@ -9,6 +9,7 @@ import {
   PackageCheck,
   XCircle,
   AlertCircle,
+  UserX,
   type LucideIcon,
 } from "lucide-react";
 import type { BusinessType, OrderStatus } from "@/lib/api/types";
@@ -34,6 +35,7 @@ export function statusMeta(
   businessType?: BusinessType | null,
 ): Meta {
   const vocab = getVocabulary(businessType);
+  const isServices = businessType === "SERVICES";
   switch (status) {
     case "PENDING":
       return {
@@ -55,7 +57,7 @@ export function statusMeta(
       };
     case "PROCESSING":
       return {
-        label: "Processing",
+        label: isServices ? "Confirmed" : "Processing",
         Icon: Cog,
         className: "bg-brand-blue-soft text-brand-blue",
       };
@@ -79,9 +81,15 @@ export function statusMeta(
       };
     case "DELIVERED":
       return {
-        label: "Delivered",
+        label: isServices ? "Completed" : "Delivered",
         Icon: PackageCheck,
         className: "bg-brand-green-soft text-brand-green",
+      };
+    case "NO_SHOW":
+      return {
+        label: "No-show",
+        Icon: UserX,
+        className: "bg-muted text-muted-foreground",
       };
     case "CANCELLED":
       return {
