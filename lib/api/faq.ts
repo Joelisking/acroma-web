@@ -27,3 +27,7 @@ export type FaqEntry = {
 export async function listFaqEntries(): Promise<FaqEntry[]> {
   return apiFetch<FaqEntry[]>("/faq");
 }
+
+export async function getOnboardingFaqs(): Promise<FaqEntry[]> {
+  return apiFetch<FaqEntry[]>("/faq/onboarding");
+}
