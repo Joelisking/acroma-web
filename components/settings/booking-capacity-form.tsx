@@ -16,7 +16,6 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -27,6 +26,10 @@ import {
 } from "@/components/ui/select";
 import { updateBookingCapacityAction } from "@/lib/api/settings-actions";
 import type { BookingCapacitySettings } from "@/lib/api/types";
+import {
+  CategoryCapacityFields,
+  CapacityNumberField,
+} from "./category-capacity-fields";
 
 // Fix 1: index-based array so merchant category text (which may contain dots)
 // never appears in an RHF field path. RHF treats dots as nested-path
@@ -55,14 +58,15 @@ const schema = z.object({
   ),
 });
 
-type FormValues = z.infer<typeof schema>;
+// Exported so CategoryCapacityFields can type its control prop precisely.
+export type BookingCapacityFormValues = z.infer<typeof schema>;
 
 type Props = { initial: BookingCapacitySettings; categories: string[] };
 
 function buildDefaultValues(
   initial: BookingCapacitySettings,
   categories: string[],
-): FormValues {
+): BookingCapacityFormValues {
   return {
     bookingCapacityMode: initial.bookingCapacityMode,
     defaultBookingCapacity: initial.defaultBookingCapacity,
@@ -84,11 +88,11 @@ export function BookingCapacityForm({ initial, categories }: Props) {
   // Fix 4: keep a serverValues snapshot so we can compute dirty state and
   // reset the form baseline after a successful save — matching the house
   // pattern from appointment-reminder-settings-form.tsx.
-  const [serverValues, setServerValues] = React.useState<FormValues>(() =>
+  const [serverValues, setServerValues] = React.useState<BookingCapacityFormValues>(() =>
     buildDefaultValues(initial, categories),
   );
 
-  const form = useForm<FormValues>({
+  const form = useForm<BookingCapacityFormValues>({
     resolver: zodResolver(schema),
     defaultValues: buildDefaultValues(initial, categories),
   });
@@ -121,7 +125,7 @@ export function BookingCapacityForm({ initial, categories }: Props) {
 
   const mode = values.bookingCapacityMode;
 
-  function onSubmit(submitted: FormValues) {
+  function onSubmit(submitted: BookingCapacityFormValues) {
     startTransition(async () => {
       // Fix 1 (cont.): reconstruct the categoryBookingCapacities record from
       // the index-based array only when sending to the backend.
@@ -187,126 +191,32 @@ export function BookingCapacityForm({ initial, categories }: Props) {
           )}
         />
 
-        <FormField
+        <CapacityNumberField
           control={form.control}
           name="defaultBookingCapacity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {mode === "PER_CATEGORY"
-                  ? "Default capacity (for categories you don't set)"
-                  : "How many clients can you serve at once?"}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={100}
-                  step={1}
-                  className="max-w-32"
-                  name={field.name}
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  value={
-                    field.value === undefined || field.value === null
-                      ? ""
-                      : String(field.value)
-                  }
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    field.onChange(raw === "" ? undefined : Number(raw));
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          min={1}
+          max={100}
+          label={
+            mode === "PER_CATEGORY"
+              ? "Default capacity (for categories you don't set)"
+              : "How many clients can you serve at once?"
+          }
         />
 
-        <FormField
+        <CapacityNumberField
           control={form.control}
           name="defaultServiceDurationMinutes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Default appointment length (minutes)</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={1440}
-                  step={1}
-                  className="max-w-32"
-                  name={field.name}
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  value={
-                    field.value === undefined || field.value === null
-                      ? ""
-                      : String(field.value)
-                  }
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    field.onChange(raw === "" ? undefined : Number(raw));
-                  }}
-                />
-              </FormControl>
-              <FormDescription>
-                Used when a service has no set duration. Also sets how
-                alternative times are spaced.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          min={1}
+          max={1440}
+          label="Default appointment length (minutes)"
+          description="Used when a service has no set duration. Also sets how alternative times are spaced."
         />
 
         {mode === "PER_CATEGORY" && categories.length > 0 ? (
-          <div className="space-y-3">
-            <p className="text-sm font-medium">Capacity per category</p>
-            {/* Fix 1 + Fix 2 + Fix 3: index-based paths keep merchant text
-                out of RHF field names; FormMessage surfaces validation errors;
-                max={100} enforced both in HTML and in the Zod schema above. */}
-            {categories.map((cat, i) => (
-              <FormField
-                key={cat}
-                control={form.control}
-                name={`categoryCaps.${i}.capacity` as const}
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between gap-4">
-                      <FormLabel className="font-normal">{cat}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={1}
-                          max={100}
-                          step={1}
-                          className="w-24"
-                          name={field.name}
-                          ref={field.ref}
-                          onBlur={field.onBlur}
-                          value={
-                            field.value === undefined || field.value === null
-                              ? ""
-                              : String(field.value)
-                          }
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            field.onChange(
-                              raw === "" ? undefined : e.target.valueAsNumber,
-                            );
-                          }}
-                        />
-                      </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
+          <CategoryCapacityFields
+            control={form.control}
+            categories={categories}
+          />
         ) : null}
 
         <div className="flex justify-end">
