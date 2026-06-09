@@ -44,8 +44,15 @@ export function MonthView({
             booked:
               "relative after:absolute after:bottom-1 after:left-1/2 after:size-1.5 after:-translate-x-1/2 after:rounded-full after:bg-brand-orange",
           }}
-          classNames={{ root: "w-full" }}
-          className="w-full p-0"
+          classNames={{
+            root: "w-full",
+            // The shadcn default day cell is `aspect-square h-full w-full`; the
+            // h-full collapses to ~0 height when the calendar is forced full
+            // width, so the grid overflows onto the day panel. Drop h-full and
+            // let aspect-square set the height.
+            day: "group/day relative aspect-square w-full rounded-md p-0 text-center select-none [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md",
+          }}
+          className="w-full"
         />
       </div>
       <div className="min-w-0 flex-1 space-y-3">
