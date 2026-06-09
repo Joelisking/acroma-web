@@ -40,7 +40,7 @@ export function getNavItems(vocab: Vocabulary): NavItem[] {
   return [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
     { href: "/dashboard/conversations", label: "Chats", icon: MessageSquare },
-    { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
+    { href: "/dashboard/orders", label: vocab.orders, icon: ShoppingBag },
     { href: "/dashboard/catalog", label: vocab.catalog, icon: Package },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];

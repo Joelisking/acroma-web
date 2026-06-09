@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
 import type { WhatsappSettings } from "./settings";
-import type { OpeningHours, ReminderSettings } from "./types";
+import type { OpeningHours, OrdersView, ReminderSettings } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -222,6 +222,24 @@ export async function updateAiEnabledAction(
     return { ok: true, data };
   } catch (err) {
     return { ok: false, error: humanError(err, "Couldn't update AI mode") };
+  }
+}
+
+export async function setOrdersViewAction(
+  view: OrdersView,
+): Promise<ActionResult<{ id: string; ordersDefaultView: OrdersView }>> {
+  try {
+    const data = await apiFetch<{ id: string; ordersDefaultView: OrdersView }>(
+      "/settings/orders-view",
+      { method: "PATCH", body: { view } },
+    );
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save your default view"),
+    };
   }
 }
 

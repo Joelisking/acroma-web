@@ -19,6 +19,9 @@ export function useNewProduct() {
   const [formValues, setFormValues] = React.useState<ProductFormValues>(EMPTY_FORM_VALUES);
   const [parsedPreview, setParsedPreview] = React.useState<ParsedProduct | null>(null);
   const [originalDescription, setOriginalDescription] = React.useState("");
+  // When on, saving clears the form and keeps the merchant here to add the
+  // next entry instead of leaving for the catalog list.
+  const [addAnother, setAddAnother] = React.useState(false);
 
   const [parsing, startParse] = React.useTransition();
   const [refining, startRefine] = React.useTransition();
@@ -115,7 +118,17 @@ export function useNewProduct() {
       }
 
       toast.success("Product added");
-      router.replace(`/dashboard/catalog/${create.data.id}`);
+
+      if (addAnother) {
+        // Reset to a clean slate and stay so the merchant can add the next one.
+        setFormValues(EMPTY_FORM_VALUES);
+        setParsedPreview(null);
+        setOriginalDescription("");
+        router.refresh();
+        return;
+      }
+
+      router.replace("/dashboard/catalog");
       router.refresh();
     });
   }
@@ -131,6 +144,8 @@ export function useNewProduct() {
     refining,
     saving,
     canSave,
+    addAnother,
+    setAddAnother,
     parse,
     refine,
     editOriginal,

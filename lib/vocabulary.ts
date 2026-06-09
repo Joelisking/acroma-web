@@ -37,6 +37,12 @@ export type Vocabulary = {
   variantsHeading: string;
   /** "Variant" | "Combination" — singular label/column for one generated row. */
   variantLabel: string;
+  /** "Orders" | "Bookings" — nav label + page heading. */
+  orders: string;
+  /** "Order" | "Booking" — singular, title case. */
+  order: string;
+  /** "orders" | "bookings" — plural, lower case (mid-sentence). */
+  ordersLower: string;
   /**
    * Whether this vertical tracks numeric stock counts. Food merchants don't
    * (they use the "sold out today" model), so stock inputs are hidden for
@@ -58,6 +64,9 @@ const FOOD: Vocabulary = {
   optionGroupExample: "e.g. Size, Spice level",
   variantsHeading: "Combinations",
   variantLabel: "Combination",
+  orders: "Orders",
+  order: "Order",
+  ordersLower: "orders",
   tracksStock: false,
 };
 
@@ -74,6 +83,9 @@ const GENERAL: Vocabulary = {
   optionGroupExample: "e.g. Color, Size",
   variantsHeading: "Variants",
   variantLabel: "Variant",
+  orders: "Orders",
+  order: "Order",
+  ordersLower: "orders",
   tracksStock: true,
 };
 
@@ -93,6 +105,9 @@ const SERVICES: Vocabulary = {
   optionGroupExample: "e.g. Hair length, Add-ons",
   variantsHeading: "Options",
   variantLabel: "Option",
+  orders: "Bookings",
+  order: "Booking",
+  ordersLower: "bookings",
   tracksStock: false,
 };
 

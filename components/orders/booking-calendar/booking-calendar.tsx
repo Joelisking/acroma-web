@@ -1,0 +1,122 @@
+"use client";
+
+import { addDays, addMonths, format } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { BusinessType, Order } from "@/lib/api/types";
+import { splitScheduled } from "@/lib/orders/group-bookings";
+import { MonthView } from "./month-view";
+import { WeekView } from "./week-view";
+import { BookingCard } from "./booking-card";
+
+type Mode = "month" | "week";
+
+export function BookingCalendar({
+  orders,
+  mode,
+  focusedDate,
+  businessType,
+  onDateChange,
+  onModeChange,
+}: {
+  orders: Order[];
+  mode: Mode;
+  focusedDate: Date;
+  businessType?: BusinessType | null;
+  onDateChange: (date: Date) => void;
+  onModeChange: (mode: Mode) => void;
+}) {
+  const { unscheduled } = splitScheduled(orders);
+
+  function shift(dir: -1 | 1) {
+    onDateChange(
+      mode === "month"
+        ? addMonths(focusedDate, dir)
+        : addDays(focusedDate, dir * 7),
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-muted inline-flex rounded-lg p-0.5">
+          {(["month", "week"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => onModeChange(m)}
+              className={
+                "rounded-md px-3 py-1 text-sm capitalize transition-colors " +
+                (mode === m
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground")
+              }
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => shift(-1)}
+            aria-label="Previous"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onDateChange(new Date())}
+          >
+            Today
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => shift(1)}
+            aria-label="Next"
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+          <span className="text-muted-foreground ml-2 text-sm">
+            {format(
+              focusedDate,
+              mode === "month" ? "MMMM yyyy" : "'Week of' d MMM",
+            )}
+          </span>
+        </div>
+      </div>
+
+      {mode === "month" ? (
+        <MonthView
+          orders={orders}
+          focusedDate={focusedDate}
+          businessType={businessType}
+          onMonthChange={onDateChange}
+        />
+      ) : (
+        <WeekView
+          orders={orders}
+          focusedDate={focusedDate}
+          businessType={businessType}
+        />
+      )}
+
+      {unscheduled.length > 0 ? (
+        <div className="space-y-3">
+          <h2 className="text-muted-foreground text-sm font-medium">
+            Unscheduled
+          </h2>
+          {unscheduled.map((o) => (
+            <BookingCard key={o.id} order={o} businessType={businessType} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}

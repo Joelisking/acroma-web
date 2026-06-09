@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Loader2, ImagePlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { ImageUploader } from "@/components/shared/image-uploader";
 import { NewProductTabs } from "@/components/catalog/new-product-tabs";
 import { DescribeWithAiPanel } from "@/components/catalog/describe-with-ai-panel";
@@ -88,6 +90,22 @@ export function NewProductPageClient({
           }
         />
       ) : null}
+
+      <div className="border-border/70 bg-muted/30 flex items-center justify-between gap-4 rounded-xl border p-4">
+        <div>
+          <Label htmlFor="add-another" className="cursor-pointer">
+            Add another after saving
+          </Label>
+          <p className="text-muted-foreground text-xs">
+            Stay here with a fresh form instead of going back to {vocab.catalog}.
+          </p>
+        </div>
+        <Switch
+          id="add-another"
+          checked={np.addAnother}
+          onCheckedChange={np.setAddAnother}
+        />
+      </div>
 
       {/* Non-sticky on purpose: a fixed mobile bottom nav already sits at the
           bottom of the dashboard shell. */}

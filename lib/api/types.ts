@@ -32,6 +32,8 @@ export type BusinessType =
   | "GENERAL_STORE"
   | "OTHER";
 
+export type OrdersView = "LIST" | "CALENDAR";
+
 export type Business = {
   id: string;
   name: string;
@@ -58,6 +60,8 @@ export type Business = {
   orderAlertsEnabled: boolean;
   openingHours: OpeningHours | null;
   dashboardDefaultFilter: DashboardFilter | null;
+  /** Saved default view for the orders/bookings page (services may default to calendar). */
+  ordersDefaultView: OrdersView;
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
