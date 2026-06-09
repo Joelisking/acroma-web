@@ -59,7 +59,9 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         ? "calendar"
         : "list";
   const mode: "month" | "week" = sp.mode === "week" ? "week" : "month";
-  const focusedDate = sp.date ? new Date(`${sp.date}T00:00:00Z`) : new Date();
+  // Noon UTC so a date-only value lands on the same calendar day in every
+  // device timezone (avoids a midnight off-by-one in the calendar).
+  const focusedDate = sp.date ? new Date(`${sp.date}T12:00:00Z`) : new Date();
 
   const status = VALID_STATUSES.includes(sp.status as OrderStatus)
     ? (sp.status as OrderStatus)

@@ -13,6 +13,7 @@ import type {
 import { OrdersList } from "./orders-list";
 import { OrdersEmpty } from "./orders-empty";
 import { BookingCalendar } from "./booking-calendar/booking-calendar";
+import { localDayKey } from "@/lib/orders/group-bookings";
 import { setOrdersViewAction } from "@/lib/api/settings-actions";
 
 type Mode = "month" | "week";
@@ -96,9 +97,7 @@ export function OrdersView({
           mode={mode}
           focusedDate={focusedDate}
           businessType={businessType}
-          onDateChange={(d) =>
-            setParam({ date: d.toISOString().slice(0, 10) })
-          }
+          onDateChange={(d) => setParam({ date: localDayKey(d) })}
           onModeChange={(m) => setParam({ mode: m })}
         />
       ) : orders.length === 0 ? (

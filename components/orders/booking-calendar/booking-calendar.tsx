@@ -1,7 +1,5 @@
 "use client";
 
-import { addDays, addMonths, format } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { splitScheduled } from "@/lib/orders/group-bookings";
@@ -28,14 +26,6 @@ export function BookingCalendar({
 }) {
   const { unscheduled } = splitScheduled(orders);
 
-  function shift(dir: -1 | 1) {
-    onDateChange(
-      mode === "month"
-        ? addMonths(focusedDate, dir)
-        : addDays(focusedDate, dir * 7),
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -56,44 +46,19 @@ export function BookingCalendar({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => shift(-1)}
-            aria-label="Previous"
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onDateChange(new Date())}
-          >
-            Today
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => shift(1)}
-            aria-label="Next"
-          >
-            <ChevronRight className="size-4" />
-          </Button>
-          <span className="text-muted-foreground ml-2 text-sm">
-            {format(
-              focusedDate,
-              mode === "month" ? "MMMM yyyy" : "'Week of' d MMM",
-            )}
-          </span>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onDateChange(new Date())}
+        >
+          Today
+        </Button>
       </div>
 
       {mode === "month" ? (
         <MonthView
+          key={focusedDate.getTime()}
           orders={orders}
           focusedDate={focusedDate}
           businessType={businessType}
@@ -104,6 +69,7 @@ export function BookingCalendar({
           orders={orders}
           focusedDate={focusedDate}
           businessType={businessType}
+          onWeekChange={onDateChange}
         />
       )}
 
