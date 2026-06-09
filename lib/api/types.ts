@@ -34,6 +34,12 @@ export type BusinessType =
 
 export type OrdersView = "LIST" | "CALENDAR";
 
+/**
+ * Mirrors Prisma's `BookingCapacityMode` enum. Character-identical to the
+ * backend so REST responses round-trip cleanly.
+ */
+export type BookingCapacityMode = "SHARED" | "PER_CATEGORY";
+
 export type Business = {
   id: string;
   name: string;
@@ -62,6 +68,10 @@ export type Business = {
   dashboardDefaultFilter: DashboardFilter | null;
   /** Saved default view for the orders/bookings page (services may default to calendar). */
   ordersDefaultView: OrdersView;
+  bookingCapacityMode: BookingCapacityMode;
+  defaultBookingCapacity: number;
+  defaultServiceDurationMinutes: number;
+  categoryBookingCapacities: Record<string, number> | null;
   businessDescription: string | null;
   aiBusinessContext: string | null;
   expoPushToken: string | null;
@@ -158,6 +168,14 @@ export type ReminderSettings = {
    * inside the 24-hour window will receive the reminder.
    */
   appointmentReminderTemplateName: string | null;
+};
+
+/** Mirrors the backend `BookingCapacityDto`. */
+export type BookingCapacitySettings = {
+  bookingCapacityMode: BookingCapacityMode;
+  defaultBookingCapacity: number;
+  defaultServiceDurationMinutes: number;
+  categoryBookingCapacities: Record<string, number> | null;
 };
 
 // ---------------------------------------------------------------------------

@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
 import type { WhatsappSettings } from "./settings";
-import type { OpeningHours, OrdersView, ReminderSettings } from "./types";
+import type {
+  BookingCapacitySettings,
+  OpeningHours,
+  OrdersView,
+  ReminderSettings,
+} from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -184,6 +189,24 @@ export async function updateReminderSettingsAction(
     return {
       ok: false,
       error: humanError(err, "Couldn't save reminder settings"),
+    };
+  }
+}
+
+export async function updateBookingCapacityAction(
+  body: Partial<BookingCapacitySettings>,
+): Promise<ActionResult<BookingCapacitySettings>> {
+  try {
+    const data = await apiFetch<BookingCapacitySettings>(
+      "/settings/booking-capacity",
+      { method: "PATCH", body },
+    );
+    revalidatePath("/dashboard/settings/opening-hours");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save booking capacity settings"),
     };
   }
 }
