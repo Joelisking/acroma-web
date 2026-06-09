@@ -68,7 +68,7 @@ export function CapacityNumberField({
               }
               onChange={(e) => {
                 const raw = e.target.value;
-                field.onChange(raw === "" ? undefined : Number(raw));
+                field.onChange(raw === "" ? "" : Number(raw));
               }}
             />
           </FormControl>
@@ -121,9 +121,7 @@ export function CategoryCapacityFields({ control, categories }: Props) {
                     }
                     onChange={(e) => {
                       const raw = e.target.value;
-                      field.onChange(
-                        raw === "" ? undefined : e.target.valueAsNumber,
-                      );
+                      field.onChange(raw === "" ? "" : Number(raw));
                     }}
                   />
                 </FormControl>
