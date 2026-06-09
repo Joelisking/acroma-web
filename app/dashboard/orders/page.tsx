@@ -60,8 +60,13 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         : "list";
   const mode: "month" | "week" = sp.mode === "week" ? "week" : "month";
   // Noon UTC so a date-only value lands on the same calendar day in every
-  // device timezone (avoids a midnight off-by-one in the calendar).
-  const focusedDate = sp.date ? new Date(`${sp.date}T12:00:00Z`) : new Date();
+  // device timezone (avoids a midnight off-by-one in the calendar). The
+  // default MUST also be day-granular: the calendar keys MonthView/WeekView on
+  // focusedDate.getTime(), so a millisecond-precise `new Date()` would produce
+  // a fresh key on every server re-render (a confirm revalidate or a socket
+  // refresh), remounting the view and snapping the selected day back to today.
+  const dateKey = sp.date ?? new Date().toISOString().slice(0, 10);
+  const focusedDate = new Date(`${dateKey}T12:00:00Z`);
 
   const status = VALID_STATUSES.includes(sp.status as OrderStatus)
     ? (sp.status as OrderStatus)
