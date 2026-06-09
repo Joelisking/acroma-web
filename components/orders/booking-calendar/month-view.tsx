@@ -32,29 +32,28 @@ export function MonthView({
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
-      <div className="w-full lg:max-w-sm lg:shrink-0">
-        <Calendar
-          mode="single"
-          month={focusedDate}
-          onMonthChange={onMonthChange}
-          selected={selected}
-          onSelect={(d) => d && setSelected(d)}
-          modifiers={{ booked }}
-          modifiersClassNames={{
-            booked:
-              "relative after:absolute after:bottom-1 after:left-1/2 after:size-1.5 after:-translate-x-1/2 after:rounded-full after:bg-brand-orange",
-          }}
-          classNames={{
-            root: "w-full",
-            // The shadcn default day cell is `aspect-square h-full w-full`; the
-            // h-full collapses to ~0 height when the calendar is forced full
-            // width, so the grid overflows onto the day panel. Drop h-full and
-            // let aspect-square set the height.
-            day: "group/day relative aspect-square w-full rounded-md p-0 text-center select-none [&:first-child[data-selected=true]_button]:rounded-l-md [&:last-child[data-selected=true]_button]:rounded-r-md",
-          }}
-          className="w-full"
-        />
-      </div>
+      {/*
+        Keep the shadcn calendar's default sizing model (a DEFINITE --cell-size
+        drives both width and the aspect-square height). Forcing a fluid
+        full-width broke this on WebKit/iOS (aspect-ratio with an indefinite
+        width collapses the cell height, so the grid overflowed the day panel).
+        Instead we just scale --cell-size up: ~1/8 of the viewport on phones so
+        it fills the width, a fixed size from sm up. The value stays a concrete
+        length, so heights resolve in every browser.
+      */}
+      <Calendar
+        mode="single"
+        month={focusedDate}
+        onMonthChange={onMonthChange}
+        selected={selected}
+        onSelect={(d) => d && setSelected(d)}
+        modifiers={{ booked }}
+        modifiersClassNames={{
+          booked:
+            "relative after:absolute after:bottom-1 after:left-1/2 after:size-1.5 after:-translate-x-1/2 after:rounded-full after:bg-brand-orange",
+        }}
+        className="mx-auto [--cell-size:12vw] sm:[--cell-size:2.5rem] lg:mx-0 lg:shrink-0"
+      />
       <div className="min-w-0 flex-1 space-y-3">
         <p className="text-muted-foreground text-sm">
           {dayBookings.length === 0
