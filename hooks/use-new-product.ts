@@ -74,7 +74,8 @@ export function useNewProduct() {
     return true;
   }, [formValues.name, formValues.basePrice]);
 
-  function commit() {
+  /** `itemNoun` is the vertical-aware label ("Service", "Menu item", …). */
+  function commit(itemNoun = "Product") {
     if (!canSave) return;
     startSave(async () => {
       const create = await createProductAction({
@@ -117,7 +118,7 @@ export function useNewProduct() {
         }
       }
 
-      toast.success("Product added");
+      toast.success(`${itemNoun} added`);
 
       if (addAnother) {
         // Reset to a clean slate and stay so the merchant can add the next one.

@@ -121,7 +121,7 @@ export function NewProductPageClient({
         </Button>
         <Button
           type="button"
-          onClick={np.commit}
+          onClick={() => np.commit(vocab.item)}
           disabled={!np.canSave || np.saving}
           className="bg-brand-orange hover:bg-brand-orange/90 h-11 flex-1 gap-2 rounded-xl px-5"
         >
