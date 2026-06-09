@@ -131,44 +131,48 @@ export function ManualProductForm({
         </div>
       </div>
 
-      <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
-        <div>
-          <Label htmlFor="product-has-variants">
-            {isFood
-              ? "Comes in sizes or extras"
-              : "Has options (size, color, etc.)"}
-          </Label>
-          <p className="text-muted-foreground text-xs">
-            {isFood
-              ? "e.g. full or half, extra protein. Set a price per option."
-              : "Turn on to manage stock and price per option."}
-          </p>
+      {isServices ? null : (
+        <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
+          <div>
+            <Label htmlFor="product-has-variants">
+              {isFood
+                ? "Comes in sizes or extras"
+                : "Has options (size, color, etc.)"}
+            </Label>
+            <p className="text-muted-foreground text-xs">
+              {isFood
+                ? "e.g. full or half, extra protein. Set a price per option."
+                : "Turn on to manage stock and price per option."}
+            </p>
+          </div>
+          <input
+            id="product-has-variants"
+            type="checkbox"
+            className="size-5 accent-[var(--brand-orange)]"
+            checked={values.hasVariants}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              onChange({
+                ...values,
+                hasVariants: checked,
+                variantDimensions:
+                  checked && values.variantDimensions.length === 0
+                    ? [{ name: "", options: [] }]
+                    : values.variantDimensions,
+                variants: checked ? values.variants : [],
+              });
+            }}
+          />
         </div>
-        <input
-          id="product-has-variants"
-          type="checkbox"
-          className="size-5 accent-[var(--brand-orange)]"
-          checked={values.hasVariants}
-          onChange={(e) => {
-            const checked = e.target.checked;
-            onChange({
-              ...values,
-              hasVariants: checked,
-              variantDimensions:
-                checked && values.variantDimensions.length === 0
-                  ? [{ name: "", options: [] }]
-                  : values.variantDimensions,
-              variants: checked ? values.variants : [],
-            });
-          }}
-        />
-      </div>
+      )}
 
-      <ProductTagsPicker
-        value={values.tags}
-        onChange={(tags) => set("tags", tags)}
-        expandedByDefault={isFood}
-      />
+      {isServices ? null : (
+        <ProductTagsPicker
+          value={values.tags}
+          onChange={(tags) => set("tags", tags)}
+          expandedByDefault={isFood}
+        />
+      )}
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>

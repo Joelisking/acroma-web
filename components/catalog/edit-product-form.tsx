@@ -313,22 +313,24 @@ export function EditProductForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="tags"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <ProductTagsPicker
-                  value={(field.value ?? []) as ProductTag[]}
-                  onChange={(tags) => field.onChange(tags)}
-                  expandedByDefault={businessType === "FOOD_BEVERAGES"}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {isServices ? null : (
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ProductTagsPicker
+                    value={(field.value ?? []) as ProductTag[]}
+                    onChange={(tags) => field.onChange(tags)}
+                    expandedByDefault={businessType === "FOOD_BEVERAGES"}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

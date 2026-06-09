@@ -41,15 +41,30 @@ export default async function BusinessSettingsPage() {
         />
       </SettingsCard>
 
-      <SettingsCard
-        title="Order handling"
-        description="Choose how customers can receive their orders."
-      >
-        <div className="space-y-6">
-          <AcceptPickupToggle initial={business.acceptsPickup} />
-          <OrderAlertsToggle initial={business.orderAlertsEnabled} />
-        </div>
-      </SettingsCard>
+      {business.businessType === "SERVICES" ? (
+        // Services don't deliver, so pickup-vs-delivery doesn't apply. The
+        // in-flight alert still fires for bookings, so we keep it (reworded).
+        <SettingsCard
+          title="Booking alerts"
+          description="Stay on top of incoming bookings."
+        >
+          <OrderAlertsToggle
+            initial={business.orderAlertsEnabled}
+            title="Alert me when a booking is about to be made"
+            description="Get a heads-up the moment a customer is mid-booking, before they confirm."
+          />
+        </SettingsCard>
+      ) : (
+        <SettingsCard
+          title="Order handling"
+          description="Choose how customers can receive their orders."
+        >
+          <div className="space-y-6">
+            <AcceptPickupToggle initial={business.acceptsPickup} />
+            <OrderAlertsToggle initial={business.orderAlertsEnabled} />
+          </div>
+        </SettingsCard>
+      )}
     </div>
   );
 }

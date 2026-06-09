@@ -8,12 +8,23 @@ import { updateOrderAlertsEnabledAction } from "@/lib/api/settings-actions";
 
 type Props = {
   initial: boolean;
+  /** Override the label/description per vertical (e.g. bookings for services). */
+  title?: string;
+  description?: string;
 };
+
+const DEFAULT_TITLE = "Alert me when an order is about to be placed";
+const DEFAULT_DESCRIPTION =
+  "Get a heads-up push the moment a customer is mid-order, before they pay. Useful for kitchens pre-staging food.";
 
 // Single opt-out for the "order coming in" merchant alert that fires right
 // before CREATE_ORDER persists. Useful for food merchants pre-staging the
 // kitchen; can be flipped off if the signal turns noisy.
-export function OrderAlertsToggle({ initial }: Props) {
+export function OrderAlertsToggle({
+  initial,
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESCRIPTION,
+}: Props) {
   const [enabled, setEnabled] = React.useState(initial);
   const [pending, startTransition] = React.useTransition();
 
@@ -34,12 +45,9 @@ export function OrderAlertsToggle({ initial }: Props) {
     <div className="flex items-start justify-between gap-4">
       <div className="space-y-1">
         <Label htmlFor="order-alerts" className="text-sm font-medium">
-          Alert me when an order is about to be placed
+          {title}
         </Label>
-        <p className="text-muted-foreground text-sm">
-          Get a heads-up push the moment a customer is mid-order, before
-          they pay. Useful for kitchens pre-staging food.
-        </p>
+        <p className="text-muted-foreground text-sm">{description}</p>
       </div>
       <Switch
         id="order-alerts"
