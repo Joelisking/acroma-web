@@ -66,6 +66,7 @@ export function BookingCalendar({
         />
       ) : (
         <WeekView
+          key={focusedDate.getTime()}
           orders={orders}
           focusedDate={focusedDate}
           businessType={businessType}
