@@ -7,6 +7,7 @@ import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
 import { InstallTutorial } from "@/components/pwa/install-tutorial";
+import { PullToRefresh } from "@/components/pwa/pull-to-refresh";
 import { getVocabulary } from "@/lib/vocabulary";
 import { VocabularyProvider } from "@/components/vocabulary-provider";
 
@@ -63,6 +64,7 @@ export default async function DashboardLayout({
             so full-height pages (e.g. a conversation) can keep their own inner
             scroll without a second page-level scrollbar. */}
         <main
+          id="dashboard-scroll"
           className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 lg:px-10 lg:pb-10"
           // pb-24 on mobile reserves space for the fixed bottom nav
         >
@@ -77,6 +79,9 @@ export default async function DashboardLayout({
         businessId={business.id}
         events={["conversation_updated", "new_message", "order_updated"]}
       />
+
+      {/* Pull-to-refresh for the installed PWA (no-op outside standalone mode). */}
+      <PullToRefresh targetId="dashboard-scroll" />
 
       {/* Nudge to install the PWA + enable push (self-decides whether to show). */}
       <InstallTutorial />
