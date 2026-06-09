@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { listConversations } from "@/lib/api/conversations";
 import { getCurrentBusiness } from "@/lib/api/business";
 import type { ConversationStatus } from "@/lib/api/types";
@@ -33,6 +36,8 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   ]);
   if (!business) return null;
 
+  const isServices = business.businessType === "SERVICES";
+
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -46,6 +51,14 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {isServices ? (
+            <Button asChild variant="outline" className="h-9 gap-1.5 rounded-xl">
+              <Link href="/dashboard/customers">
+                <Users className="size-4" />
+                Customers
+              </Link>
+            </Button>
+          ) : null}
           <AiModeToggle initialEnabled={business.aiEnabled} />
           <StatusFilter />
         </div>

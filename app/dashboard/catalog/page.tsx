@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/catalog/product-card"
 import { MenuList } from "@/components/catalog/menu-list"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
-import { CatalogImagesManager } from "@/components/catalog/catalog-images-manager"
+import { CatalogImagesSection } from "@/components/catalog/catalog-images-section"
 
 export const metadata: Metadata = { title: "Catalog · Acroma" }
 
@@ -22,6 +22,7 @@ export default async function CatalogPage() {
 
   const vocab = getVocabulary(business.businessType)
   const isFood = business.businessType === "FOOD_BEVERAGES"
+  const isServices = business.businessType === "SERVICES"
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -51,76 +52,71 @@ export default async function CatalogPage() {
         </Button>
       </header>
 
-      <section className="border-border/70 bg-card flex flex-col gap-4 rounded-2xl border p-5">
-        <div>
-          <p className="text-foreground text-sm font-medium">
-            {vocab.catalog} images
-          </p>
-          <p className="text-muted-foreground text-sm">
-            Upload up to 8 photos of your {vocab.catalog.toLowerCase()}. When
-            customers ask what you have, Acroma sends them on WhatsApp, in the
-            order you set.
-          </p>
-        </div>
-        <CatalogImagesManager
-          defaultUrls={business.catalogImageUrls ?? []}
-          noun={vocab.catalog}
-        />
-      </section>
+      <CatalogImagesSection
+        defaultUrls={business.catalogImageUrls ?? []}
+        noun={vocab.catalog}
+      />
 
-      <Link
-        href="/dashboard/discounts"
-        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <span className="bg-brand-orange-soft text-brand-orange flex size-10 items-center justify-center rounded-xl">
-            <Tag className="size-5" />
-          </span>
-          <div>
-            <p className="text-foreground text-sm font-medium">Discount codes</p>
-            <p className="text-muted-foreground text-sm">
-              Run promos by giving customers a code to type in WhatsApp.
-            </p>
-          </div>
-        </div>
-        <span className="text-muted-foreground text-xs">Manage →</span>
-      </Link>
+      {isServices ? null : (
+        <>
+          <Link
+            href="/dashboard/discounts"
+            className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="bg-brand-orange-soft text-brand-orange flex size-10 items-center justify-center rounded-xl">
+                <Tag className="size-5" />
+              </span>
+              <div>
+                <p className="text-foreground text-sm font-medium">
+                  Discount codes
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  Run promos by giving customers a code to type in WhatsApp.
+                </p>
+              </div>
+            </div>
+            <span className="text-muted-foreground text-xs">Manage →</span>
+          </Link>
 
-      <Link
-        href="/dashboard/customers"
-        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <span className="bg-brand-blue-soft text-brand-blue flex size-10 items-center justify-center rounded-xl">
-            <Users className="size-5" />
-          </span>
-          <div>
-            <p className="text-foreground text-sm font-medium">Customers</p>
-            <p className="text-muted-foreground text-sm">
-              Who&apos;s ordered or chatted with you. Toggle opt-out to exclude someone from broadcasts.
-            </p>
-          </div>
-        </div>
-        <span className="text-muted-foreground text-xs">View →</span>
-      </Link>
+          <Link
+            href="/dashboard/customers"
+            className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="bg-brand-blue-soft text-brand-blue flex size-10 items-center justify-center rounded-xl">
+                <Users className="size-5" />
+              </span>
+              <div>
+                <p className="text-foreground text-sm font-medium">Customers</p>
+                <p className="text-muted-foreground text-sm">
+                  Who&apos;s ordered or chatted with you. Toggle opt-out to
+                  exclude someone from broadcasts.
+                </p>
+              </div>
+            </div>
+            <span className="text-muted-foreground text-xs">View →</span>
+          </Link>
 
-      <Link
-        href="/dashboard/broadcasts"
-        className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <span className="bg-brand-green-soft text-brand-green flex size-10 items-center justify-center rounded-xl">
-            <Megaphone className="size-5" />
-          </span>
-          <div>
-            <p className="text-foreground text-sm font-medium">Broadcasts</p>
-            <p className="text-muted-foreground text-sm">
-              Send a campaign-style message to a group of customers.
-            </p>
-          </div>
-        </div>
-        <span className="text-muted-foreground text-xs">Open →</span>
-      </Link>
+          <Link
+            href="/dashboard/broadcasts"
+            className="border-border/70 bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-2xl border p-5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="bg-brand-green-soft text-brand-green flex size-10 items-center justify-center rounded-xl">
+                <Megaphone className="size-5" />
+              </span>
+              <div>
+                <p className="text-foreground text-sm font-medium">Broadcasts</p>
+                <p className="text-muted-foreground text-sm">
+                  Send a campaign-style message to a group of customers.
+                </p>
+              </div>
+            </div>
+            <span className="text-muted-foreground text-xs">Open →</span>
+          </Link>
+        </>
+      )}
 
       {products.length === 0 ? (
         <CatalogEmpty vocab={vocab} />

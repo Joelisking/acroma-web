@@ -28,6 +28,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const vocab = getVocabulary(business.businessType);
+  const isFood = business.businessType === "FOOD_BEVERAGES";
+  const isServices = business.businessType === "SERVICES";
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
@@ -63,10 +65,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </Button>
               <DeleteProductButton productId={product.id} />
             </div>
-            <SoldOutTodayButton
-              productId={product.id}
-              soldOutAt={product.soldOutAt}
-            />
+            {isFood ? (
+              <SoldOutTodayButton
+                productId={product.id}
+                soldOutAt={product.soldOutAt}
+              />
+            ) : null}
           </div>
         </div>
       </header>
@@ -104,37 +108,38 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </section>
       ) : null}
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-foreground text-sm font-semibold">Variants</h2>
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-          >
-            <Link href={`/dashboard/catalog/${product.id}/variants`}>
-              <Layers />
-              {product.hasVariants ? "Manage variants" : "Add variants"}
-            </Link>
-          </Button>
-        </div>
-        {product.variants && product.variants.length > 0 ? (
-          <VariantsList
-            variants={product.variants}
-            basePrice={product.basePrice}
-            currency={business.currency}
-            tracksStock={vocab.tracksStock}
-          />
-        ) : (
-          <p className="text-muted-foreground text-sm">
-            No {vocab.variantsHeading.toLowerCase()}.
-            {vocab.tracksStock
-              ? ` ${product.stock} units in stock at base price.`
-              : ""}
-          </p>
-        )}
-      </section>
+      {isServices ? null : (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-foreground text-sm font-semibold">
+              {vocab.variantsHeading}
+            </h2>
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link href={`/dashboard/catalog/${product.id}/variants`}>
+                <Layers />
+                {product.hasVariants
+                  ? `Manage ${vocab.variantsHeading.toLowerCase()}`
+                  : `Add ${vocab.variantsHeading.toLowerCase()}`}
+              </Link>
+            </Button>
+          </div>
+          {product.variants && product.variants.length > 0 ? (
+            <VariantsList
+              variants={product.variants}
+              basePrice={product.basePrice}
+              currency={business.currency}
+              tracksStock={vocab.tracksStock}
+            />
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No {vocab.variantsHeading.toLowerCase()}.
+              {vocab.tracksStock
+                ? ` ${product.stock} units in stock at base price.`
+                : ""}
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 }
