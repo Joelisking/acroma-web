@@ -108,6 +108,36 @@ If a piece of UI doesn't exist as a shadcn component (or in the registries
 configured in `components.json`), build a minimal one in `components/ui/`
 following the same `cva` + `forwardRef` pattern shadcn uses.
 
+### No native browser UI — ever
+
+Acroma never uses the browser's built-in UI. It is unstyled, off-brand, not
+themeable, not testable, and shows the origin ("acroma.asera.tech says…").
+Every one of these has a shadcn (or Radix) replacement — use it.
+
+| Never | Use instead |
+|-------|-------------|
+| `window.confirm()` / `window.alert()` | shadcn `AlertDialog` |
+| `window.prompt()` | shadcn `Dialog` + `Input` |
+| `<input type="date">` / `type="month">` | shadcn `Calendar` in a `Popover` (date picker) |
+| `<input type="time">` | shadcn time-picker (compose `Select`s, or a `Popover`) |
+| `<input type="datetime-local">` | `Calendar` + time-picker in a `Popover` |
+| `<input type="color">` | a shadcn color-picker `Popover` |
+| native `<select>` | shadcn `Select` |
+| `<details>`/`<summary>` | shadcn `Accordion` / `Collapsible` |
+
+Rules:
+
+- **No `confirm`/`alert`/`prompt`** anywhere in the app. A destructive or
+  irreversible action gets an `AlertDialog` with a clear title, a description
+  of what is lost, and a labelled confirm button. (The PWA
+  `beforeinstallprompt.prompt()` API is unrelated and allowed.)
+- **No native date/time/color pickers.** They render the OS widget, ignore the
+  theme and dark mode, and can't be brand-styled.
+- If the shadcn primitive isn't installed yet, `npx shadcn@latest add <x>`
+  (decline overwriting existing `components/ui/*`). If one genuinely doesn't
+  exist, build it in `components/ui/` following the shadcn pattern — don't fall
+  back to the native element.
+
 ---
 
 ## 4. File size & modularity — hard rules

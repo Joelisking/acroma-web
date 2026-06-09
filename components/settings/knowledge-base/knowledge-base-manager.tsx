@@ -6,6 +6,17 @@ import { toast } from "sonner";
 import type { FaqCategory, FaqEntry } from "@/lib/api/faq";
 import { resetFaqToTemplateAction } from "@/lib/api/faq-actions";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { CATEGORY_ORDER } from "./categories";
 import { CategoryGroup } from "./category-group";
 import { AddFaqForm } from "./add-faq-form";
@@ -39,13 +50,6 @@ export function KnowledgeBaseManager({
   }
 
   function reset() {
-    if (
-      !window.confirm(
-        "Reset to the Ghana starter template? This deletes every FAQ entry you've added or edited.",
-      )
-    ) {
-      return;
-    }
     startReset(async () => {
       const result = await resetFaqToTemplateAction();
       if (!result.ok) {
@@ -86,20 +90,37 @@ export function KnowledgeBaseManager({
           of {entries.length} answers are live. Acroma only uses the ones that
           are switched on.
         </p>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={reset}
-          disabled={resetting}
-          className="text-brand-navy hover:bg-brand-blue/10 h-8 gap-1.5 rounded-lg px-3 text-xs"
-        >
-          {resetting ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <RotateCcw className="size-3.5" strokeWidth={1.75} />
-          )}
-          Reset to template
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={resetting}
+              className="text-brand-navy hover:bg-brand-blue/10 h-8 gap-1.5 rounded-lg px-3 text-xs"
+            >
+              {resetting ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="size-3.5" strokeWidth={1.75} />
+              )}
+              Reset to template
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset to the starter template?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This deletes every FAQ you&apos;ve added or edited and restores
+                the default questions for your business. You can&apos;t undo
+                this.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={reset}>Reset</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <AddFaqForm onAdd={add} />
