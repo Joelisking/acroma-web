@@ -28,6 +28,9 @@ import {
 import { updateBookingCapacityAction } from "@/lib/api/settings-actions";
 import type { BookingCapacitySettings } from "@/lib/api/types";
 
+// Fix 1: index-based array so merchant category text (which may contain dots)
+// never appears in an RHF field path. RHF treats dots as nested-path
+// separators, so "Hair.Color" in a path key silently corrupts the value.
 const schema = z.object({
   bookingCapacityMode: z.enum(["SHARED", "PER_CATEGORY"]),
   defaultBookingCapacity: z
@@ -40,47 +43,114 @@ const schema = z.object({
     .int("Whole number")
     .min(1, "At least 1 minute")
     .max(1440, "At most 1440"),
-  categoryBookingCapacities: z.record(z.string(), z.number().int().min(1)),
+  categoryCaps: z.array(
+    z.object({
+      category: z.string(),
+      capacity: z
+        .number({ error: "Use a number" })
+        .int("Whole number")
+        .min(1, "At least 1")
+        .max(100, "At most 100"),
+    }),
+  ),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 type Props = { initial: BookingCapacitySettings; categories: string[] };
 
+function buildDefaultValues(
+  initial: BookingCapacitySettings,
+  categories: string[],
+): FormValues {
+  return {
+    bookingCapacityMode: initial.bookingCapacityMode,
+    defaultBookingCapacity: initial.defaultBookingCapacity,
+    defaultServiceDurationMinutes: initial.defaultServiceDurationMinutes,
+    // Only categories currently in the catalog are tracked; orphaned saved
+    // keys are intentionally dropped on the next save.
+    categoryCaps: categories.map((c) => ({
+      category: c,
+      capacity:
+        initial.categoryBookingCapacities?.[c] ??
+        initial.defaultBookingCapacity,
+    })),
+  };
+}
+
 export function BookingCapacityForm({ initial, categories }: Props) {
   const [pending, startTransition] = React.useTransition();
 
+  // Fix 4: keep a serverValues snapshot so we can compute dirty state and
+  // reset the form baseline after a successful save — matching the house
+  // pattern from appointment-reminder-settings-form.tsx.
+  const [serverValues, setServerValues] = React.useState<FormValues>(() =>
+    buildDefaultValues(initial, categories),
+  );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      bookingCapacityMode: initial.bookingCapacityMode,
-      defaultBookingCapacity: initial.defaultBookingCapacity,
-      defaultServiceDurationMinutes: initial.defaultServiceDurationMinutes,
-      categoryBookingCapacities: Object.fromEntries(
-        categories.map((c) => [
-          c,
-          initial.categoryBookingCapacities?.[c] ??
-            initial.defaultBookingCapacity,
-        ]),
-      ),
-    },
+    defaultValues: buildDefaultValues(initial, categories),
   });
 
-  const mode = useWatch({ control: form.control, name: "bookingCapacityMode" });
+  const values = useWatch({ control: form.control });
 
-  function onSubmit(values: FormValues) {
+  // Dirty check mirrors the neighbour form: compare watched values against
+  // the last-saved server snapshot rather than relying solely on
+  // formState.isDirty (which can desync after nested array field edits).
+  const dirty = React.useMemo(() => {
+    if (
+      values.bookingCapacityMode !== serverValues.bookingCapacityMode ||
+      Number(values.defaultBookingCapacity) !==
+        serverValues.defaultBookingCapacity ||
+      Number(values.defaultServiceDurationMinutes) !==
+        serverValues.defaultServiceDurationMinutes
+    ) {
+      return true;
+    }
+    if (
+      (values.categoryCaps?.length ?? 0) !== serverValues.categoryCaps.length
+    ) {
+      return true;
+    }
+    return (values.categoryCaps ?? []).some(
+      (row, i) =>
+        Number(row.capacity) !== serverValues.categoryCaps[i]?.capacity,
+    );
+  }, [serverValues, values]);
+
+  const mode = values.bookingCapacityMode;
+
+  function onSubmit(submitted: FormValues) {
     startTransition(async () => {
+      // Fix 1 (cont.): reconstruct the categoryBookingCapacities record from
+      // the index-based array only when sending to the backend.
+      const categoryBookingCapacities = Object.fromEntries(
+        submitted.categoryCaps.map((row) => [row.category, row.capacity]),
+      );
+
       const body =
-        values.bookingCapacityMode === "PER_CATEGORY"
-          ? values
-          : {
-              bookingCapacityMode: values.bookingCapacityMode,
-              defaultBookingCapacity: values.defaultBookingCapacity,
+        submitted.bookingCapacityMode === "PER_CATEGORY"
+          ? {
+              bookingCapacityMode: submitted.bookingCapacityMode,
+              defaultBookingCapacity: submitted.defaultBookingCapacity,
               defaultServiceDurationMinutes:
-                values.defaultServiceDurationMinutes,
+                submitted.defaultServiceDurationMinutes,
+              categoryBookingCapacities,
+            }
+          : {
+              bookingCapacityMode: submitted.bookingCapacityMode,
+              defaultBookingCapacity: submitted.defaultBookingCapacity,
+              defaultServiceDurationMinutes:
+                submitted.defaultServiceDurationMinutes,
             };
+
       const res = await updateBookingCapacityAction(body);
       if (res.ok) {
+        // Fix 4: reset both the RHF baseline and the server snapshot so
+        // isDirty (and our manual dirty check) return to false.
+        setServerValues(submitted);
+        form.reset(submitted);
         toast.success("Booking capacity saved");
       } else {
         toast.error(res.error);
@@ -194,35 +264,44 @@ export function BookingCapacityForm({ initial, categories }: Props) {
         {mode === "PER_CATEGORY" && categories.length > 0 ? (
           <div className="space-y-3">
             <p className="text-sm font-medium">Capacity per category</p>
-            {categories.map((cat) => (
+            {/* Fix 1 + Fix 2 + Fix 3: index-based paths keep merchant text
+                out of RHF field names; FormMessage surfaces validation errors;
+                max={100} enforced both in HTML and in the Zod schema above. */}
+            {categories.map((cat, i) => (
               <FormField
                 key={cat}
                 control={form.control}
-                name={`categoryBookingCapacities.${cat}` as const}
+                name={`categoryCaps.${i}.capacity` as const}
                 render={({ field }) => (
-                  <FormItem className="flex items-center justify-between gap-4">
-                    <FormLabel className="font-normal">{cat}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        step={1}
-                        className="w-24"
-                        name={field.name}
-                        ref={field.ref}
-                        onBlur={field.onBlur}
-                        value={
-                          field.value === undefined || field.value === null
-                            ? ""
-                            : String(field.value)
-                        }
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          field.onChange(raw === "" ? undefined : Number(raw));
-                        }}
-                      />
-                    </FormControl>
+                  <FormItem>
+                    <div className="flex items-center justify-between gap-4">
+                      <FormLabel className="font-normal">{cat}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          max={100}
+                          step={1}
+                          className="w-24"
+                          name={field.name}
+                          ref={field.ref}
+                          onBlur={field.onBlur}
+                          value={
+                            field.value === undefined || field.value === null
+                              ? ""
+                              : String(field.value)
+                          }
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            field.onChange(
+                              raw === "" ? undefined : e.target.valueAsNumber,
+                            );
+                          }}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -231,9 +310,10 @@ export function BookingCapacityForm({ initial, categories }: Props) {
         ) : null}
 
         <div className="flex justify-end">
+          {/* Fix 4: gate the button on pending OR !dirty to match neighbour. */}
           <Button
             type="submit"
-            disabled={pending}
+            disabled={pending || !dirty}
             className="h-10 gap-2 rounded-xl px-5"
           >
             {pending ? <Loader2 className="size-4 animate-spin" /> : null}
