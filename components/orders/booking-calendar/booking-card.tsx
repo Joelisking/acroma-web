@@ -46,12 +46,12 @@ export function BookingCard({
             {formatItemsSummary(order.items)}
           </p>
         </div>
-        <OrderStatusBadge status={order.status} />
+        <OrderStatusBadge status={order.status} businessType={businessType} />
       </div>
 
       {needsReview ? (
-        <p className="text-brand-orange flex items-center gap-1 text-xs">
-          <AlertCircle className="size-3.5" /> Needs review
+        <p className="text-brand-orange flex items-center gap-1 text-xs whitespace-nowrap">
+          <AlertCircle className="size-3.5 shrink-0" /> Did they show?
         </p>
       ) : null}
 

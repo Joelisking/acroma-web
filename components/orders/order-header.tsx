@@ -22,6 +22,7 @@ export function OrderHeader({
 }) {
   const customer = order.customerName?.trim();
   const itemsSummary = formatItemsSummary(order.items);
+  const isServices = businessType === "SERVICES";
 
   return (
     <header className="flex flex-col gap-4">
@@ -63,14 +64,20 @@ export function OrderHeader({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <OrderStatusBadge
             status={order.status}
             businessType={businessType}
             size="md"
           />
-          <FulfillmentBadge fulfillment={order.fulfillment} />
-          <PaymentMethodBadge method={order.paymentMethod} />
+          {/* In-person appointments have no pickup/delivery choice. */}
+          {isServices ? null : (
+            <FulfillmentBadge fulfillment={order.fulfillment} />
+          )}
+          <PaymentMethodBadge
+            method={order.paymentMethod}
+            businessType={businessType}
+          />
           {order.discount ? (
             <DiscountBadge
               discount={order.discount}

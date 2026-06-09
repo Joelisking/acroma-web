@@ -35,6 +35,7 @@ export function OrderRow({
     order.customerName?.trim() || formatPhone(order.customerPhone);
   const itemsSummary = formatItemsSummary(order.items);
   const isDelivery = order.fulfillment === "DELIVERY";
+  const isServices = businessType === "SERVICES";
   const hasAddress = isDelivery && Boolean(order.deliveryAddress);
   const needsReview =
     businessType === "SERVICES" &&
@@ -66,21 +67,23 @@ export function OrderRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground font-mono text-[0.7rem] tracking-wider">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-muted-foreground shrink-0 font-mono text-[0.7rem] tracking-wider">
                   #{shortId(order.id)}
                 </span>
                 <OrderStatusBadge
                   status={order.status}
                   businessType={businessType}
                 />
-                {needsReview ? (
-                  <span className="bg-brand-orange-soft text-brand-orange inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium">
-                    <AlertCircle className="size-3" />
-                    Needs review
-                  </span>
-                ) : null}
               </div>
+              {/* Attention pill gets its own line so it never gets crushed
+                  against the price on narrow screens. */}
+              {needsReview ? (
+                <span className="bg-brand-orange-soft text-brand-orange mt-1.5 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap">
+                  <AlertCircle className="size-3 shrink-0" />
+                  Did they show?
+                </span>
+              ) : null}
               <p className="text-foreground mt-1.5 truncate text-sm font-semibold">
                 {customer}
               </p>
@@ -89,10 +92,15 @@ export function OrderRow({
                   {itemsSummary}
                 </p>
               ) : null}
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                {isDelivery ? "Delivery" : "Pickup"} ·{" "}
-                {formatRelativeShort(order.createdAt)}
-              </p>
+              {/* Goods fulfilment + created-relative line. Appointments lead
+                  with the appointment time below, so drop the "Pickup" framing
+                  for services. */}
+              {isServices ? null : (
+                <p className="text-muted-foreground mt-0.5 text-xs">
+                  {isDelivery ? "Delivery" : "Pickup"} ·{" "}
+                  {formatRelativeShort(order.createdAt)}
+                </p>
+              )}
               {order.scheduledFor ? (
                 <span className="text-muted-foreground mt-0.5 inline-flex items-center gap-1 text-xs">
                   <CalendarClock className="size-3.5" />
@@ -122,27 +130,32 @@ export function OrderRow({
                 className="relative z-10 ml-auto"
               />
             </div>
-            <div className="flex items-start gap-2.5">
-              <span className="bg-brand-blue-soft text-brand-blue flex size-7 shrink-0 items-center justify-center rounded-lg">
-                {isDelivery ? (
-                  <MapPin className="size-3.5" />
-                ) : (
-                  <Package className="size-3.5" />
-                )}
-              </span>
-              <p className="text-foreground min-w-0 text-xs leading-snug font-medium">
-                {isDelivery
-                  ? order.deliveryAddress || "Address to confirm"
-                  : "Customer pickup"}
-              </p>
-              {hasAddress ? (
-                <CopyButton
-                  value={order.deliveryAddress as string}
-                  label="Copy delivery address"
-                  className="relative z-10 ml-auto"
-                />
-              ) : null}
-            </div>
+            {/* Fulfilment row. Services are in person at the merchant's
+                location (the appointment time is shown above), so there is no
+                pickup/delivery line to render. */}
+            {isServices ? null : (
+              <div className="flex items-start gap-2.5">
+                <span className="bg-brand-blue-soft text-brand-blue flex size-7 shrink-0 items-center justify-center rounded-lg">
+                  {isDelivery ? (
+                    <MapPin className="size-3.5" />
+                  ) : (
+                    <Package className="size-3.5" />
+                  )}
+                </span>
+                <p className="text-foreground min-w-0 text-xs leading-snug font-medium">
+                  {isDelivery
+                    ? order.deliveryAddress || "Address to confirm"
+                    : "Customer pickup"}
+                </p>
+                {hasAddress ? (
+                  <CopyButton
+                    value={order.deliveryAddress as string}
+                    label="Copy delivery address"
+                    className="relative z-10 ml-auto"
+                  />
+                ) : null}
+              </div>
+            )}
           </div>
         </div>
       </div>

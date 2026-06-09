@@ -29,6 +29,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
   if (!business) return null
   if (!order) notFound()
 
+  const isServices = business.businessType === "SERVICES"
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <OrderHeader order={order} businessType={business.businessType} />
@@ -73,9 +75,15 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       <PaymentLinkPanel order={order} />
 
-      <OrderQuickReplies orderId={order.id} status={order.status} />
+      {/* Quick replies are goods/food canned messages; not relevant to an
+          in-person appointment. */}
+      {isServices ? null : (
+        <OrderQuickReplies orderId={order.id} status={order.status} />
+      )}
 
-      {order.fulfillment === "PICKUP" ? (
+      {/* Fulfilment card. In-person appointments need no pickup/delivery card,
+          the Appointment card above carries the relevant detail. */}
+      {isServices ? null : order.fulfillment === "PICKUP" ? (
         <PickupCard />
       ) : (
         <DeliveryAddressCard

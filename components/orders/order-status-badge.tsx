@@ -39,7 +39,9 @@ export function statusMeta(
   switch (status) {
     case "PENDING":
       return {
-        label: "Pending",
+        // Services bookings are "Booking" (request received, not yet
+        // confirmed by the merchant) to match the stepper's first step.
+        label: isServices ? "Booking" : "Pending",
         Icon: Clock,
         className: "bg-muted text-muted-foreground",
       };
@@ -124,7 +126,7 @@ export function OrderStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full font-medium",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full font-medium whitespace-nowrap",
         size === "sm" ? "px-2 py-0.5 text-[0.7rem]" : "px-2.5 py-1 text-xs",
         meta.className,
         className,
