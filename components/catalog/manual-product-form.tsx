@@ -166,13 +166,13 @@ export function ManualProductForm({
         </div>
       )}
 
-      {isServices ? null : (
+      {isFood ? (
         <ProductTagsPicker
           value={values.tags}
           onChange={(tags) => set("tags", tags)}
           expandedByDefault={isFood}
         />
-      )}
+      ) : null}
 
       <div className="border-border/70 bg-muted/30 flex items-center justify-between rounded-xl border p-4">
         <div>

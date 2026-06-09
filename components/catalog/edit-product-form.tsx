@@ -313,7 +313,7 @@ export function EditProductForm({
           )}
         />
 
-        {isServices ? null : (
+        {isFood ? (
           <FormField
             control={form.control}
             name="tags"
@@ -323,14 +323,14 @@ export function EditProductForm({
                   <ProductTagsPicker
                     value={(field.value ?? []) as ProductTag[]}
                     onChange={(tags) => field.onChange(tags)}
-                    expandedByDefault={businessType === "FOOD_BEVERAGES"}
+                    expandedByDefault={isFood}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
+        ) : null}
 
         <FormField
           control={form.control}
