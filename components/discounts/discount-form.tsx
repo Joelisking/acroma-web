@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -155,21 +156,19 @@ export function DiscountForm({ mode, existing }: Props) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="validFrom">Valid from</Label>
-          <Input
+          <DateTimePicker
             id="validFrom"
-            type="datetime-local"
             value={validFrom}
-            onChange={(e) => setValidFrom(e.target.value)}
+            onChange={setValidFrom}
             disabled={pending}
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="validUntil">Valid until</Label>
-          <Input
+          <DateTimePicker
             id="validUntil"
-            type="datetime-local"
             value={validUntil}
-            onChange={(e) => setValidUntil(e.target.value)}
+            onChange={setValidUntil}
             disabled={pending}
           />
         </div>

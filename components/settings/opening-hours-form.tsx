@@ -4,7 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import { Button } from "@/components/ui/button";
 import {
   clearOpeningHoursAction,
@@ -159,23 +159,19 @@ export function OpeningHoursForm({ initial }: Props) {
                   {label}
                 </Label>
               </div>
-              <div className="flex flex-1 items-center gap-2">
-                <Input
-                  type="time"
-                  aria-label={`${label} open time`}
+              <div className="flex flex-1 flex-wrap items-center gap-2">
+                <TimePicker
+                  label={`${label} open time`}
                   value={day?.open ?? ""}
-                  onChange={(e) => setOpen(key, e.target.value)}
+                  onChange={(v) => setOpen(key, v)}
                   disabled={!enabled || pending}
-                  className="w-32"
                 />
                 <span className="text-muted-foreground text-sm">to</span>
-                <Input
-                  type="time"
-                  aria-label={`${label} close time`}
+                <TimePicker
+                  label={`${label} close time`}
                   value={day?.close ?? ""}
-                  onChange={(e) => setClose(key, e.target.value)}
+                  onChange={(v) => setClose(key, v)}
                   disabled={!enabled || pending}
-                  className="w-32"
                 />
               </div>
               {dayError ? (
