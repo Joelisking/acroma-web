@@ -1,8 +1,10 @@
 import { Logo } from "@/components/brand/logo";
 import { ConnectionPill } from "./connection-pill";
+import { AccountMenuButton } from "./account-menu-button";
 
 type TopBarProps = {
   businessName: string;
+  email: string;
   whatsappActive: boolean;
 };
 
@@ -10,7 +12,7 @@ type TopBarProps = {
  * Top bar shown above content. Compact on mobile (with logo), spacious
  * on desktop (with eyebrow + greeting).
  */
-export function TopBar({ businessName, whatsappActive }: TopBarProps) {
+export function TopBar({ businessName, email, whatsappActive }: TopBarProps) {
   const greeting = greet();
   return (
     <header className="border-border/70 bg-background/85 sticky top-0 z-30 border-b backdrop-blur-md">
@@ -26,7 +28,16 @@ export function TopBar({ businessName, whatsappActive }: TopBarProps) {
           </h1>
         </div>
 
-        <ConnectionPill active={whatsappActive} />
+        <div className="flex items-center gap-2">
+          <ConnectionPill active={whatsappActive} />
+          {/* Mobile-only: the desktop sidebar already carries the account
+              block (and its sign-out), so this hides at lg. */}
+          <AccountMenuButton
+            name={businessName}
+            email={email}
+            className="lg:hidden"
+          />
+        </div>
       </div>
     </header>
   );

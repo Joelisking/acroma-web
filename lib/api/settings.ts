@@ -8,6 +8,11 @@ export type WhatsappSettings = {
   whatsappBusinessAccountId: string | null;
   whatsappVerifyToken: string | null;
   whatsappWebhookActive: boolean;
+  // Token health. `whatsappHealthy` is false once a probe (or a failed send)
+  // finds the access token dead; `whatsappLastError` is the reason to surface.
+  whatsappHealthy: boolean;
+  whatsappTokenExpiresAt: string | null;
+  whatsappLastError: string | null;
   webhookUrl: string;
 };
 

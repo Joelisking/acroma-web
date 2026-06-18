@@ -56,7 +56,7 @@ export function AccountMenu({
   );
 }
 
-function getInitials(name: string) {
+export function getInitials(name: string) {
   return name
     .split(/\s+/)
     .filter(Boolean)

@@ -45,7 +45,11 @@ export default async function WhatsappSettingsPage() {
         title="Connection"
         description="Status of your WhatsApp Cloud API integration."
       >
-        <WhatsappStatus active={settings.whatsappWebhookActive} />
+        <WhatsappStatus
+          active={settings.whatsappWebhookActive}
+          healthy={settings.whatsappHealthy}
+          lastError={settings.whatsappLastError}
+        />
       </SettingsCard>
 
       <SettingsCard

@@ -10,7 +10,13 @@ import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
 } from "@/lib/api/settings-actions";
-import { isOpen, nextOpenTime, formatNextOpen, toMinutes } from "@/lib/business-hours";
+import {
+  isOpen,
+  isOvernight,
+  nextOpenTime,
+  formatNextOpen,
+  toMinutes,
+} from "@/lib/business-hours";
 import type { DayHours, OpeningHours } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +67,10 @@ export function OpeningHoursForm({ initial }: Props) {
     const e: Partial<Record<DayKey, string>> = {};
     for (const { key } of DAYS) {
       const d = hours[key];
-      if (d && toMinutes(d.close) <= toMinutes(d.open)) {
-        e[key] = "Close must be after open";
+      // A close earlier than open is a valid overnight window (e.g. 6pm to
+      // 1am). Only an identical open and close is invalid (zero-length).
+      if (d && toMinutes(d.close) === toMinutes(d.open)) {
+        e[key] = "Open and close cannot be the same time";
       }
     }
     return e;
@@ -173,6 +181,11 @@ export function OpeningHoursForm({ initial }: Props) {
                   onChange={(v) => setClose(key, v)}
                   disabled={!enabled || pending}
                 />
+                {day && isOvernight(day) ? (
+                  <span className="text-muted-foreground text-xs">
+                    next day
+                  </span>
+                ) : null}
               </div>
               {dayError ? (
                 <p className="text-destructive w-full text-xs">{dayError}</p>

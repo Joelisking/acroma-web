@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import { SignOutCard } from "@/components/settings/sign-out-card";
 
 export const metadata: Metadata = { title: "Security · Settings · Acroma" };
 
@@ -13,6 +14,8 @@ export default function SecuritySettingsPage() {
       >
         <ChangePasswordForm />
       </SettingsCard>
+
+      <SignOutCard />
     </div>
   );
 }
