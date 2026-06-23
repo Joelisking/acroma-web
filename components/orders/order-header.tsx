@@ -68,6 +68,7 @@ export function OrderHeader({
           <OrderStatusBadge
             status={order.status}
             businessType={businessType}
+            fulfillment={order.fulfillment}
             size="md"
           />
           {/* In-person appointments have no pickup/delivery choice. */}

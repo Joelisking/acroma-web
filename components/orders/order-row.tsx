@@ -74,6 +74,7 @@ export function OrderRow({
                 <OrderStatusBadge
                   status={order.status}
                   businessType={businessType}
+                  fulfillment={order.fulfillment}
                 />
               </div>
               {/* Attention pill gets its own line so it never gets crushed

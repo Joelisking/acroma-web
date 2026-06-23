@@ -45,6 +45,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             status={order.status}
             paymentMethod={order.paymentMethod}
             businessType={business.businessType}
+            fulfillment={order.fulfillment}
           />
         </div>
         <div className="mt-6">
@@ -53,6 +54,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             status={order.status}
             paymentMethod={order.paymentMethod}
             businessType={business.businessType}
+            fulfillment={order.fulfillment}
             totalAmount={order.totalAmount}
             currency={order.currency}
           />

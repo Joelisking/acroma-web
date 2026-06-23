@@ -12,7 +12,11 @@ import {
   UserX,
   type LucideIcon,
 } from "lucide-react";
-import type { BusinessType, OrderStatus } from "@/lib/api/types";
+import type {
+  BusinessType,
+  OrderFulfillment,
+  OrderStatus,
+} from "@/lib/api/types";
 import { getVocabulary } from "@/lib/vocabulary";
 import { cn } from "@/lib/utils";
 
@@ -29,13 +33,19 @@ type Meta = {
  * food merchants. PREPARING and READY_FOR_PICKUP are food-vertical
  * intermediate states; non-food orders will never carry them, but
  * the badge still renders them gracefully if seen.
+ *
+ * Fulfilment refines the terminal DELIVERED state: a pickup order that
+ * reaches it was collected in person, so the badge reads "Picked up"
+ * rather than "Delivered". Pass the order's fulfilment to get this.
  */
 export function statusMeta(
   status: OrderStatus,
   businessType?: BusinessType | null,
+  fulfillment?: OrderFulfillment | null,
 ): Meta {
   const vocab = getVocabulary(businessType);
   const isServices = businessType === "SERVICES";
+  const isPickup = fulfillment === "PICKUP";
   switch (status) {
     case "PENDING":
       return {
@@ -77,13 +87,15 @@ export function statusMeta(
       };
     case "SHIPPED":
       return {
-        label: vocab.shippedLabel,
-        Icon: Truck,
+        // Shipping is delivery-only; a pickup order never reaches it, but
+        // render it as the pickup-ready state if somehow seen.
+        label: isPickup ? "Ready for pickup" : vocab.shippedLabel,
+        Icon: isPickup ? Bell : Truck,
         className: "bg-brand-blue-soft text-brand-blue",
       };
     case "DELIVERED":
       return {
-        label: isServices ? "Completed" : "Delivered",
+        label: isServices ? "Completed" : isPickup ? "Picked up" : "Delivered",
         Icon: PackageCheck,
         className: "bg-brand-green-soft text-brand-green",
       };
@@ -113,15 +125,17 @@ type Size = "sm" | "md";
 export function OrderStatusBadge({
   status,
   businessType,
+  fulfillment,
   size = "sm",
   className,
 }: {
   status: OrderStatus;
   businessType?: BusinessType | null;
+  fulfillment?: OrderFulfillment | null;
   size?: Size;
   className?: string;
 }) {
-  const meta = statusMeta(status, businessType);
+  const meta = statusMeta(status, businessType, fulfillment);
   const { Icon } = meta;
   return (
     <span

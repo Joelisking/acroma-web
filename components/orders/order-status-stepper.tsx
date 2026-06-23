@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import type {
   BusinessType,
+  OrderFulfillment,
   OrderStatus,
   PaymentMethod,
 } from "@/lib/api/types";
@@ -16,8 +17,15 @@ type Step = { status: OrderStatus; label: string };
  * instead of "Shipped". PREPARING and READY_FOR_PICKUP collapse onto
  * the same visual slot as PROCESSING and SHIPPED so the stepper
  * width stays stable across verticals.
+ *
+ * Fulfilment relabels the back half for pickup orders: the "shipped"
+ * slot reads "Ready for pickup" and the terminal slot reads "Picked
+ * up", since a pickup order is collected in person, never delivered.
  */
-function momoSteps(businessType: BusinessType | null | undefined): Step[] {
+function momoSteps(
+  businessType: BusinessType | null | undefined,
+  isPickup: boolean,
+): Step[] {
   const vocab = getVocabulary(businessType);
   const isFood = businessType === "FOOD_BEVERAGES";
   return [
@@ -27,12 +35,18 @@ function momoSteps(businessType: BusinessType | null | undefined): Step[] {
       status: isFood ? "PREPARING" : "PROCESSING",
       label: isFood ? "Preparing" : "Processing",
     },
-    { status: "SHIPPED", label: vocab.shippedLabel },
-    { status: "DELIVERED", label: "Delivered" },
+    {
+      status: isPickup ? "READY_FOR_PICKUP" : "SHIPPED",
+      label: isPickup ? "Ready for pickup" : vocab.shippedLabel,
+    },
+    { status: "DELIVERED", label: isPickup ? "Picked up" : "Delivered" },
   ];
 }
 
-function codSteps(businessType: BusinessType | null | undefined): Step[] {
+function codSteps(
+  businessType: BusinessType | null | undefined,
+  isPickup: boolean,
+): Step[] {
   const vocab = getVocabulary(businessType);
   const isFood = businessType === "FOOD_BEVERAGES";
   return [
@@ -41,8 +55,11 @@ function codSteps(businessType: BusinessType | null | undefined): Step[] {
       status: isFood ? "PREPARING" : "PROCESSING",
       label: isFood ? "Preparing" : "Processing",
     },
-    { status: "SHIPPED", label: vocab.shippedLabel },
-    { status: "DELIVERED", label: "Delivered" },
+    {
+      status: isPickup ? "READY_FOR_PICKUP" : "SHIPPED",
+      label: isPickup ? "Ready for pickup" : vocab.shippedLabel,
+    },
+    { status: "DELIVERED", label: isPickup ? "Picked up" : "Delivered" },
     { status: "PAID", label: "Cash received" },
   ];
 }
@@ -102,17 +119,20 @@ export function OrderStatusStepper({
   status,
   paymentMethod,
   businessType,
+  fulfillment,
 }: {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   businessType?: BusinessType | null;
+  fulfillment?: OrderFulfillment | null;
 }) {
   const isServices = businessType === "SERVICES";
+  const isPickup = fulfillment === "PICKUP";
   const steps = isServices
     ? servicesSteps()
     : paymentMethod === "CASH_ON_DELIVERY"
-      ? codSteps(businessType)
-      : momoSteps(businessType);
+      ? codSteps(businessType, isPickup)
+      : momoSteps(businessType, isPickup);
   const index = isServices
     ? SERVICES_INDEX
     : paymentMethod === "CASH_ON_DELIVERY"

@@ -21,6 +21,7 @@ import {
 } from "@/lib/api/orders-actions";
 import type {
   BusinessType,
+  OrderFulfillment,
   OrderStatus,
   PaymentMethod,
 } from "@/lib/api/types";
@@ -40,22 +41,26 @@ type Action = {
  * Branches on payment method: COD follows a physical fulfilment flow;
  * MOMO follows a payment-first flow.
  *
- * Food vertical (businessType === FOOD_BEVERAGES) gets two extra
- * intermediate options on the kitchen path:
- *  - PREPARING (cooking) instead of generic PROCESSING.
- *  - READY_FOR_PICKUP for pickup orders, while delivery orders go
- *    through SHIPPED → DELIVERED as usual.
- * Vocabulary swap: SHIPPED button reads "Mark out for delivery" for
- * food merchants. This is a UI-only gate; the API accepts these states
- * for any merchant who calls it directly.
+ * Fulfilment branches the physical flow. A pickup order is made
+ * "ready for pickup" then "picked up" — it never goes "out for
+ * delivery", and its terminal button reads "Mark as picked up". A
+ * delivery order keeps the SHIPPED → DELIVERED path.
+ *
+ * Food vertical (businessType === FOOD_BEVERAGES) gets PREPARING
+ * (cooking) instead of generic PROCESSING. Vocabulary swap: the SHIPPED
+ * button reads "Mark out for delivery" for food merchants. This is a
+ * UI-only gate; the API accepts these states for any merchant who calls
+ * it directly.
  */
 function nextActions(
   status: OrderStatus,
   paymentMethod: PaymentMethod,
   businessType?: BusinessType | null,
+  fulfillment?: OrderFulfillment | null,
 ): Action[] {
   const vocab = getVocabulary(businessType);
   const isFood = businessType === "FOOD_BEVERAGES";
+  const isPickup = fulfillment === "PICKUP";
   const cancelAction: Action = {
     status: "CANCELLED",
     label: "Cancel",
@@ -82,11 +87,26 @@ function nextActions(
     label: "Mark as delivered",
     Icon: PackageCheck,
   };
+  const pickedUpAction: Action = {
+    status: "DELIVERED",
+    label: "Mark as picked up",
+    Icon: PackageCheck,
+  };
   const cashReceivedAction: Action = {
     status: "PAID",
     label: "Mark cash received",
     Icon: CheckCircle2,
   };
+
+  // The final fulfilment step and the in-progress options that lead to it.
+  // Pickup: "ready for pickup" → "picked up". Delivery: "out for delivery"
+  // (food can mark "ready" first) → "delivered". Shipping is delivery-only.
+  const fulfilAction = isPickup ? pickedUpAction : deliveredAction;
+  const progressActions: Action[] = isPickup
+    ? [readyAction]
+    : isFood
+      ? [readyAction, shippedAction]
+      : [shippedAction];
 
   if (businessType === "SERVICES") {
     const noShowAction: Action = {
@@ -131,13 +151,15 @@ function nextActions(
           cancelAction,
         ];
       case "PROCESSING":
-        return isFood
-          ? [preparingAction, readyAction, shippedAction, cancelAction]
-          : [shippedAction, cancelAction];
+        return [
+          ...(isFood ? [preparingAction] : []),
+          ...progressActions,
+          cancelAction,
+        ];
       case "PREPARING":
-        return [readyAction, shippedAction, cancelAction];
+        return [...progressActions, cancelAction];
       case "READY_FOR_PICKUP":
-        return [deliveredAction, cancelAction];
+        return [fulfilAction, cancelAction];
       case "SHIPPED":
         return [deliveredAction, cancelAction];
       case "DELIVERED":
@@ -169,13 +191,11 @@ function nextActions(
         cancelAction,
       ];
     case "PROCESSING":
-      return isFood
-        ? [preparingAction, readyAction, shippedAction]
-        : [shippedAction];
+      return [...(isFood ? [preparingAction] : []), ...progressActions];
     case "PREPARING":
-      return [readyAction, shippedAction];
+      return [...progressActions];
     case "READY_FOR_PICKUP":
-      return [deliveredAction];
+      return [fulfilAction];
     case "SHIPPED":
       return [deliveredAction];
     default:
@@ -188,6 +208,7 @@ export function OrderStatusControl({
   status,
   paymentMethod,
   businessType,
+  fulfillment,
   totalAmount,
   currency,
 }: {
@@ -195,12 +216,13 @@ export function OrderStatusControl({
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   businessType?: BusinessType | null;
+  fulfillment?: OrderFulfillment | null;
   totalAmount: number;
   currency: string;
 }) {
   const [pending, startTransition] = React.useTransition();
   const [payOpen, setPayOpen] = React.useState(false);
-  const actions = nextActions(status, paymentMethod, businessType);
+  const actions = nextActions(status, paymentMethod, businessType, fulfillment);
   if (actions.length === 0) return null;
 
   function runStatus(next: OrderStatus, label: string) {
