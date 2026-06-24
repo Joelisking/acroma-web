@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import {
   getDashboardStatsAction,
   setDefaultDashboardFilterAction,
@@ -44,6 +44,14 @@ export function useDashboardStats(
 
   // Guards against a slow earlier request overwriting a newer one.
   const requestId = useRef(0);
+
+  useEffect(() => {
+    if (filtersEqual(filter, initialFilter)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStats(initialStats);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialStats, initialFilter]);
 
   const applyFilter = useCallback((next: DashboardFilter) => {
     setFilter(next);
