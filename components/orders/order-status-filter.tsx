@@ -8,11 +8,11 @@ type Filter = { value: OrderStatus | "ALL"; label: string };
 
 const FILTERS: Filter[] = [
   { value: "ALL", label: "All" },
-  { value: "PENDING", label: "New" },
+  { value: "PAID", label: "New" },
   { value: "PAYMENT_PENDING", label: "Awaiting pay" },
-  { value: "PAID", label: "Paid" },
-  { value: "PROCESSING", label: "Processing" },
-  { value: "SHIPPED", label: "Shipped" },
+  { value: "PREPARING", label: "Preparing" },
+  { value: "READY_FOR_PICKUP", label: "Ready" },
+  { value: "SHIPPED", label: "Out for delivery" },
   { value: "DELIVERED", label: "Delivered" },
   { value: "NO_SHOW", label: "No-show" },
 ];
