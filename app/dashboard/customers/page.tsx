@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listCustomers } from "@/lib/api/customers";
 import { CustomerRow } from "@/components/customers/customer-row";
+import { ExportCsvButton } from "@/components/customers/export-csv-button";
 
 export const metadata: Metadata = { title: "Customers · Acroma" };
 
@@ -8,14 +9,17 @@ export default async function CustomersPage() {
   const customers = await listCustomers();
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <header>
-        <p className="eyebrow text-muted-foreground">People</p>
-        <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
-          Customers
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Everyone who&apos;s messaged or ordered. Toggle opt-out to exclude someone from broadcasts.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <p className="eyebrow text-muted-foreground">People</p>
+          <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
+            Customers
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Everyone who&apos;s messaged or ordered. Toggle opt-out to exclude someone from broadcasts.
+          </p>
+        </div>
+        {customers.length > 0 ? <ExportCsvButton /> : null}
       </header>
 
       {customers.length === 0 ? (
