@@ -581,3 +581,24 @@ export type DashboardActivity = {
   conversations: DashboardActivityConversation[];
   orders: DashboardActivityOrder[];
 };
+
+/** Who triggered an audited event. */
+export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "SYSTEM";
+
+/**
+ * A single row from the backend audit log (`GET /audit`). Read-only;
+ * surfaced in the conversation Activity timeline as a debugging aid.
+ * `eventType` is an open string (e.g. `ai.action`, `order.status`) so new
+ * backend events render gracefully without a frontend change.
+ */
+export type AuditEntry = {
+  id: string;
+  businessId: string;
+  conversationId: string | null;
+  orderId: string | null;
+  actor: AuditActor;
+  eventType: string;
+  summary: string;
+  detail: unknown | null;
+  createdAt: string;
+};
