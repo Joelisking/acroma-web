@@ -27,6 +27,7 @@ export default async function BusinessSettingsPage() {
             currency: business.currency,
             country: business.country,
             logoUrl: business.logoUrl ?? "",
+            contactPhone: business.contactPhone ?? "",
           }}
         />
       </SettingsCard>

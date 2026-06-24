@@ -16,6 +16,7 @@ export async function updateBusinessAction(input: {
   aiEnabled?: boolean;
   businessDescription?: string;
   aiBusinessContext?: string;
+  contactPhone?: string;
   emailNotificationsEnabled?: boolean;
 }): Promise<ActionResult<Business>> {
   try {

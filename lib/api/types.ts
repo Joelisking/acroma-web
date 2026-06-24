@@ -74,6 +74,8 @@ export type Business = {
   categoryBookingCapacities: Record<string, number> | null;
   businessDescription: string | null;
   aiBusinessContext: string | null;
+  /** Phone number the AI can give customers who want to call. */
+  contactPhone: string | null;
   expoPushToken: string | null;
   emailNotificationsEnabled: boolean;
   createdAt: string;

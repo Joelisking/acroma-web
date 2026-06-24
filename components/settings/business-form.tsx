@@ -26,6 +26,7 @@ const schema = z.object({
   currency: z.string().min(3),
   country: z.string().min(2),
   logoUrl: z.string().url("Must be a URL").or(z.literal("")).optional(),
+  contactPhone: z.string().max(32, "Too long").optional(),
 });
 
 type Defaults = z.infer<typeof schema>;
@@ -118,6 +119,27 @@ export function BusinessForm({ defaults }: { defaults: Defaults }) {
                     aspect="aspect-square"
                   />
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="contactPhone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contact phone (for customer calls)</FormLabel>
+              <FormControl>
+                <Input
+                  className="h-11"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="e.g. 233244000000"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
