@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
+import { OrderCardAction } from "./order-card-action";
 import { CopyButton } from "@/components/ui/copy-button";
 import { firstUrl } from "@/lib/linkify";
 import {
@@ -60,7 +61,7 @@ export function OrderRow({
     (order.status === "PENDING" || order.status === "PROCESSING");
 
   return (
-    <div className="card-warm hover:border-brand-orange/30 relative p-4 transition-colors">
+    <div className="card-calm hover:border-brand-orange/40 relative p-4 transition-colors">
       {/* Stretched overlay link: clicking anywhere on the card opens the order,
           while the phone link and copy buttons below sit above it via z-10. */}
       <Link
@@ -101,7 +102,7 @@ export function OrderRow({
                   Did they show?
                 </span>
               ) : null}
-              <p className="text-foreground mt-1.5 truncate text-sm font-semibold">
+              <p className="text-foreground mt-1.5 truncate text-[0.95rem] font-semibold">
                 {customer}
               </p>
               {itemsSummary ? (
@@ -125,7 +126,7 @@ export function OrderRow({
                 </span>
               ) : null}
             </div>
-            <span className="font-display text-foreground shrink-0 text-lg font-medium tabular-nums">
+            <span className="text-foreground shrink-0 text-lg font-semibold tabular-nums">
               {formatMoney(order.totalAmount, order.currency)}
             </span>
           </div>
@@ -188,6 +189,12 @@ export function OrderRow({
               </div>
             )}
           </div>
+
+          <OrderCardAction
+            order={order}
+            businessType={businessType}
+            className="mt-3"
+          />
         </div>
       </div>
     </div>

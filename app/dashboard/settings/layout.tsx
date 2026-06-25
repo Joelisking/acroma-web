@@ -8,9 +8,8 @@ export default function SettingsLayout({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <p className="eyebrow text-muted-foreground">Settings</p>
-        <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
-          Workspace
+        <h1 className="text-foreground text-2xl font-semibold tracking-tight sm:text-3xl">
+          Settings
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Connect channels, configure payments, and tune Acroma to your business.

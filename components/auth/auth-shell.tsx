@@ -62,7 +62,7 @@ function EditorialPanel({
           className="inline-flex w-fit items-center gap-3"
           aria-label="Acroma home"
         >
-          <Logo tone="light" className="text-3xl" />
+          <Logo tone="light" className="h-9" />
         </Link>
 
         <div className="max-w-xl">
@@ -97,7 +97,7 @@ function FormPanel({
     <main className="bg-background relative flex min-h-svh flex-col">
       {/* Mobile brand bar */}
       <div className="flex items-center justify-between px-6 pt-6 lg:hidden">
-        <Logo className="text-2xl" />
+        <Logo className="h-7" />
       </div>
 
       <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">

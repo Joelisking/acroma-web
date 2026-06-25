@@ -6,6 +6,7 @@ import { listProducts } from "@/lib/api/products"
 import { getCurrentBusiness } from "@/lib/api/business"
 import { getVocabulary } from "@/lib/vocabulary"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/shared/page-header"
 import { ProductCard } from "@/components/catalog/product-card"
 import { MenuList } from "@/components/catalog/menu-list"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
@@ -26,31 +27,22 @@ export default async function CatalogPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow text-muted-foreground">
-            {isFood ? "Today" : vocab.items}
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-medium tracking-tight text-foreground">
-            {isFood ? "Today's menu" : vocab.catalog}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isFood
-              ? "Flip a switch to mark something sold out for today."
-              : "Everything Acroma can offer your customers."}
-          </p>
-        </div>
-
-        <Button
-          asChild
-          className="h-10 gap-1.5 self-start rounded-xl bg-brand-orange px-4 hover:bg-brand-orange/90 sm:self-auto"
-        >
-          <Link href="/dashboard/catalog/new">
-            <Plus />
-            Add {vocab.itemLower}
-          </Link>
-        </Button>
-      </header>
+      <PageHeader
+        title={isFood ? "Today's menu" : vocab.catalog}
+        description={
+          isFood
+            ? "Flip a switch to mark something sold out for today."
+            : "Everything Acroma can offer your customers."
+        }
+        actions={
+          <Button asChild className="h-10 gap-1.5">
+            <Link href="/dashboard/catalog/new">
+              <Plus />
+              Add {vocab.itemLower}
+            </Link>
+          </Button>
+        }
+      />
 
       <CatalogImagesSection
         defaultUrls={business.catalogImageUrls ?? []}

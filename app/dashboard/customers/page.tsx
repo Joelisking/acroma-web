@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Users } from "lucide-react";
 import { listCustomers } from "@/lib/api/customers";
+import { PageHeader } from "@/components/shared/page-header";
+import { EmptyState } from "@/components/shared/empty-state";
 import { CustomerRow } from "@/components/customers/customer-row";
 import { ExportCsvButton } from "@/components/customers/export-csv-button";
 
@@ -8,29 +11,21 @@ export const metadata: Metadata = { title: "Customers · Acroma" };
 export default async function CustomersPage() {
   const customers = await listCustomers();
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <p className="eyebrow text-muted-foreground">People</p>
-          <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
-            Customers
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Everyone who&apos;s messaged or ordered. Toggle opt-out to exclude someone from broadcasts.
-          </p>
-        </div>
-        {customers.length > 0 ? <ExportCsvButton /> : null}
-      </header>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+      <PageHeader
+        title="Customers"
+        description="Everyone who's messaged or ordered. Toggle opt-out to exclude someone from broadcasts."
+        actions={customers.length > 0 ? <ExportCsvButton /> : null}
+      />
 
       {customers.length === 0 ? (
-        <div className="border-border/70 bg-card rounded-2xl border p-8 text-center">
-          <p className="text-foreground text-sm font-medium">No customers yet</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Once people start ordering or messaging, they&apos;ll show up here.
-          </p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No customers yet."
+          description="Once people start ordering or messaging, they show up here."
+        />
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {customers.map((c) => (
             <CustomerRow key={c.id} customer={c} />
           ))}

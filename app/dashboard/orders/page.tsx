@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import {
   startOfMonth,
   endOfMonth,
@@ -10,32 +11,17 @@ import {
 import { listOrders } from "@/lib/api/orders";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getVocabulary } from "@/lib/vocabulary";
-import type { OrderStatus } from "@/lib/api/types";
-import { OrdersList } from "@/components/orders/orders-list";
-import { OrderStatusFilter } from "@/components/orders/order-status-filter";
-import { OrdersEmpty } from "@/components/orders/orders-empty";
+import { HOME_COOKIE } from "@/lib/home-preference";
+import { PageHeader } from "@/components/shared/page-header";
+import { HomePreferenceToggle } from "@/components/dashboard/home-preference-toggle";
+import { OrdersBoard } from "@/components/orders/orders-board";
 import { OrdersView } from "@/components/orders/orders-view";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
 
 export const metadata: Metadata = { title: "Orders · Acroma" };
 
-const VALID_STATUSES: OrderStatus[] = [
-  "PENDING",
-  "PAYMENT_PENDING",
-  "PAID",
-  "PROCESSING",
-  "PREPARING",
-  "READY_FOR_PICKUP",
-  "SHIPPED",
-  "DELIVERED",
-  "CANCELLED",
-  "NO_SHOW",
-  "PAYMENT_FAILED",
-];
-
 type PageProps = {
   searchParams: Promise<{
-    status?: string;
     view?: string;
     mode?: string;
     date?: string;
@@ -49,8 +35,11 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   const vocab = getVocabulary(business.businessType);
   const isServices = business.businessType === "SERVICES";
+  const homeIsOrders =
+    (await cookies()).get(HOME_COOKIE)?.value === "orders";
 
-  // Resolve the view (services only). Falls back to the saved default.
+  // Services can flip between a calendar and a list; everything else runs the
+  // operating board. The view falls back to the merchant's saved default.
   const view: "list" | "calendar" = !isServices
     ? "list"
     : sp.view === "calendar" || sp.view === "list"
@@ -60,19 +49,13 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         : "list";
   const mode: "month" | "week" = sp.mode === "week" ? "week" : "month";
   // Noon UTC so a date-only value lands on the same calendar day in every
-  // device timezone (avoids a midnight off-by-one in the calendar). The
-  // default MUST also be day-granular: the calendar keys MonthView/WeekView on
-  // focusedDate.getTime(), so a millisecond-precise `new Date()` would produce
-  // a fresh key on every server re-render (a confirm revalidate or a socket
-  // refresh), remounting the view and snapping the selected day back to today.
+  // device timezone, and so the calendar key stays day-granular across socket
+  // refreshes (a millisecond-precise default would remount and snap to today).
   const dateKey = sp.date ?? new Date().toISOString().slice(0, 10);
   const focusedDate = new Date(`${dateKey}T12:00:00Z`);
 
-  const status = VALID_STATUSES.includes(sp.status as OrderStatus)
-    ? (sp.status as OrderStatus)
-    : undefined;
-
-  // Calendar fetches the visible range (± 1 week padding); list keeps status.
+  // Calendar fetches the visible range (± 1 week padding). The board and the
+  // services list both load the full set and group it client-side.
   let orders;
   if (isServices && view === "calendar") {
     const from =
@@ -83,30 +66,22 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       mode === "month"
         ? addDays(endOfMonth(focusedDate), 7)
         : addDays(endOfWeek(focusedDate, { weekStartsOn: 1 }), 7);
-    orders = await listOrders({
-      from: from.toISOString(),
-      to: to.toISOString(),
-    });
+    orders = await listOrders({ from: from.toISOString(), to: to.toISOString() });
   } else {
-    orders = await listOrders({ status });
+    orders = await listOrders({});
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow text-muted-foreground">Inbox</p>
-          <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
-            {vocab.orders}
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {isServices
-              ? "Manage every booking from request to showed-up."
-              : "Track every order from confirmed to delivered."}
-          </p>
-        </div>
-        {isServices ? null : <OrderStatusFilter />}
-      </header>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+      <PageHeader
+        title={vocab.orders}
+        description={
+          isServices
+            ? "Manage every booking from request to showed-up."
+            : "Your live board, from new order to delivered."
+        }
+        actions={<HomePreferenceToggle surface="orders" isHome={homeIsOrders} />}
+      />
 
       {isServices ? (
         <OrdersView
@@ -116,10 +91,8 @@ export default async function OrdersPage({ searchParams }: PageProps) {
           mode={mode}
           focusedDate={focusedDate}
         />
-      ) : orders.length === 0 ? (
-        <OrdersEmpty filtered={status !== undefined} />
       ) : (
-        <OrdersList orders={orders} businessType={business.businessType} />
+        <OrdersBoard orders={orders} businessType={business.businessType} />
       )}
 
       <LiveRefresh

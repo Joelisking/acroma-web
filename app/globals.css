@@ -247,6 +247,17 @@
       0 8px 24px -16px rgba(60, 40, 20, 0.18);
   }
 
+  /* Calm card — the operating-tool surface for high-density work areas
+     (the orders board, future ops surfaces). Crisper than card-warm: standard
+     radius, a hairline border, and a near-flat lift so rows of cards read as a
+     quiet board rather than a stack of glossy panels. */
+  .card-calm {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(20, 30, 50, 0.04);
+  }
+
   /* "Needs you" hero — warm orange gradient. */
   .needs-hero {
     background: linear-gradient(

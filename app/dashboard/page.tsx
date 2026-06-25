@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { getCurrentBusiness } from "@/lib/api/business";
+import { HOME_COOKIE } from "@/lib/home-preference";
+import { HomePreferenceToggle } from "@/components/dashboard/home-preference-toggle";
 import { getPayoutAccount } from "@/lib/api/payments";
 import {
   getDashboardActivity,
@@ -28,6 +32,16 @@ const EMPTY_STATS: DashboardStats = {
 const EMPTY_ACTIVITY: DashboardActivity = { conversations: [], orders: [] };
 
 export default async function OverviewPage() {
+  // Honour the merchant's chosen home surface. A cold launch or post-login
+  // entry to /dashboard has no in-app referer, so it routes to Orders when
+  // that's home; clicking the Today tab carries a /dashboard referer and stays.
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
+  const homeSurface = cookieStore.get(HOME_COOKIE)?.value;
+  const referer = headerStore.get("referer") ?? "";
+  if (homeSurface === "orders" && !referer.includes("/dashboard")) {
+    redirect("/dashboard/orders");
+  }
+
   const business = await getCurrentBusiness();
   // Layout already enforces auth, but TS doesn't know that.
   if (!business) return null;
@@ -50,7 +64,14 @@ export default async function OverviewPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:gap-8">
-      <Greeting name={business.name} />
+      <div className="flex items-start justify-between gap-3">
+        <Greeting name={business.name} />
+        <HomePreferenceToggle
+          surface="today"
+          isHome={homeSurface !== "orders"}
+          className="mt-1 shrink-0"
+        />
+      </div>
 
       {needsYou ? <NeedsYouHero conversation={needsYou} /> : <CaughtUpHero />}
 
@@ -86,8 +107,8 @@ function Greeting({ name }: { name: string }) {
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   return (
     <div>
-      <p className="eyebrow text-muted-foreground">{part}</p>
-      <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
+      <p className="text-muted-foreground text-sm font-medium">{part},</p>
+      <h1 className="text-foreground mt-0.5 text-2xl font-semibold tracking-tight sm:text-3xl">
         {name}
       </h1>
     </div>
