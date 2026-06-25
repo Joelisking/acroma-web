@@ -100,13 +100,11 @@ function nextActions(
 
   // The final fulfilment step and the in-progress options that lead to it.
   // Pickup: "ready for pickup" → "picked up". Delivery: "out for delivery"
-  // (food can mark "ready" first) → "delivered". Shipping is delivery-only.
+  // → "delivered". A delivery order never shows "ready for pickup" (that is a
+  // pickup-only concept); for food the PREPARING step already covers "being
+  // prepared". Shipping is delivery-only.
   const fulfilAction = isPickup ? pickedUpAction : deliveredAction;
-  const progressActions: Action[] = isPickup
-    ? [readyAction]
-    : isFood
-      ? [readyAction, shippedAction]
-      : [shippedAction];
+  const progressActions: Action[] = isPickup ? [readyAction] : [shippedAction];
 
   if (businessType === "SERVICES") {
     const noShowAction: Action = {
