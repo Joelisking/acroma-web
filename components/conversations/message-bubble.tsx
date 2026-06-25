@@ -1,41 +1,12 @@
 import { Bot } from "lucide-react";
 import type { Message } from "@/lib/api/types";
+import { linkify } from "@/lib/linkify";
 import { cn } from "@/lib/utils";
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "numeric",
   minute: "2-digit",
 };
-
-// Matches http(s) URLs so we can render them as clickable links. Location pins
-// arrive as message content with a Google Maps link on its own line; the
-// merchant should be able to tap straight through to the map.
-const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
-const URL_TEST = /^https?:\/\/[^\s]+$/;
-
-// Split message content into plain-text and link segments. We render text as
-// React text nodes (never dangerouslySetInnerHTML), so the content stays
-// escaped and only well-formed URLs become anchors. The split uses a capturing
-// group so the URLs survive as their own array entries; URL_TEST (non-global,
-// so it has no stateful lastIndex) decides which entries are links.
-function renderContent(content: string) {
-  const parts = content.split(URL_PATTERN);
-  return parts.map((part, index) =>
-    URL_TEST.test(part) ? (
-      <a
-        key={index}
-        href={part}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline underline-offset-2"
-      >
-        {part}
-      </a>
-    ) : (
-      part
-    ),
-  );
-}
 
 export function MessageBubble({ message }: { message: Message }) {
   const isCustomer = message.sender === "CUSTOMER";
@@ -63,7 +34,7 @@ export function MessageBubble({ message }: { message: Message }) {
             <Bot className="size-3" strokeWidth={2.25} /> Acroma AI
           </span>
         ) : null}
-        {renderContent(message.content)}
+        {linkify(message.content)}
       </div>
       <span className="text-muted-foreground px-1 text-[0.7rem] tabular-nums">
         {new Date(message.createdAt).toLocaleTimeString(undefined, TIME_FORMAT)}
