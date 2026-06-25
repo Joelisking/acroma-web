@@ -16,6 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/ui/copy-button";
+import { linkify } from "@/lib/linkify";
 import { cn } from "@/lib/utils";
 import { updateDeliveryAddressAction } from "@/lib/api/orders-actions";
 import type { Order, OrderStatus } from "@/lib/api/types";
@@ -57,7 +58,7 @@ export function DeliveryAddressCard({
                 : "text-muted-foreground",
             )}
           >
-            {deliveryAddress ?? "Not provided yet"}
+            {deliveryAddress ? linkify(deliveryAddress) : "Not provided yet"}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

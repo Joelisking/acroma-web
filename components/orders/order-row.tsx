@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, MapPin, Package, CalendarClock, AlertCircle } from "lucide-react";
+import {
+  Phone,
+  MapPin,
+  Package,
+  CalendarClock,
+  AlertCircle,
+  Navigation,
+} from "lucide-react";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { OrderStatusBadge } from "./order-status-badge";
 import { CopyButton } from "@/components/ui/copy-button";
+import { firstUrl } from "@/lib/linkify";
 import {
   formatItemsSummary,
   formatMoney,
@@ -37,6 +45,14 @@ export function OrderRow({
   const isDelivery = order.fulfillment === "DELIVERY";
   const isServices = businessType === "SERVICES";
   const hasAddress = isDelivery && Boolean(order.deliveryAddress);
+  // A delivery address can embed a maps link (e.g. a dropped Google Maps pin).
+  // Surface a tappable "Map" affordance, and strip the raw URL from the visible
+  // text so the compact row stays tidy.
+  const mapUrl = hasAddress ? firstUrl(order.deliveryAddress as string) : null;
+  const addressText = mapUrl
+    ? (order.deliveryAddress as string).replace(mapUrl, "").trim() ||
+      "Tap map for location"
+    : order.deliveryAddress;
   const needsReview =
     businessType === "SERVICES" &&
     !!order.scheduledFor &&
@@ -145,16 +161,30 @@ export function OrderRow({
                 </span>
                 <p className="text-foreground min-w-0 text-xs leading-snug font-medium">
                   {isDelivery
-                    ? order.deliveryAddress || "Address to confirm"
+                    ? addressText || "Address to confirm"
                     : "Customer pickup"}
                 </p>
-                {hasAddress ? (
-                  <CopyButton
-                    value={order.deliveryAddress as string}
-                    label="Copy delivery address"
-                    className="relative z-10 ml-auto"
-                  />
-                ) : null}
+                <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                  {mapUrl ? (
+                    <a
+                      href={mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-brand-blue hover:text-brand-blue/80 relative z-10 inline-flex items-center gap-1 text-xs font-medium"
+                    >
+                      <Navigation className="size-3.5" />
+                      Map
+                    </a>
+                  ) : null}
+                  {hasAddress ? (
+                    <CopyButton
+                      value={order.deliveryAddress as string}
+                      label="Copy delivery address"
+                      className="relative z-10"
+                    />
+                  ) : null}
+                </div>
               </div>
             )}
           </div>
