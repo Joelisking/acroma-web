@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CustomerCombobox } from "./customer-combobox";
+import { CustomerSearchField } from "./customer-search-field";
 import type {
   ConversationStatus,
   DashboardFilter,
@@ -159,10 +159,9 @@ export function DashboardFilterPanel({ filter, onChange }: Props) {
       </FilterField>
 
       <FilterField label="Specific customer">
-        <CustomerCombobox
+        <CustomerSearchField
           value={filter.customerPhone}
           onChange={(customerPhone) => onChange({ ...filter, customerPhone })}
-          className="w-full"
         />
       </FilterField>
     </div>
