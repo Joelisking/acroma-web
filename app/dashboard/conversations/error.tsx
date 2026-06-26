@@ -16,8 +16,10 @@ export default function ConversationsError({
 
   return (
     <div className="mx-auto max-w-md py-20 text-center">
-      <p className="eyebrow text-brand-orange">Something broke</p>
-      <h2 className="font-display mt-3 text-2xl font-medium tracking-tight">
+      <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+        Something broke
+      </p>
+      <h2 className="text-foreground mt-3 text-2xl font-bold tracking-tight">
         We couldn&apos;t load your conversations.
       </h2>
       <p className="text-muted-foreground mt-2 text-sm">
