@@ -240,8 +240,8 @@ export function DashboardFilterBar({
         </PopoverContent>
       </Popover>
 
-      {/* Compare + save default, pushed right */}
-      <div className="ml-auto flex items-center gap-3">
+      {/* Compare + save default — own row on mobile, pushed right from sm up */}
+      <div className="flex w-full items-center gap-3 sm:ml-auto sm:w-auto">
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <div className="flex items-center gap-2">
