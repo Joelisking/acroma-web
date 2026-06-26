@@ -1,4 +1,4 @@
-import { Logo } from "@/components/brand/logo";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { ConnectionPill } from "./connection-pill";
 
 type TopBarProps = {
@@ -16,7 +16,7 @@ export function TopBar({ whatsappActive }: TopBarProps) {
     <header className="border-border bg-paper/85 sticky top-0 z-30 border-b backdrop-blur-md">
       <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:py-4">
         <div className="flex items-center gap-3 md:hidden">
-          <Logo />
+          <LogoMark className="size-7" />
         </div>
         <div className="ml-auto flex items-center gap-2">
           <ConnectionPill active={whatsappActive} />

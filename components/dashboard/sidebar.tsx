@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/logo";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { SidebarNav } from "./sidebar-nav";
 import { AccountMenu } from "./account-menu";
 import type { NavBadges } from "./nav-items";
@@ -24,7 +24,7 @@ export function Sidebar({ businessName, email, badges, vocab }: SidebarProps) {
     >
       <div className="border-sidebar-border/70 flex h-16 items-center border-b px-5">
         <Link href="/dashboard" aria-label="Acroma dashboard">
-          <Logo />
+          <LogoMark className="size-8" />
         </Link>
       </div>
 
