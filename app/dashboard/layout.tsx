@@ -57,7 +57,6 @@ export default async function DashboardLayout({
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           businessName={business.name}
-          email={business.email}
           whatsappActive={business.whatsappWebhookActive}
         />
 
@@ -72,7 +71,12 @@ export default async function DashboardLayout({
           {children}
         </main>
 
-        <MobileBottomNav badges={badges} vocab={vocab} />
+        <MobileBottomNav
+          badges={badges}
+          vocab={vocab}
+          name={business.name}
+          email={business.email}
+        />
       </div>
 
       {/* Refresh layout (re-fetching urgent count) on relevant events. */}

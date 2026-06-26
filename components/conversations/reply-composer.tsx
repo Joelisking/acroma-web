@@ -96,7 +96,7 @@ function ActiveComposer({
         e.preventDefault();
         send();
       }}
-      className="bg-background sticky bottom-0 p-3 sm:p-4"
+      className="bg-background sticky bottom-0 px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:px-4 sm:pt-4"
     >
       <div className="composer-warm focus-within:ring-ring/40 p-1.5 pl-4 focus-within:ring-2">
         <textarea

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,12 +14,6 @@ const fontSans = Geist({
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-});
-
-const fontDisplay = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  axes: ["opsz", "SOFT"],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +41,6 @@ export default function RootLayout({
         "antialiased",
         fontSans.variable,
         fontMono.variable,
-        fontDisplay.variable,
       )}
     >
       <body className="min-h-svh bg-background font-sans text-foreground">

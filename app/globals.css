@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-display);
-    --font-display: var(--font-display), ui-serif, Georgia, serif;
+    --font-heading: var(--font-sans);
+    --font-display: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
     --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif, "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
     --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace, ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -204,11 +204,10 @@
 }
 
 @layer utilities {
-  /* Editorial display type — Fraunces with optical sizing dialed up */
+  /* Display type — now the same Geist sans as the rest of the UI, with tight
+     tracking. Kept as a class so any lingering usage renders clean, not serif. */
   .font-display {
-    font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-family: var(--font-sans);
     letter-spacing: -0.02em;
   }
 

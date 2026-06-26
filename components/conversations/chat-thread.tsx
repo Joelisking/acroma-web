@@ -23,6 +23,7 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
   );
   const conversationIdRef = React.useRef(conversation.id);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const firstScrollRef = React.useRef(true);
 
   React.useEffect(() => {
     if (conversationIdRef.current !== conversation.id) {
@@ -36,7 +37,13 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    // Jump instantly on first paint (opening the thread); animate only for
+    // messages that arrive while you're reading.
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: firstScrollRef.current ? "auto" : "smooth",
+    });
+    firstScrollRef.current = false;
   }, [messages.length]);
 
   const handlers = React.useMemo(
@@ -97,9 +104,7 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
                   <span className="bg-border h-px flex-1" />
                 </div>
               ) : null}
-              <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-300">
-                <MessageBubble message={m} />
-              </div>
+              <MessageBubble message={m} />
             </React.Fragment>
           ))
         )}
