@@ -63,10 +63,7 @@ export default async function DashboardLayout({
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          businessName={business.name}
-          whatsappActive={business.whatsappWebhookActive}
-        />
+        <TopBar whatsappActive={business.whatsappWebhookActive} />
 
         {/* main is the single scroll container; the shell itself never scrolls,
             so full-height pages (e.g. a conversation) can keep their own inner
