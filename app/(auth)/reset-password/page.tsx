@@ -51,8 +51,10 @@ export default async function ResetPasswordPage({
 function InvalidLink() {
   return (
     <div className="space-y-5">
-      <p className="eyebrow text-brand-orange">Invalid reset link</p>
-      <h2 className="font-display text-foreground text-3xl leading-[1.1] font-medium tracking-tight">
+      <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+        Invalid reset link
+      </p>
+      <h2 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
         This link is missing some details
       </h2>
       <p className="text-muted-foreground text-sm">

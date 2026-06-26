@@ -4,6 +4,7 @@ import type { Product } from "@/lib/api/types";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
 import { formatMoney } from "@/lib/format";
 import { tagLabel } from "@/lib/catalog/product-tags";
+import { StatusPill } from "@/components/shared/status-pill";
 import { cn } from "@/lib/utils";
 
 export function ProductCard({
@@ -62,12 +63,9 @@ export function ProductCard({
         {product.tags && product.tags.length > 0 ? (
           <div className="mt-1.5 flex flex-wrap gap-1">
             {product.tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-brand-blue-soft text-brand-blue rounded-full px-2 py-0.5 text-[0.65rem] font-medium"
-              >
+              <StatusPill key={tag} tone="blue">
                 {tagLabel(tag)}
-              </span>
+              </StatusPill>
             ))}
           </div>
         ) : null}

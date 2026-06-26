@@ -91,8 +91,8 @@ export function FaqReviewStep({ entries }: Props) {
             <div
               key={row.id}
               className={cn(
-                "border-border/70 bg-card space-y-3 rounded-2xl border p-4 transition-colors",
-                answered && "border-brand-blue/25",
+                "card-warm space-y-3 p-4 transition-colors",
+                answered && "border-brand-blue/40",
               )}
             >
               <div className="flex items-center gap-2">

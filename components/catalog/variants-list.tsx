@@ -47,7 +47,7 @@ export function VariantsList({
                     : "Hidden"}
               </p>
             </div>
-            <span className="font-display text-foreground text-base font-medium tabular-nums">
+            <span className="text-foreground text-base font-semibold tabular-nums">
               {formatMoney(price, currency)}
             </span>
           </li>

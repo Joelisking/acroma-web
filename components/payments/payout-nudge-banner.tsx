@@ -3,9 +3,9 @@ import { ArrowRight, Wallet } from "lucide-react";
 
 export function PayoutNudgeBanner() {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border bg-muted/30 px-5 py-4">
+    <div className="card-warm flex items-center justify-between gap-4 px-5 py-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="bg-brand-orange-soft text-brand-orange flex h-10 w-10 items-center justify-center rounded-full">
           <Wallet className="h-5 w-5" />
         </div>
         <div>

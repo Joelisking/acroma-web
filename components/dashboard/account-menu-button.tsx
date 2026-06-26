@@ -35,7 +35,7 @@ export function AccountMenuButton({
         )}
       >
         <Avatar className="size-8">
-          <AvatarFallback className="bg-brand-orange/15 text-brand-orange font-display text-xs font-medium">
+          <AvatarFallback className="bg-brand-orange/15 text-brand-orange text-xs font-semibold">
             {getInitials(name)}
           </AvatarFallback>
         </Avatar>

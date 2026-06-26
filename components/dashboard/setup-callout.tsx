@@ -18,10 +18,12 @@ export function SetupCallout() {
       />
       <div className="relative grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="max-w-xl">
-          <p className="eyebrow text-brand-orange">Get started</p>
+          <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+            Get started
+          </p>
           <h2
             id="setup-heading"
-            className="font-display mt-3 text-2xl leading-tight font-medium tracking-tight sm:text-3xl"
+            className="mt-3 text-2xl leading-tight font-bold tracking-tight sm:text-3xl"
           >
             Connect WhatsApp to start taking orders.
           </h2>

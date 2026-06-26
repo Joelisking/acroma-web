@@ -201,7 +201,7 @@ export function DiscountForm({ mode, existing }: Props) {
       </div>
 
       {mode === "edit" ? (
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card p-3">
+        <div className="card-warm flex items-center justify-between gap-4 p-3">
           <div className="space-y-1">
             <Label htmlFor="isActive" className="text-sm font-medium">
               Active

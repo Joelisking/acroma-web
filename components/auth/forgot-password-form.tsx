@@ -46,19 +46,7 @@ export function ForgotPasswordForm() {
   if (sentTo) return <SentState email={sentTo} />;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <p className="eyebrow text-brand-orange">Forgot password</p>
-        <h2 className="font-display text-foreground text-4xl leading-[1.05] font-medium tracking-tight">
-          Send me a reset link
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Enter the email on your Acroma account. If we recognise it, you&apos;ll
-          get a link to choose a new password.
-        </p>
-      </header>
-
-      <Form {...form}>
+    <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
@@ -84,8 +72,7 @@ export function ForgotPasswordForm() {
             {pending ? "Sending link" : "Send reset link"}
           </AuthCta>
         </form>
-      </Form>
-    </div>
+    </Form>
   );
 }
 
@@ -96,7 +83,7 @@ function SentState({ email }: { email: string }) {
         <MailCheck className="size-6" strokeWidth={1.75} aria-hidden />
       </div>
       <div className="space-y-3">
-        <h2 className="font-display text-foreground text-3xl leading-[1.1] font-medium tracking-tight">
+        <h2 className="text-foreground text-2xl font-bold tracking-tight sm:text-3xl">
           Check your inbox
         </h2>
         <p className="text-muted-foreground text-sm">

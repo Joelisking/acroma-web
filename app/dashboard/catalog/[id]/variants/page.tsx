@@ -26,7 +26,7 @@ export default async function VariantsPage({ params }: PageProps) {
           <ChevronLeft className="size-4" />
           {product.name}
         </Link>
-        <h1 className="font-display text-foreground text-3xl font-medium tracking-tight">
+        <h1 className="text-foreground text-3xl font-bold tracking-tight">
           Variants
         </h1>
         <p className="text-muted-foreground text-sm">

@@ -39,7 +39,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
         className="card-warm p-6"
         aria-label="Order progress"
       >
-        <p className="eyebrow text-muted-foreground">Progress</p>
+        <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+          Progress
+        </p>
         <div className="mt-5">
           <OrderStatusStepper
             status={order.status}
@@ -63,7 +65,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       {order.scheduledFor ? (
         <section className="card-warm p-5" aria-label="Appointment">
-          <p className="eyebrow text-muted-foreground">Appointment</p>
+          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+            Appointment
+          </p>
           <p className="text-foreground mt-2 text-sm font-medium">
             {formatAppointment(order.scheduledFor)}
           </p>
@@ -96,7 +100,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       )}
 
       <section aria-label="Items" className="space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">Items</h2>
+        <h2 className="text-foreground text-sm font-bold tracking-tight">Items</h2>
         <OrderItems
           items={order.items}
           currency={order.currency}
@@ -112,7 +116,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
           className="card-warm p-5"
           aria-label="Notes"
         >
-          <p className="eyebrow text-muted-foreground">Notes</p>
+          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+            Notes
+          </p>
           <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
             {order.notes}
           </p>

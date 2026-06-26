@@ -5,6 +5,7 @@ import type { Product } from "@/lib/api/types";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { StatusPill } from "@/components/shared/status-pill";
 import { MenuItemToggle } from "./menu-item-toggle";
 
 type Props = {
@@ -53,25 +54,16 @@ export function MenuItemRow({ product, currency }: Props) {
           >
             {product.name}
           </span>
-          <span className="font-display text-foreground block text-sm tabular-nums">
+          <span className="text-foreground block text-sm tabular-nums">
             {formatMoney(product.basePrice, currency)}
           </span>
         </span>
       </Link>
 
       <div className="flex shrink-0 flex-col items-end gap-1.5">
-        <span
-          className={cn(
-            "rounded-full px-2 py-0.5 text-[0.65rem] font-medium",
-            hidden
-              ? "bg-muted text-muted-foreground"
-              : soldOut
-                ? "bg-brand-orange-soft text-brand-orange"
-                : "bg-brand-green-soft text-brand-green",
-          )}
-        >
+        <StatusPill tone={hidden ? "muted" : soldOut ? "orange" : "green"}>
           {hidden ? "Hidden" : soldOut ? "Sold out today" : "Available"}
-        </span>
+        </StatusPill>
         <MenuItemToggle productId={product.id} soldOutAt={product.soldOutAt} />
       </div>
     </div>

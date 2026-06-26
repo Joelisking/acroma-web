@@ -12,10 +12,7 @@ export default function Loading() {
       {/* Stat cards */}
       <section className="grid gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="border-border/70 bg-card flex flex-col gap-3 rounded-2xl border p-5"
-          >
+          <div key={i} className="card-warm flex flex-col gap-3 p-5">
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-8 w-32" />
             <Skeleton className="h-3 w-16" />
@@ -24,7 +21,7 @@ export default function Loading() {
       </section>
 
       {/* Recent activity list */}
-      <section className="border-border/70 bg-card overflow-hidden rounded-2xl border">
+      <section className="card-warm overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}

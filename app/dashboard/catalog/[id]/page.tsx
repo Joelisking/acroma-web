@@ -8,6 +8,8 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { getVocabulary } from "@/lib/vocabulary";
 import { ApiError } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
+import { SectionCard } from "@/components/shared/section-card";
+import { StatusPill } from "@/components/shared/status-pill";
 import { VariantsList } from "@/components/catalog/variants-list";
 import { DeleteProductButton } from "@/components/catalog/delete-product-button";
 import { SoldOutTodayButton } from "@/components/catalog/sold-out-today-button";
@@ -44,14 +46,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             {product.category ? (
-              <p className="eyebrow text-muted-foreground">
+              <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
                 {product.category}
               </p>
             ) : null}
-            <h1 className="font-display text-foreground mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
+            <h1 className="text-foreground mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
               {product.name}
             </h1>
-            <p className="font-display text-foreground mt-1 text-2xl font-medium tabular-nums">
+            <p className="text-foreground mt-1 text-2xl font-bold tabular-nums">
               {formatMoney(product.basePrice, business.currency)}
             </p>
           </div>
@@ -78,12 +80,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {product.tags && product.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
           {product.tags.map((tag) => (
-            <span
-              key={tag}
-              className="bg-brand-blue-soft text-brand-blue rounded-full px-2.5 py-1 text-xs font-medium"
-            >
+            <StatusPill key={tag} tone="blue">
               {tagLabel(tag)}
-            </span>
+            </StatusPill>
           ))}
         </div>
       ) : null}
@@ -100,12 +99,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
       ) : null}
 
       {product.description ? (
-        <section className="border-border/70 bg-card rounded-2xl border p-6">
-          <p className="eyebrow text-muted-foreground">Description</p>
-          <p className="text-foreground mt-2 text-sm leading-relaxed whitespace-pre-wrap">
+        <SectionCard title="Description">
+          <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
             {product.description}
           </p>
-        </section>
+        </SectionCard>
       ) : null}
 
       {isServices ? null : (

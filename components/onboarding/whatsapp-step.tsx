@@ -14,7 +14,7 @@ import { completeOnboardingAndConnectWhatsappAction } from "@/lib/api/onboarding
 export function WhatsappStep() {
   return (
     <div className="space-y-6">
-      <ul className="border-border/70 bg-card divide-border/70 divide-y overflow-hidden rounded-2xl border">
+      <ul className="card-warm divide-border/70 divide-y overflow-hidden">
         {[
           "Open Meta Business Manager and grab your WhatsApp credentials",
           "Paste them into the Settings → WhatsApp page",

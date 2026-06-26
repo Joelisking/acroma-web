@@ -4,6 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { SectionCard } from "@/components/shared/section-card";
+import { StatChip } from "@/components/shared/stat-chip";
 import { BroadcastStatusBadge } from "./status-badge";
 import {
   cancelBroadcastAction,
@@ -48,8 +50,10 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
     <div className="space-y-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <p className="eyebrow text-muted-foreground">Outreach</p>
-          <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
+          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+            Outreach
+          </p>
+          <h1 className="text-foreground mt-1 text-3xl font-bold tracking-tight">
             {broadcast.name}
           </h1>
           <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-3 text-sm">
@@ -73,12 +77,8 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
         </div>
       </header>
 
-      <section
-        className="border-border/70 bg-card rounded-2xl border p-6"
-        aria-label="Message"
-      >
-        <p className="eyebrow text-muted-foreground">Message</p>
-        <p className="text-foreground mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+      <SectionCard title="Message">
+        <p className="text-foreground whitespace-pre-wrap text-sm leading-relaxed">
           {broadcast.bodyTemplate}
         </p>
         {broadcast.template ? (
@@ -96,36 +96,16 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
             <code className="font-mono">{broadcast.discount.code}</code>
           </p>
         ) : null}
-      </section>
+      </SectionCard>
 
       <section
-        className="border-border/70 bg-card grid grid-cols-2 gap-4 rounded-2xl border p-6 sm:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         aria-label="Counters"
       >
-        <div>
-          <p className="eyebrow text-muted-foreground">Sent</p>
-          <p className="text-foreground mt-2 text-2xl font-medium tabular-nums">
-            {broadcast.sentCount}
-          </p>
-        </div>
-        <div>
-          <p className="eyebrow text-muted-foreground">Delivered</p>
-          <p className="text-foreground mt-2 text-2xl font-medium tabular-nums">
-            {broadcast.deliveredCount}
-          </p>
-        </div>
-        <div>
-          <p className="eyebrow text-muted-foreground">Read</p>
-          <p className="text-foreground mt-2 text-2xl font-medium tabular-nums">
-            {broadcast.readCount}
-          </p>
-        </div>
-        <div>
-          <p className="eyebrow text-muted-foreground">Failed</p>
-          <p className="text-foreground mt-2 text-2xl font-medium tabular-nums">
-            {broadcast.failedCount}
-          </p>
-        </div>
+        <StatChip label="Sent" value={String(broadcast.sentCount)} />
+        <StatChip label="Delivered" value={String(broadcast.deliveredCount)} />
+        <StatChip label="Read" value={String(broadcast.readCount)} />
+        <StatChip label="Failed" value={String(broadcast.failedCount)} />
       </section>
     </div>
   );

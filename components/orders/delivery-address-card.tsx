@@ -49,7 +49,9 @@ export function DeliveryAddressCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="eyebrow text-muted-foreground">Delivery address</p>
+          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+            Delivery address
+          </p>
           <p
             className={cn(
               "mt-2 text-sm",

@@ -46,7 +46,7 @@ export function OrderItems({
                 {formatMoney(item.unitPrice, currency)} each
               </p>
             </div>
-            <span className="font-display text-foreground text-base font-medium tabular-nums">
+            <span className="text-foreground text-base font-bold tracking-tight tabular-nums">
               {formatMoney(item.unitPrice * item.quantity, currency)}
             </span>
           </li>

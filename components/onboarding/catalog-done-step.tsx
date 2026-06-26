@@ -36,7 +36,7 @@ export function CatalogDoneStep() {
           <span className="bg-brand-orange/15 text-brand-orange inline-flex size-12 items-center justify-center rounded-2xl">
             <Sparkles className="size-6" strokeWidth={1.75} />
           </span>
-          <h2 className="font-display text-3xl leading-tight font-medium tracking-tight">
+          <h2 className="text-3xl leading-tight font-bold tracking-tight">
             You&apos;re ready.
           </h2>
           <p className="text-secondary-foreground/75 max-w-md text-sm leading-relaxed">
@@ -47,7 +47,7 @@ export function CatalogDoneStep() {
         </div>
       </div>
 
-      <div className="border-border/70 bg-card flex items-start gap-3 rounded-2xl border p-5">
+      <div className="card-warm flex items-start gap-3 p-5">
         <span className="bg-brand-orange/15 text-brand-orange mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl">
           <Package className="size-4.5" strokeWidth={1.75} aria-hidden />
         </span>

@@ -42,11 +42,13 @@ export function PaymentLinkPanel({ order }: { order: Order }) {
   return (
     <section
       aria-label="Payment link"
-      className="border-border/70 bg-card flex flex-col gap-4 rounded-2xl border p-6"
+      className="card-warm flex flex-col gap-4 p-6"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="eyebrow text-muted-foreground">Payment link</p>
+          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+            Payment link
+          </p>
           <p className="text-foreground mt-1 text-sm">
             {order.status === "PAYMENT_FAILED"
               ? "The last attempt failed. Send a fresh link to the customer."

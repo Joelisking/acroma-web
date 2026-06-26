@@ -36,8 +36,8 @@ export default async function ReceiptPage({ params }: Props) {
   });
 
   return (
-    <main className="min-h-screen bg-muted/30 px-4 py-10 print:bg-white print:p-0">
-      <div className="mx-auto max-w-md rounded-xl bg-background shadow-sm print:shadow-none">
+    <main className="bg-paper min-h-screen px-4 py-10 print:bg-white print:p-0">
+      <div className="card-warm mx-auto max-w-md overflow-hidden print:rounded-none print:border-0 print:shadow-none">
         {/* Merchant header */}
         <div className="flex items-center gap-3 rounded-t-xl bg-brand-orange-soft px-6 py-5">
           {receipt.logoUrl ? (

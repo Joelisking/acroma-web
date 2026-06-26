@@ -44,19 +44,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <p className="eyebrow text-brand-orange">Welcome back</p>
-        <h2 className="font-display text-foreground text-4xl leading-[1.05] font-medium tracking-tight">
-          Sign in to your dashboard
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          Pick up exactly where you left off. Your conversations, orders, and
-          payments are all live.
-        </p>
-      </header>
-
-      <Form {...form}>
+    <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
@@ -108,7 +96,6 @@ export function LoginForm() {
             {pending ? "Signing in" : "Sign in"}
           </AuthCta>
         </form>
-      </Form>
-    </div>
+    </Form>
   );
 }

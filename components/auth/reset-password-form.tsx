@@ -57,19 +57,11 @@ export function ResetPasswordForm({ token, email }: ResetPasswordFormProps) {
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <p className="eyebrow text-brand-orange">Reset password</p>
-        <h2 className="font-display text-foreground text-4xl leading-[1.05] font-medium tracking-tight">
-          Choose a new password
-        </h2>
-        <p className="text-muted-foreground text-sm">
+    <Form {...form}>
+        <p className="text-muted-foreground -mt-2 mb-5 text-sm">
           Resetting for{" "}
           <span className="text-foreground font-medium">{email}</span>.
         </p>
-      </header>
-
-      <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
@@ -113,7 +105,6 @@ export function ResetPasswordForm({ token, email }: ResetPasswordFormProps) {
             {pending ? "Updating password" : "Update password"}
           </AuthCta>
         </form>
-      </Form>
-    </div>
+    </Form>
   );
 }

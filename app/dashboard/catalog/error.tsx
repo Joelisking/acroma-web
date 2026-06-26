@@ -15,8 +15,10 @@ export default function Error({
   }, [error]);
   return (
     <div className="mx-auto max-w-md py-20 text-center">
-      <p className="eyebrow text-brand-orange">Couldn&apos;t load</p>
-      <h2 className="font-display mt-3 text-2xl font-medium tracking-tight">
+      <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+        Couldn&apos;t load
+      </p>
+      <h2 className="mt-3 text-2xl font-bold tracking-tight">
         Something went wrong
       </h2>
       <p className="text-muted-foreground mt-2 text-sm">

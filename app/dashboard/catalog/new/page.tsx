@@ -26,7 +26,7 @@ export default async function NewProductPage() {
           <ChevronLeft className="size-4" />
           {vocab.catalog}
         </Link>
-        <h1 className="font-display text-foreground text-3xl font-medium tracking-tight">
+        <h1 className="text-foreground text-3xl font-bold tracking-tight">
           Add a {vocab.itemLower}
         </h1>
       </header>
