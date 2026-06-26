@@ -10,7 +10,7 @@ export function OnboardingProgress({ current, total }: ProgressProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="eyebrow text-muted-foreground">
+        <p className="text-muted-foreground text-xs font-medium">
           Step {current} of {total}
         </p>
         <p className="text-muted-foreground text-xs tabular-nums">

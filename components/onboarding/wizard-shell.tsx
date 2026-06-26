@@ -34,9 +34,11 @@ export function WizardShell({
           <OnboardingProgress current={step} total={TOTAL_STEPS} />
         </div>
 
-        <div className="mb-8 space-y-3">
-          <p className="eyebrow text-brand-orange">{eyebrow}</p>
-          <h1 className="font-display text-foreground text-3xl font-medium tracking-tight sm:text-4xl">
+        <div className="mb-8 space-y-2.5">
+          <p className="text-brand-orange text-xs font-semibold tracking-wide">
+            {eyebrow}
+          </p>
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
             {title}
           </h1>
           {subtitle ? (

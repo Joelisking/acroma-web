@@ -27,7 +27,7 @@ export function SettingsCard({
       )}
     >
       <div className="space-y-1 px-6 pt-6">
-        <h2 className="text-foreground font-display text-xl font-medium tracking-tight">
+        <h2 className="text-foreground text-xl font-semibold tracking-tight">
           {title}
         </h2>
         {description ? (
