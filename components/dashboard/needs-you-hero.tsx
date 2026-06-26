@@ -21,8 +21,11 @@ export function NeedsYouHero({ conversation }: NeedsYouHeroProps) {
 
   return (
     <section className="needs-hero p-5" aria-labelledby="needs-you-heading">
-      <p id="needs-you-heading" className="eyebrow text-white/90">
-        Needs you · 1
+      <p
+        id="needs-you-heading"
+        className="text-xs font-semibold tracking-wide text-white/90"
+      >
+        Needs you
       </p>
       <div className="mt-3 flex items-center gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
@@ -55,7 +58,7 @@ export function NeedsYouHero({ conversation }: NeedsYouHeroProps) {
 export function CaughtUpHero() {
   return (
     <section
-      className="card-warm flex items-center gap-3 p-5"
+      className="card-calm flex items-center gap-3 p-5"
       aria-label="All caught up"
     >
       <span className="bg-brand-green-soft text-brand-green flex size-10 shrink-0 items-center justify-center rounded-xl">

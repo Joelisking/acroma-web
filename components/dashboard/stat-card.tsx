@@ -33,10 +33,10 @@ export function StatCard({
     <div className="border-border/70 bg-card relative overflow-hidden rounded-2xl border p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="eyebrow text-muted-foreground">{label}</p>
+          <p className="text-muted-foreground text-xs font-medium">{label}</p>
           <p
             className={cn(
-              "font-display text-foreground mt-3 text-3xl font-medium tracking-tight tabular-nums transition-opacity",
+              "text-foreground mt-2.5 text-3xl font-semibold tracking-tight tabular-nums transition-opacity",
               loading && "opacity-40",
             )}
           >

@@ -30,7 +30,7 @@ export function AcromaHandlingList({ conversations }: AcromaHandlingListProps) {
         </span>
       </div>
 
-      <div className="card-warm divide-border/70 divide-y overflow-hidden">
+      <div className="card-calm divide-border/70 divide-y overflow-hidden p-0">
         {conversations.map((c) => {
           const name = c.customerName?.trim() || formatPhone(c.customerPhone);
           return (

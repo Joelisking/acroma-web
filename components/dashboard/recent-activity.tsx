@@ -10,7 +10,7 @@ type Props = { items: ActivityItem[] };
 export function RecentActivity({ items }: Props) {
   return (
     <section
-      className="card-warm p-6"
+      className="card-calm p-6"
       aria-labelledby="recent-activity-heading"
     >
       <div className="flex items-center justify-between">
@@ -82,7 +82,7 @@ function EmptyState() {
       <span className="bg-brand-orange-soft text-brand-orange flex size-12 items-center justify-center rounded-2xl">
         <Inbox className="size-5" strokeWidth={1.75} />
       </span>
-      <p className="text-foreground font-display mt-4 text-lg font-medium">
+      <p className="text-foreground mt-4 text-lg font-semibold">
         Quiet for now.
       </p>
       <p className="text-muted-foreground mt-1 max-w-xs text-sm">
