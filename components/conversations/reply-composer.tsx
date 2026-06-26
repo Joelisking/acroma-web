@@ -105,9 +105,9 @@ function ActiveComposer({
           onChange={(e) => setValue(e.target.value.slice(0, MAX_LENGTH))}
           onKeyDown={onKeyDown}
           rows={1}
-          placeholder="Write a message…   (⌘↵ to send)"
+          placeholder="Write a message…"
           aria-label="Message"
-          className="placeholder:text-muted-foreground text-foreground max-h-40 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-sm leading-relaxed outline-none"
+          className="placeholder:text-muted-foreground text-foreground max-h-40 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-base leading-relaxed outline-none md:text-sm"
         />
         <Button
           type="submit"
