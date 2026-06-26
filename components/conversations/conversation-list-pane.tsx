@@ -71,7 +71,7 @@ export function ConversationListPane({
     : sorted;
 
   return (
-    <div className="bg-card flex h-full flex-col">
+    <div className="bg-card flex h-full w-full flex-col">
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-foreground text-xl font-bold tracking-tight">Chats</h1>
