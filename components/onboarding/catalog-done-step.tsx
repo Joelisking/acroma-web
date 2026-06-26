@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles, Package, Loader2 } from "lucide-react";
+import { Package, Loader2 } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import {
   completeOnboardingAction,
@@ -34,7 +35,7 @@ export function CatalogDoneStep() {
         />
         <div className="relative space-y-4">
           <span className="bg-brand-orange/15 text-brand-orange inline-flex size-12 items-center justify-center rounded-2xl">
-            <Sparkles className="size-6" strokeWidth={1.75} />
+            <LogoMark tone="current" className="size-6" />
           </span>
           <h2 className="text-3xl leading-tight font-bold tracking-tight">
             You&apos;re ready.

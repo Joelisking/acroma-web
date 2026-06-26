@@ -1,20 +1,40 @@
 import { cn } from "@/lib/utils";
 
+type LogoMarkProps = {
+  className?: string;
+  /**
+   * Single-tone colour.
+   * "brand"   — Acroma orange (default).
+   * "light"   — white, for dark/orange surfaces.
+   * "current" — inherits the parent's text colour (use when the mark replaces
+   *             an icon whose colour is set by a button or coloured tile).
+   * "default" — follows the surface foreground.
+   */
+  tone?: "brand" | "light" | "current" | "default";
+  strokeWidth?: number; // accepted for icon-prop compatibility; unused (fill-based)
+};
+
+const TONE: Record<NonNullable<LogoMarkProps["tone"]>, string> = {
+  brand: "text-brand-orange",
+  light: "text-white",
+  current: "text-current",
+  default: "text-foreground",
+};
+
 /**
- * The Acroma submark (the three-stroke mark, no wordmark), inlined as a
- * single-colour SVG that paints with `currentColor`. Use in square or
- * compact spots where the full lockup won't fit — app icon contexts, a
- * collapsed nav, a loading splash. Defaults to brand orange; size with a
- * height/size class.
+ * The Acroma mark only (the three-stroke "A" lockup, no wordmark), for compact
+ * chrome and as the Acroma-AI signature in place of a generic icon. Inlined as a
+ * single-colour SVG that paints with `currentColor`. Size with a height/size
+ * class (defaults to `size-7`).
  */
-export function LogoMark({ className }: { className?: string }) {
+export function LogoMark({ className, tone = "brand" }: LogoMarkProps) {
   return (
     <svg
       viewBox="0 0 198.21 158.62"
       role="img"
       aria-label="Acroma"
       fill="currentColor"
-      className={cn("text-brand-orange size-7", className)}
+      className={cn("size-7", TONE[tone], className)}
     >
       <path d="M104.77.2c4.32-.98,9.37,1.77,12.49,4.7,27.36,38.05,52.56,77.92,78.9,116.81,11.31,29.05-26.7,41.4-47.47,35.34-7.05-2.06-7.55-8.1-9.29-14.55-12.56-46.32-23.67-93.13-35.64-139.62-.01-1.19-.37-2.37,1.02-2.68Z" />
       <path d="M94.34.46c.23,1.72-.09,3.24-.38,4.89-1.29,7.4-3.89,15.79-5.73,23.2-8.44,33.88-17.02,67.77-25.92,101.52-1.48,5.62-3.77,17.58-6.22,22.11-4.17,7.72-21.56,6.81-28.78,5.51-15.45-2.78-33.14-15.83-25.46-34.35L77.71,8.84c3.86-5.39,9.87-9.97,16.63-8.38Z" />

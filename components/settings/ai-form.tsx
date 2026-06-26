@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -89,7 +90,7 @@ export function AiForm({ business }: { business: Business }) {
                       : "bg-background text-muted-foreground",
                   )}
                 >
-                  <Sparkles className="size-5" strokeWidth={1.75} />
+                  <LogoMark tone="current" className="size-5" />
                 </span>
                 <div>
                   <FormLabel

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
 
+import { LogoMark } from "@/components/brand/logo-mark";
 import { formatPhone, getInitials, formatRelativeShort } from "@/lib/format";
 import type { DashboardActivityConversation } from "@/lib/api/types";
 import { LetAiHandleButton } from "./let-ai-handle-button";
@@ -62,7 +63,7 @@ export function CaughtUpHero() {
       aria-label="All caught up"
     >
       <span className="bg-brand-green-soft text-brand-green flex size-10 shrink-0 items-center justify-center rounded-xl">
-        <Sparkles className="size-5" />
+        <LogoMark tone="current" className="size-5" />
       </span>
       <div>
         <p className="text-sm font-semibold">You are all caught up</p>

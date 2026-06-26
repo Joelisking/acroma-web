@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import { suggestVariantsAction } from "@/lib/api/variants-actions";
 import type { VariantDimension } from "@/lib/api/types";
@@ -44,7 +45,7 @@ export function SuggestButton({
       disabled={pending}
       className="gap-2"
     >
-      {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
+      {pending ? <Loader2 className="animate-spin" /> : <LogoMark tone="current" className="size-4" />}
       Suggest with AI
     </Button>
   );

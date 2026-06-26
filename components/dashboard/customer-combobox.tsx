@@ -20,9 +20,10 @@ type CustomerOption = { phone: string; name: string | null };
 type Props = {
   value?: string;
   onChange: (phone: string | undefined) => void;
+  className?: string;
 };
 
-export function CustomerCombobox({ value, onChange }: Props) {
+export function CustomerCombobox({ value, onChange, className }: Props) {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<CustomerOption[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -40,7 +41,7 @@ export function CustomerCombobox({ value, onChange }: Props) {
     : "Any customer";
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={cn("flex items-center gap-1", className)}>
       <Popover
         open={open}
         onOpenChange={(next) => {
@@ -54,7 +55,7 @@ export function CustomerCombobox({ value, onChange }: Props) {
             size="sm"
             role="combobox"
             aria-expanded={open}
-            className="justify-between gap-2"
+            className="flex-1 justify-between gap-2"
           >
             <span className="truncate">{triggerLabel}</span>
             <ChevronsUpDown className="size-3.5 opacity-50" />

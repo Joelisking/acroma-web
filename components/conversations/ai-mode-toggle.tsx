@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
 import { updateAiEnabledAction } from "@/lib/api/settings-actions";
 
@@ -46,7 +46,7 @@ export function AiModeToggle({ initialEnabled }: Props) {
           enabled ? "bg-brand-orange" : "bg-muted-foreground",
         )}
       />
-      <Sparkles className="size-3" strokeWidth={2} />
+      <LogoMark tone="current" className="size-3" />
       {enabled ? "AI on" : "AI off"}
     </button>
   );

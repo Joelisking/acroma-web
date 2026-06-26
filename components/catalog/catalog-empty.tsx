@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Plus, Sparkles } from "lucide-react"
+import { Plus } from "lucide-react"
+import { LogoMark } from "@/components/brand/logo-mark"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/shared/empty-state"
 import type { Vocabulary } from "@/lib/vocabulary"
@@ -11,7 +12,7 @@ type CatalogEmptyProps = {
 export function CatalogEmpty({ vocab }: CatalogEmptyProps) {
   return (
     <EmptyState
-      icon={Sparkles}
+      icon={LogoMark}
       title={`Your ${vocab.catalog.toLowerCase()} is empty.`}
       description={`Add your first ${vocab.itemLower} so Acroma can answer questions, take orders, and update stock automatically.`}
       action={

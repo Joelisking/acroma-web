@@ -1,9 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Pencil, Sparkles } from "lucide-react";
+import { Pencil } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
 import type { NewProductMode } from "@/hooks/use-new-product";
+
+/** The Acroma mark, inheriting the tab's text colour. */
+function AiMark({ className }: { className?: string }) {
+  return <LogoMark tone="current" className={className} />;
+}
 
 type Props = {
   mode: NewProductMode;
@@ -22,7 +28,7 @@ export function NewProductTabs({ mode, onModeChange }: Props) {
       <TabButton
         active={mode === "describe"}
         onClick={() => onModeChange("describe")}
-        icon={Sparkles}
+        icon={AiMark}
         label="Describe with AI"
       />
     </div>

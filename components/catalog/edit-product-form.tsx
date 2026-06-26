@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 
 import {
   Form,
@@ -164,7 +165,7 @@ export function EditProductForm({
                   {autofilling ? (
                     <Loader2 className="animate-spin" />
                   ) : (
-                    <Sparkles />
+                    <LogoMark tone="current" className="size-4" />
                   )}
                   Auto-fill
                 </Button>

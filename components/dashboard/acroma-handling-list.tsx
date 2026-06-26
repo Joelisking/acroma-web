@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Bot, Sparkles } from "lucide-react";
+import { Bot } from "lucide-react";
 
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatPhone, getInitials, formatRelativeShort } from "@/lib/format";
 import type { DashboardActivityConversation } from "@/lib/api/types";
@@ -20,7 +21,7 @@ export function AcromaHandlingList({ conversations }: AcromaHandlingListProps) {
     <section aria-labelledby="acroma-handling-heading">
       <div className="mb-3 flex items-center gap-2">
         <span className="bg-brand-blue-soft text-brand-blue flex size-6 items-center justify-center rounded-md">
-          <Sparkles className="size-3.5" />
+          <LogoMark tone="current" className="size-3.5" />
         </span>
         <h2 id="acroma-handling-heading" className="text-sm font-semibold">
           Acroma is handling

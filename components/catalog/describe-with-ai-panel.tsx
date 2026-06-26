@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Pencil, Sparkles } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import type { ParsedProduct } from "@/lib/api/types";
 import { useVocab } from "@/components/vocabulary-provider";
@@ -73,7 +74,7 @@ function PreParse({
           disabled={text.trim().length < MIN_LENGTH || parsing}
           className="bg-brand-orange hover:bg-brand-orange/90 h-10 gap-2 rounded-xl px-5"
         >
-          {parsing ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          {parsing ? <Loader2 className="animate-spin" /> : <LogoMark tone="current" className="size-4" />}
           {parsing ? "Understanding…" : "Parse with AI"}
         </Button>
       </div>
@@ -149,7 +150,7 @@ function PostParse({
           disabled={followUp.trim().length < MIN_LENGTH || refining}
           className="bg-brand-orange hover:bg-brand-orange/90 h-10 gap-2 rounded-xl px-5"
         >
-          {refining ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          {refining ? <Loader2 className="animate-spin" /> : <LogoMark tone="current" className="size-4" />}
           {refining ? "Applying…" : "Refine with AI"}
         </Button>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -7,19 +8,25 @@ import {
   Building2,
   Clock,
   CreditCard,
-  Sparkles,
   BookOpen,
   Bell,
   ShieldCheck,
   AlarmClock,
-  type LucideIcon,
 } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
+
+type IconProps = { className?: string; strokeWidth?: number };
+
+/** The Acroma mark, inheriting the nav item's text colour. */
+function AiMark({ className }: IconProps) {
+  return <LogoMark tone="current" className={className} />;
+}
 
 type Section = {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: ComponentType<IconProps>;
 };
 
 export const SETTINGS_SECTIONS: Section[] = [
@@ -27,7 +34,7 @@ export const SETTINGS_SECTIONS: Section[] = [
   { href: "/dashboard/settings/business", label: "Business", icon: Building2 },
   { href: "/dashboard/settings/opening-hours", label: "Hours", icon: Clock },
   { href: "/dashboard/settings/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/settings/ai", label: "AI", icon: Sparkles },
+  { href: "/dashboard/settings/ai", label: "AI", icon: AiMark },
   {
     href: "/dashboard/settings/knowledge-base",
     label: "Knowledge",
