@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, SlidersHorizontal, X } from "lucide-react";
+import { CalendarDays, SlidersHorizontal } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,41 +22,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CustomerCombobox } from "./customer-combobox";
 import { CustomRangePicker } from "./custom-range-picker";
+import {
+  DashboardFilterPanel,
+  countActiveFilters,
+} from "./dashboard-filter-panel";
 import { RANGE_OPTIONS, canCompare, compareHint } from "@/lib/dashboard-filter";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
-import type {
-  ConversationStatus,
-  DashboardFilter,
-  DashboardRange,
-  OrderStatus,
-} from "@/lib/api/types";
-
-const ORDER_STATUSES: OrderStatus[] = [
-  "PENDING",
-  "PAYMENT_PENDING",
-  "PAID",
-  "PROCESSING",
-  "PREPARING",
-  "READY_FOR_PICKUP",
-  "SHIPPED",
-  "DELIVERED",
-  "CANCELLED",
-  "PAYMENT_FAILED",
-];
-
-const CONVERSATION_STATUSES: ConversationStatus[] = [
-  "AI_HANDLING",
-  "WAITING_FOR_OWNER",
-  "WITH_OWNER",
-  "RESOLVED",
-];
-
-const ANY = "__ANY__";
-
-const titleCase = (s: string) =>
-  s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+import type { DashboardFilter, DashboardRange } from "@/lib/api/types";
 
 type Props = {
   filter: DashboardFilter;
@@ -72,21 +47,20 @@ export function DashboardFilterBar({
   saving,
   isDefault,
 }: Props) {
-  const activeCount = [
-    filter.orderStatus,
-    filter.conversationStatus,
-    filter.customerSegment,
-    filter.customerPhone,
-  ].filter(Boolean).length;
+  const isWide = useMediaQuery("(min-width: 768px)");
+  const activeCount = countActiveFilters(filter);
 
-  const clearSecondary = () =>
-    onChange({
-      ...filter,
-      orderStatus: undefined,
-      conversationStatus: undefined,
-      customerSegment: undefined,
-      customerPhone: undefined,
-    });
+  const filtersTrigger = (
+    <Button variant="outline" size="sm" className="bg-card gap-2" aria-label="More filters">
+      <SlidersHorizontal className="size-4" />
+      Filters
+      {activeCount > 0 ? (
+        <span className="bg-brand-orange text-primary-foreground ml-0.5 inline-flex size-5 items-center justify-center rounded-full text-[0.7rem] font-bold tabular-nums">
+          {activeCount}
+        </span>
+      ) : null}
+    </Button>
+  );
 
   return (
     <div
@@ -126,119 +100,26 @@ export function DashboardFilterBar({
         />
       ) : null}
 
-      {/* Secondary filters behind a popover */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-card gap-2"
-            aria-label="More filters"
+      {/* Secondary filters: popover on desktop, bottom sheet on mobile */}
+      {isWide ? (
+        <Popover>
+          <PopoverTrigger asChild>{filtersTrigger}</PopoverTrigger>
+          <PopoverContent align="start" className="w-72 p-4">
+            <DashboardFilterPanel filter={filter} onChange={onChange} />
+          </PopoverContent>
+        </Popover>
+      ) : (
+        <Sheet>
+          <SheetTrigger asChild>{filtersTrigger}</SheetTrigger>
+          <SheetContent
+            side="bottom"
+            className="max-h-[85vh] overflow-y-auto rounded-t-3xl px-5 pt-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
           >
-            <SlidersHorizontal className="size-4" />
-            Filters
-            {activeCount > 0 ? (
-              <span className="bg-brand-orange text-primary-foreground ml-0.5 inline-flex size-5 items-center justify-center rounded-full text-[0.7rem] font-bold tabular-nums">
-                {activeCount}
-              </span>
-            ) : null}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-72 space-y-4 p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold tracking-tight">Filter results</p>
-            {activeCount > 0 ? (
-              <button
-                type="button"
-                onClick={clearSecondary}
-                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium"
-              >
-                <X className="size-3" />
-                Clear
-              </button>
-            ) : null}
-          </div>
-
-          <FilterField label="Order status">
-            <Select
-              value={filter.orderStatus ?? ANY}
-              onValueChange={(v) =>
-                onChange({
-                  ...filter,
-                  orderStatus: v === ANY ? undefined : (v as OrderStatus),
-                })
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ANY}>Any order status</SelectItem>
-                {ORDER_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {titleCase(s)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FilterField>
-
-          <FilterField label="Conversation">
-            <Select
-              value={filter.conversationStatus ?? ANY}
-              onValueChange={(v) =>
-                onChange({
-                  ...filter,
-                  conversationStatus:
-                    v === ANY ? undefined : (v as ConversationStatus),
-                })
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ANY}>Any conversation</SelectItem>
-                {CONVERSATION_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {titleCase(s)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FilterField>
-
-          <FilterField label="Customers">
-            <Select
-              value={filter.customerSegment ?? ANY}
-              onValueChange={(v) =>
-                onChange({
-                  ...filter,
-                  customerSegment:
-                    v === ANY ? undefined : (v as "NEW" | "RETURNING"),
-                })
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ANY}>All customers</SelectItem>
-                <SelectItem value="NEW">New customers</SelectItem>
-                <SelectItem value="RETURNING">Returning</SelectItem>
-              </SelectContent>
-            </Select>
-          </FilterField>
-
-          <FilterField label="Specific customer">
-            <CustomerCombobox
-              value={filter.customerPhone}
-              onChange={(customerPhone) => onChange({ ...filter, customerPhone })}
-              className="w-full"
-            />
-          </FilterField>
-        </PopoverContent>
-      </Popover>
+            <SheetTitle className="sr-only">Filter results</SheetTitle>
+            <DashboardFilterPanel filter={filter} onChange={onChange} />
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Compare + save default — own row on mobile, pushed right from sm up */}
       <div className="flex w-full items-center gap-3 sm:ml-auto sm:w-auto">
@@ -275,21 +156,6 @@ export function DashboardFilterBar({
           {isDefault ? "Saved" : saving ? "Saving…" : "Save as default"}
         </Button>
       </div>
-    </div>
-  );
-}
-
-function FilterField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <p className="text-muted-foreground text-xs font-semibold">{label}</p>
-      {children}
     </div>
   );
 }
