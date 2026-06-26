@@ -1,11 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { ChevronDown, History } from "lucide-react";
 
 import type { AuditActor, AuditEntry } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -25,14 +23,14 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour12: true,
 };
 
-// Friendly labels for the event types the backend currently emits. Unknown
-// types fall back to a readable form so new backend events don't break the UI.
+// Friendly one-line labels for the event types the backend emits. Unknown
+// types fall back to a humanised form so new events still read cleanly.
 const EVENT_LABELS: Record<string, string> = {
-  "ai.action": "AI action",
-  "ai.escalate": "AI escalated",
+  "ai.action": "Acroma acted",
+  "ai.escalate": "Flagged for you",
   "conversation.resolve": "Marked resolved",
-  "conversation.handoff": "Hand-off",
-  "order.status": "Order status",
+  "conversation.handoff": "Handed over",
+  "order.status": "Order updated",
 };
 
 const ACTOR_LABELS: Record<AuditActor, string> = {
@@ -42,28 +40,22 @@ const ACTOR_LABELS: Record<AuditActor, string> = {
   SYSTEM: "System",
 };
 
-const ACTOR_VARIANTS: Record<
-  AuditActor,
-  React.ComponentProps<typeof Badge>["variant"]
-> = {
-  CUSTOMER: "secondary",
-  AI: "default",
-  OWNER: "outline",
-  SYSTEM: "ghost",
+const ACTOR_DOT: Record<AuditActor, string> = {
+  CUSTOMER: "bg-muted-foreground/50",
+  AI: "bg-brand-blue",
+  OWNER: "bg-brand-orange",
+  SYSTEM: "bg-muted-foreground/50",
 };
 
 /**
- * Read-only Activity timeline for a single conversation, fed by the audit
- * log. A debugging aid for the merchant: newest first, each entry shows time,
- * actor, a friendly event label, the summary, and an expandable raw `detail`.
+ * Read-only activity for a single conversation, fed by the audit log. A compact
+ * vertical timeline (newest first): a coloured dot per actor, a friendly label,
+ * and who did it + when. Collapsed by default so it never dominates the panel.
  */
-export function ActivityTimeline({
-  entries,
-  className,
-}: ActivityTimelineProps) {
+export function ActivityTimeline({ entries, className }: ActivityTimelineProps) {
   return (
     <Collapsible className={cn("border-t", className)}>
-      <CollapsibleTrigger className="group/activity text-muted-foreground hover:text-foreground flex w-full items-center justify-between gap-2 px-1 py-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+      <CollapsibleTrigger className="group/activity text-muted-foreground hover:text-foreground focus-visible:ring-ring flex w-full items-center justify-between gap-2 px-1 py-3 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none">
         <span className="flex items-center gap-2">
           <History className="size-4" aria-hidden="true" />
           Activity
@@ -79,15 +71,17 @@ export function ActivityTimeline({
         />
       </CollapsibleTrigger>
 
-      <CollapsibleContent className="pb-4">
+      <CollapsibleContent className="pb-2">
         {entries.length === 0 ? (
-          <p className="text-muted-foreground px-1 py-2 text-sm">
-            No activity yet.
-          </p>
+          <p className="text-muted-foreground px-1 py-2 text-sm">No activity yet.</p>
         ) : (
-          <ol className="flex flex-col gap-3 pt-1">
-            {entries.map((entry) => (
-              <ActivityRow key={entry.id} entry={entry} />
+          <ol className="px-1 pt-1">
+            {entries.map((entry, i) => (
+              <ActivityRow
+                key={entry.id}
+                entry={entry}
+                last={i === entries.length - 1}
+              />
             ))}
           </ol>
         )}
@@ -96,69 +90,42 @@ export function ActivityTimeline({
   );
 }
 
-function ActivityRow({ entry }: { entry: AuditEntry }) {
-  const label = EVENT_LABELS[entry.eventType] ?? humanize(entry.eventType);
-  const hasDetail =
-    entry.detail !== null &&
-    entry.detail !== undefined &&
-    !(typeof entry.detail === "object" &&
-      Object.keys(entry.detail as object).length === 0);
-
+function ActivityRow({ entry, last }: { entry: AuditEntry; last: boolean }) {
+  const label = describe(entry);
   return (
-    <li className="border-border/60 bg-card flex flex-col gap-1 rounded-md border px-3 py-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant={ACTOR_VARIANTS[entry.actor]}>
-          {ACTOR_LABELS[entry.actor] ?? entry.actor}
-        </Badge>
-        <span className="text-foreground text-sm font-medium">{label}</span>
-        <time
-          dateTime={entry.createdAt}
-          className="text-muted-foreground ml-auto text-xs"
-        >
-          {new Date(entry.createdAt).toLocaleString(undefined, TIME_FORMAT)}
-        </time>
+    <li className="flex gap-3">
+      <div className="flex flex-col items-center">
+        <span className={cn("mt-1.5 size-2.5 shrink-0 rounded-full", ACTOR_DOT[entry.actor])} />
+        {!last ? <span className="bg-border my-1 w-px flex-1" /> : null}
       </div>
-
-      {entry.summary ? (
-        <p className="text-muted-foreground text-sm">{entry.summary}</p>
-      ) : null}
-
-      {hasDetail ? <DetailDisclosure detail={entry.detail} /> : null}
+      <div className="min-w-0 flex-1 pb-4">
+        <p className="text-foreground text-sm font-medium">{label}</p>
+        <p className="text-muted-foreground text-xs">
+          {ACTOR_LABELS[entry.actor] ?? entry.actor} ·{" "}
+          {new Date(entry.createdAt).toLocaleString(undefined, TIME_FORMAT)}
+        </p>
+      </div>
     </li>
   );
 }
 
-function DetailDisclosure({ detail }: { detail: unknown }) {
-  return (
-    <Collapsible className="mt-1">
-      <CollapsibleTrigger className="group/detail text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
-        <ChevronDown
-          className="size-3 transition-transform group-data-[state=open]/detail:rotate-180"
-          aria-hidden="true"
-        />
-        Details
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <pre className="bg-muted text-muted-foreground mt-1 overflow-x-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap">
-          {prettyPrint(detail)}
-        </pre>
-      </CollapsibleContent>
-    </Collapsible>
-  );
+/**
+ * A short, human label for an entry. Prefers the specific action carried in
+ * `summary` (e.g. REPLY, CREATE_ORDER) over the generic event type.
+ */
+function describe(entry: AuditEntry): string {
+  const summary = entry.summary?.trim();
+  if (summary && /^[A-Z0-9_]+$/.test(summary)) return humanize(summary);
+  if (summary) return summary;
+  return EVENT_LABELS[entry.eventType] ?? humanize(entry.eventType);
 }
 
-function prettyPrint(detail: unknown): string {
-  try {
-    return JSON.stringify(detail, null, 2);
-  } catch {
-    return String(detail);
-  }
-}
-
-function humanize(eventType: string): string {
-  return eventType
+function humanize(value: string): string {
+  const words = value
     .split(/[.\-_]/)
     .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+    .map((w) => w.toLowerCase());
+  if (words.length === 0) return value;
+  const [first, ...rest] = words;
+  return [first.charAt(0).toUpperCase() + first.slice(1), ...rest].join(" ");
 }
