@@ -40,10 +40,6 @@ export function MobileBottomNav({
   const items = getPrimaryNav(vocab);
   const moreActive = isSecondaryRoute(pathname);
 
-  // Hide the bar inside a single conversation: that screen is a full-height
-  // chat with its own composer pinned to the bottom (native in-thread pattern).
-  if (/^\/dashboard\/conversations\/[^/]+$/.test(pathname)) return null;
-
   return (
     <>
       <nav
