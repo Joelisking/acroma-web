@@ -36,7 +36,7 @@ export function InboxShell({
   const hasActive = Boolean(activeConversation);
 
   return (
-    <div className="border-border bg-card flex h-full w-full overflow-hidden rounded-2xl border">
+    <div className="bg-card md:border-border flex h-full w-full overflow-hidden md:rounded-2xl md:border">
       <div
         className={cn(
           "border-border min-w-0 shrink-0 md:w-[340px] md:border-r",

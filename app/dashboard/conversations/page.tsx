@@ -31,7 +31,7 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   if (!business) return null;
 
   return (
-    <div className="h-full">
+    <div className="-mx-4 -mt-6 h-full sm:-mx-6 md:mx-0 md:mt-0">
       <InboxShell
         conversations={conversations}
         status={status}

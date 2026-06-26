@@ -27,7 +27,7 @@ export default async function ConversationDetailPage({ params }: PageProps) {
   const activity = await safeListActivity(conversation.id);
 
   return (
-    <div className="h-full">
+    <div className="-mx-4 -mt-6 h-full sm:-mx-6 md:mx-0 md:mt-0">
       <InboxShell
         conversations={conversations}
         aiEnabled={business.aiEnabled}
