@@ -15,7 +15,7 @@ type Props = {
 export function TakeOverBar({ conversationId, status }: Props) {
   const resolved = status === "RESOLVED";
   return (
-    <div className="border-border/70 bg-background sticky bottom-0 border-t p-3 sm:p-4">
+    <div className="border-border/70 bg-background sticky bottom-0 border-t px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] sm:px-4 sm:pt-4 md:pb-4">
       <p className="text-muted-foreground mb-2.5 text-center text-xs">
         {resolved
           ? "This conversation is resolved."

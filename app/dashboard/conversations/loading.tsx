@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="-mx-4 -mt-6 h-full sm:-mx-6 md:mx-0 md:mt-0">
+    <div className="-mx-4 -mt-6 -mb-24 h-[calc(100%+7.5rem)] sm:-mx-6 md:m-0 md:h-full">
       <div className="bg-card md:border-border flex h-full w-full overflow-hidden md:rounded-2xl md:border">
         <div className="border-border flex w-full flex-col gap-3 p-4 md:w-[340px] md:border-r">
           <div className="flex items-center justify-between">
