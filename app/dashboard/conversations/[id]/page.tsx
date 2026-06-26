@@ -1,27 +1,25 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { getConversation } from "@/lib/api/conversations";
+import { getConversation, listConversations } from "@/lib/api/conversations";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { listAudit } from "@/lib/api/audit";
 import { ApiError } from "@/lib/api/server";
 import type { AuditEntry } from "@/lib/api/types";
-import { ConversationHeader } from "@/components/conversations/conversation-header";
-import { ChatThread } from "@/components/conversations/chat-thread";
-import { ActivityTimeline } from "@/components/conversations/activity-timeline";
+import { InboxShell } from "@/components/conversations/inbox-shell";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
-import { PendingOwnerBanner } from "@/components/conversations/pending-owner-banner";
 
 type PageProps = { params: Promise<{ id: string }> };
 
-export const metadata: Metadata = { title: "Conversation · Acroma" };
+export const metadata: Metadata = { title: "Chat · Acroma" };
 
 export default async function ConversationDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [business, conversation] = await Promise.all([
+  const [business, conversation, conversations] = await Promise.all([
     getCurrentBusiness(),
     safeGetConversation(id),
+    listConversations(),
   ]);
   if (!business) return null;
   if (!conversation) notFound();
@@ -29,20 +27,15 @@ export default async function ConversationDetailPage({ params }: PageProps) {
   const activity = await safeListActivity(conversation.id);
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-3xl flex-col">
-      <ConversationHeader conversation={conversation} />
-      <PendingOwnerBanner
-        conversationId={conversation.id}
-        pendingOwnerSince={conversation.pendingOwnerSince}
-        escalationReason={conversation.escalationReason}
-        aiHoldingLine={conversation.status === "AI_HANDLING"}
-      />
-      <ActivityTimeline entries={activity} />
-      <ChatThread conversation={conversation} businessId={business.id} />
-      <LiveRefresh
+    <div className="h-full">
+      <InboxShell
+        conversations={conversations}
+        aiEnabled={business.aiEnabled}
         businessId={business.id}
-        events={["conversation_updated"]}
+        activeConversation={conversation}
+        activity={activity}
       />
+      <LiveRefresh businessId={business.id} events={["conversation_updated"]} />
     </div>
   );
 }
@@ -56,8 +49,8 @@ async function safeGetConversation(id: string) {
   }
 }
 
-// The Activity timeline is a non-critical debugging aid; never let an audit
-// fetch failure take down the conversation view.
+// The Activity timeline is a non-critical aid; never let an audit fetch failure
+// take down the conversation view.
 async function safeListActivity(conversationId: string): Promise<AuditEntry[]> {
   try {
     return await listAudit({ conversationId });
