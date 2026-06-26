@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import type { Conversation } from "@/lib/api/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { StatusBadge } from "./status-badge";
+import { ConversationStatusPill } from "./conversation-status-pill";
 import { formatRelativeShort, formatPhone, getInitials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -31,10 +30,11 @@ export function ConversationRow({ conversation, active }: ConversationRowProps) 
       className={cn(
         "group/row border-border/60 flex items-center gap-3 border-b px-3 py-3.5 transition-colors last:border-b-0",
         "focus-visible:outline-none",
-        waiting
-          ? "bg-brand-orange-soft/60 hover:bg-brand-orange-soft focus-visible:bg-brand-orange-soft"
-          : "hover:bg-accent/50 focus-visible:bg-accent/50",
-        active && !waiting && "bg-accent/60",
+        active
+          ? "bg-brand-orange-soft"
+          : waiting
+            ? "bg-brand-orange-soft/50 hover:bg-brand-orange-soft focus-visible:bg-brand-orange-soft"
+            : "hover:bg-accent/50 focus-visible:bg-accent/50",
       )}
     >
       <Avatar className="size-11">
@@ -70,7 +70,7 @@ export function ConversationRow({ conversation, active }: ConversationRowProps) 
               Waiting · {formatRelativeShort(conversation.pendingOwnerSince!)}
             </span>
           ) : (
-            <StatusBadge status={conversation.status} />
+            <ConversationStatusPill status={conversation.status} />
           )}
           {conversation.customerName ? (
             <span className="text-muted-foreground truncate text-xs tabular-nums">
@@ -79,8 +79,6 @@ export function ConversationRow({ conversation, active }: ConversationRowProps) 
           ) : null}
         </div>
       </div>
-
-      <ChevronRight className="text-muted-foreground/50 size-4 shrink-0" />
     </Link>
   );
 }

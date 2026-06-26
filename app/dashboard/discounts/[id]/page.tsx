@@ -21,8 +21,10 @@ export default async function DiscountDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <header>
-        <p className="eyebrow text-muted-foreground">Promos</p>
-        <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
+        <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+          Promos
+        </p>
+        <h1 className="text-foreground mt-1 text-3xl font-bold tracking-tight">
           {discount.code}
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">

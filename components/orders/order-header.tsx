@@ -39,7 +39,7 @@ export function OrderHeader({
           <p className="font-mono text-muted-foreground text-xs tracking-wider uppercase">
             Order #{shortId(order.id)}
           </p>
-          <h1 className="font-display text-foreground mt-2 text-3xl font-medium tracking-tight tabular-nums sm:text-4xl">
+          <h1 className="text-foreground mt-2 text-3xl font-bold tracking-tight tabular-nums sm:text-4xl">
             {formatMoney(order.totalAmount, order.currency)}
           </h1>
           <div className="text-muted-foreground mt-3 flex flex-col gap-1.5 text-sm">

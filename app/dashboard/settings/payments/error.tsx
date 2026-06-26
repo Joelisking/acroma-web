@@ -14,9 +14,11 @@ export default function Error({
     console.error(error);
   }, [error]);
   return (
-    <div className="border-border/70 bg-card rounded-2xl border p-6 text-center">
-      <p className="eyebrow text-brand-orange">Couldn&apos;t load</p>
-      <h2 className="font-display mt-3 text-xl font-medium tracking-tight">
+    <div className="card-warm p-6 text-center">
+      <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+        Couldn&apos;t load
+      </p>
+      <h2 className="mt-3 text-xl font-bold tracking-tight">
         Payment settings unavailable
       </h2>
       <p className="text-muted-foreground mt-2 text-sm">

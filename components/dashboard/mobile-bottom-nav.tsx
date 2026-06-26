@@ -44,7 +44,7 @@ export function MobileBottomNav({
     <>
       <nav
         aria-label="Primary"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 lg:hidden [padding-bottom:calc(env(safe-area-inset-bottom)+1.25rem)]"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 md:hidden [padding-bottom:calc(env(safe-area-inset-bottom)+1.25rem)]"
       >
         <div
           className={cn(

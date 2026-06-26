@@ -35,7 +35,7 @@ export default async function EditProductPage({ params }: PageProps) {
           <ChevronLeft className="size-4" />
           {product.name}
         </Link>
-        <h1 className="font-display text-foreground text-3xl font-medium tracking-tight">
+        <h1 className="text-foreground text-3xl font-bold tracking-tight">
           Edit {vocab.itemLower}
         </h1>
       </header>

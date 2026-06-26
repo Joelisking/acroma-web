@@ -51,19 +51,7 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <p className="eyebrow text-brand-orange">Start with Acroma</p>
-        <h2 className="font-display text-foreground text-4xl leading-[1.05] font-medium tracking-tight">
-          Create your account
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          One account for every channel. WhatsApp today, Instagram and Telegram
-          next.
-        </p>
-      </header>
-
-      <Form {...form}>
+    <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
@@ -144,7 +132,6 @@ export function RegisterForm() {
             {pending ? "Creating account" : "Create account"}
           </AuthCta>
         </form>
-      </Form>
-    </div>
+    </Form>
   );
 }

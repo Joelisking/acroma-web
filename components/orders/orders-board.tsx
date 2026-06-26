@@ -6,6 +6,7 @@ import type { BusinessType, Order } from "@/lib/api/types";
 import { groupOrdersIntoLanes, type LaneTone } from "@/lib/orders/lanes";
 import { OrderRow } from "./order-row";
 import { OrdersEmpty } from "./orders-empty";
+import { SegmentedControl } from "@/components/shared/segmented-control";
 import { cn } from "@/lib/utils";
 
 const TONE_DOT: Record<LaneTone, string> = {
@@ -50,26 +51,15 @@ export function OrdersBoard({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
-        <div className="seg" role="tablist" aria-label="Order view">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!showAll}
-            className={cn(!showAll && "on")}
-            onClick={() => setShowAll(false)}
-          >
-            Live
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={showAll}
-            className={cn(showAll && "on")}
-            onClick={() => setShowAll(true)}
-          >
-            All
-          </button>
-        </div>
+        <SegmentedControl
+          aria-label="Order view"
+          value={showAll ? "all" : "live"}
+          onValueChange={(v) => setShowAll(v === "all")}
+          segments={[
+            { value: "live", label: "Live" },
+            { value: "all", label: "All" },
+          ]}
+        />
         <p className="text-muted-foreground text-sm tabular-nums">
           {liveCount} active{doneCount > 0 ? ` · ${doneCount} closed` : ""}
         </p>
@@ -77,7 +67,7 @@ export function OrdersBoard({
 
       {liveCount === 0 && !showAll ? (
         <div className="border-border/70 bg-card/60 rounded-2xl border border-dashed py-14 text-center">
-          <p className="text-foreground text-base font-semibold">
+          <p className="text-foreground text-base font-bold tracking-tight">
             Nothing live right now.
           </p>
           <p className="text-muted-foreground mx-auto mt-1 max-w-xs text-sm">
@@ -94,7 +84,7 @@ export function OrdersBoard({
               className={cn("size-2 rounded-full", TONE_DOT[lane.tone])}
               aria-hidden
             />
-            <h2 className="text-foreground text-sm font-semibold tracking-tight">
+            <h2 className="text-foreground text-sm font-bold tracking-tight">
               {lane.label}
             </h2>
             <span className="text-muted-foreground bg-muted rounded-full px-2 py-0.5 text-xs font-medium tabular-nums">

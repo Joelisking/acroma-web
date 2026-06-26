@@ -248,8 +248,10 @@ export function BroadcastComposer({ templates, discounts }: Props) {
         />
       </div>
 
-      <div className="border-border/70 bg-muted/40 rounded-xl border p-4">
-        <p className="eyebrow text-muted-foreground">Preview</p>
+      <div className="card-warm bg-muted/30 p-4">
+        <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+          Preview
+        </p>
         <p className="text-foreground mt-2 text-sm whitespace-pre-wrap">
           {previewBody || "(empty)"}
         </p>

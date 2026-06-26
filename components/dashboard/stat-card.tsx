@@ -30,7 +30,7 @@ export function StatCard({
   loading = false,
 }: StatCardProps) {
   return (
-    <div className="border-border/70 bg-card relative overflow-hidden rounded-2xl border p-5">
+    <div className="card-warm relative overflow-hidden p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-muted-foreground text-xs font-medium">{label}</p>

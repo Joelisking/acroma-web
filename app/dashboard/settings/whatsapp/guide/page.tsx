@@ -20,8 +20,10 @@ export default function WhatsappGuidePage() {
           Back to WhatsApp settings
         </Link>
         <header className="space-y-2">
-          <p className="eyebrow text-brand-orange">Setup guide</p>
-          <h1 className="text-foreground font-display text-3xl leading-tight font-medium tracking-tight sm:text-4xl">
+          <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+            Setup guide
+          </p>
+          <h1 className="text-foreground text-3xl leading-tight font-bold tracking-tight sm:text-4xl">
             Where to find your WhatsApp credentials
           </h1>
           <p className="text-muted-foreground max-w-prose text-sm leading-relaxed">

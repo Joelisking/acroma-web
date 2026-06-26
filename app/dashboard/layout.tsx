@@ -3,6 +3,7 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
 import { getConversationBadgeCounts } from "@/lib/api/conversations";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { TabletRail } from "@/components/dashboard/tablet-rail";
 import { TopBar } from "@/components/dashboard/top-bar";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
@@ -46,7 +47,7 @@ export default async function DashboardLayout({
 
   return (
     <VocabularyProvider businessType={business.businessType}>
-    <div className="theme-warm bg-background text-foreground flex h-dvh overflow-hidden">
+    <div className="theme-warm bg-paper text-foreground flex h-dvh overflow-hidden">
       <Sidebar
         businessName={business.name}
         email={business.email}
@@ -54,19 +55,24 @@ export default async function DashboardLayout({
         vocab={vocab}
       />
 
+      <TabletRail
+        badges={badges}
+        vocab={vocab}
+        name={business.name}
+        email={business.email}
+      />
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          businessName={business.name}
-          whatsappActive={business.whatsappWebhookActive}
-        />
+        <TopBar whatsappActive={business.whatsappWebhookActive} />
 
         {/* main is the single scroll container; the shell itself never scrolls,
             so full-height pages (e.g. a conversation) can keep their own inner
             scroll without a second page-level scrollbar. */}
         <main
           id="dashboard-scroll"
-          className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 lg:px-10 lg:pb-10"
-          // pb-24 on mobile reserves space for the fixed bottom nav
+          className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 md:pb-10 lg:px-10"
+          // pb-24 reserves space for the fixed bottom nav (mobile only; the
+          // tablet rail and desktop sidebar are in-flow, so md+ drops it)
         >
           {children}
         </main>

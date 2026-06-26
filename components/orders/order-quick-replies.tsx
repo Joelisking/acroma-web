@@ -62,10 +62,12 @@ export function OrderQuickReplies({ orderId, status }: Props) {
   return (
     <section
       aria-label="Quick replies"
-      className="border-border/70 bg-card flex flex-col gap-4 rounded-2xl border p-6"
+      className="card-warm flex flex-col gap-4 p-6"
     >
       <div>
-        <p className="eyebrow text-muted-foreground">Quick replies</p>
+        <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+          Quick replies
+        </p>
         <p className="text-foreground mt-1 text-sm">
           One-tap messages for the moments food orders go sideways.
         </p>

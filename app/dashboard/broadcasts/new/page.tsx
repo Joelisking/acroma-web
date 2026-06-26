@@ -14,8 +14,10 @@ export default async function NewBroadcastPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <header>
-        <p className="eyebrow text-muted-foreground">Outreach</p>
-        <h1 className="font-display text-foreground mt-1 text-3xl font-medium tracking-tight">
+        <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
+          Outreach
+        </p>
+        <h1 className="text-foreground mt-1 text-3xl font-bold tracking-tight">
           New broadcast
         </h1>
       </header>

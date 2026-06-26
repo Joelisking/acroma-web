@@ -31,7 +31,7 @@ export default async function PaymentCompletePage({
   if (!reference) {
     return (
       <Shell tone="pending" icon={<Clock className="h-7 w-7" />}>
-        <h1 className="text-2xl font-semibold">No payment reference</h1>
+        <h1 className="text-2xl font-bold tracking-tight">No payment reference</h1>
         <p className="text-muted-foreground">
           We couldn&rsquo;t find a payment reference in this link. If you just
           paid, please give it a moment and refresh. The business will hear
@@ -46,7 +46,7 @@ export default async function PaymentCompletePage({
   if (!result || result.status === "unknown") {
     return (
       <Shell tone="pending" icon={<Clock className="h-7 w-7" />}>
-        <h1 className="text-2xl font-semibold">Still confirming…</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Still confirming…</h1>
         <p className="text-muted-foreground">
           We&rsquo;re waiting on confirmation from Paystack. You can close this
           tab. The business will reach out on WhatsApp shortly.
@@ -58,7 +58,7 @@ export default async function PaymentCompletePage({
   if (result.status === "paid") {
     return (
       <Shell tone="success" icon={<CheckCircle2 className="h-7 w-7" />}>
-        <h1 className="text-2xl font-semibold">Payment received</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Payment received</h1>
         <p className="text-muted-foreground">
           Thanks, we&rsquo;ve got it. The business will reach out on WhatsApp
           shortly to confirm next steps.
@@ -76,7 +76,7 @@ export default async function PaymentCompletePage({
   if (result.status === "failed") {
     return (
       <Shell tone="error" icon={<XCircle className="h-7 w-7" />}>
-        <h1 className="text-2xl font-semibold">Payment didn&rsquo;t go through</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Payment didn&rsquo;t go through</h1>
         <p className="text-muted-foreground">
           Your card or wallet didn&rsquo;t complete the charge. Reply on
           WhatsApp and we&rsquo;ll send a fresh payment link.
@@ -88,7 +88,7 @@ export default async function PaymentCompletePage({
   if (result.status === "cancelled") {
     return (
       <Shell tone="error" icon={<XCircle className="h-7 w-7" />}>
-        <h1 className="text-2xl font-semibold">Order was cancelled</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Order was cancelled</h1>
         <p className="text-muted-foreground">
           This order is no longer active. Reply on WhatsApp to start a new one.
         </p>
@@ -98,7 +98,7 @@ export default async function PaymentCompletePage({
 
   return (
     <Shell tone="pending" icon={<Clock className="h-7 w-7" />}>
-      <h1 className="text-2xl font-semibold">Still processing</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Still processing</h1>
       <p className="text-muted-foreground">
         Your payment is in flight. You can close this tab. We&rsquo;ll
         message you on WhatsApp once it clears.
@@ -118,20 +118,23 @@ function Shell({
 }) {
   const toneClasses =
     tone === "success"
-      ? "bg-emerald-100 text-emerald-700"
+      ? "bg-brand-green-soft text-brand-green"
       : tone === "error"
-        ? "bg-rose-100 text-rose-700"
-        : "bg-amber-100 text-amber-700";
+        ? "bg-destructive/10 text-destructive"
+        : "bg-brand-orange-soft text-brand-orange";
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="max-w-md space-y-4 text-center">
+    <main className="bg-paper flex min-h-screen items-center justify-center px-6 py-12">
+      <div className="card-warm w-full max-w-md space-y-4 p-8 text-center">
         <div
           className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${toneClasses}`}
         >
           {icon}
         </div>
         {children}
+        <p className="text-muted-foreground pt-2 text-xs font-bold tracking-widest uppercase">
+          Acroma
+        </p>
       </div>
     </main>
   );

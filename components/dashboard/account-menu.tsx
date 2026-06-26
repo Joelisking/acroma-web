@@ -35,7 +35,7 @@ export function AccountMenu({
       )}
     >
       <Avatar className="size-9">
-        <AvatarFallback className="bg-brand-orange/15 text-brand-orange font-display text-sm font-medium">
+        <AvatarFallback className="bg-brand-orange/15 text-brand-orange text-sm font-semibold">
           {initials}
         </AvatarFallback>
       </Avatar>

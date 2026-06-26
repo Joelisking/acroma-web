@@ -41,7 +41,7 @@ export function MenuList({ products, currency }: Props) {
           className="flex flex-col gap-2"
         >
           {group.category || groups.length > 1 ? (
-            <p className="eyebrow text-muted-foreground px-1">
+            <p className="text-muted-foreground px-1 text-xs font-bold tracking-widest uppercase">
               {group.category ?? "Other"}
             </p>
           ) : null}

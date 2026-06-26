@@ -20,14 +20,9 @@ export function SettingsCard({
   className,
 }: SettingsCardProps) {
   return (
-    <section
-      className={cn(
-        "border-border/70 bg-card overflow-hidden rounded-2xl border",
-        className,
-      )}
-    >
-      <div className="space-y-1 px-6 pt-6">
-        <h2 className="text-foreground text-xl font-semibold tracking-tight">
+    <section className={cn("card-warm overflow-hidden", className)}>
+      <div className="space-y-1.5 px-5 pt-5 sm:px-6 sm:pt-6">
+        <h2 className="text-foreground text-lg font-bold tracking-tight">
           {title}
         </h2>
         {description ? (
@@ -36,9 +31,9 @@ export function SettingsCard({
           </p>
         ) : null}
       </div>
-      <div className="space-y-5 px-6 pt-5 pb-6">{children}</div>
+      <div className="space-y-5 px-5 pt-5 pb-6 sm:px-6">{children}</div>
       {footer ? (
-        <div className="border-border/70 bg-muted/40 flex items-center justify-end gap-3 border-t px-6 py-4">
+        <div className="border-border/70 bg-muted/40 flex items-center justify-end gap-3 border-t px-5 py-4 sm:px-6">
           {footer}
         </div>
       ) : null}
