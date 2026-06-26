@@ -7,26 +7,25 @@ type TopBarProps = {
 };
 
 /**
- * Top bar shown above content. Compact on mobile (with logo), spacious
- * on desktop (with eyebrow + greeting).
+ * Sticky bar above content. Mobile shows the wordmark; desktop shows a quiet
+ * greeting block. The tablet rail carries its own mark, so the mobile logo
+ * hides at md. The connection pill sits right on every breakpoint.
  */
 export function TopBar({ businessName, whatsappActive }: TopBarProps) {
-  const greeting = greet();
   return (
-    <header className="border-border/70 bg-background/85 sticky top-0 z-30 border-b backdrop-blur-md">
-      <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:py-5">
-        {/* Mobile: logo. Desktop: greeting block. */}
-        <div className="flex items-center gap-3 lg:hidden">
+    <header className="border-border bg-paper/85 sticky top-0 z-30 border-b backdrop-blur-md">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:py-4">
+        <div className="flex items-center gap-3 md:hidden">
           <Logo />
         </div>
         <div className="hidden lg:block">
-          <p className="eyebrow text-muted-foreground">{greeting}</p>
-          <h1 className="font-display text-foreground mt-1 text-2xl font-medium tracking-tight">
+          <p className="text-muted-foreground text-xs font-medium">{greet()}</p>
+          <h1 className="text-foreground mt-0.5 text-lg font-bold tracking-tight">
             {businessName}
           </h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
           <ConnectionPill active={whatsappActive} />
         </div>
       </div>
