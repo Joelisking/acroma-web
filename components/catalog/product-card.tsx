@@ -52,7 +52,7 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col gap-1 p-4">
         {product.category ? (
-          <p className="eyebrow text-muted-foreground text-[0.65rem]">
+          <p className="text-muted-foreground text-[0.7rem] font-medium">
             {product.category}
           </p>
         ) : null}
@@ -72,7 +72,7 @@ export function ProductCard({
           </div>
         ) : null}
         <div className="mt-auto flex items-baseline justify-between pt-2">
-          <span className="font-display text-foreground text-lg font-medium tabular-nums">
+          <span className="text-foreground text-lg font-semibold tabular-nums">
             {formatMoney(product.basePrice, currency)}
           </span>
           <span className="text-muted-foreground text-xs tabular-nums">

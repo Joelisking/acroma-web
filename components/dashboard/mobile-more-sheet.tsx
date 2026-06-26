@@ -101,7 +101,7 @@ export function MobileMoreSheet({
           ))}
 
           <Button
-            variant="outline"
+            variant="destructive"
             className="h-11 gap-2"
             disabled={pending}
             onClick={() => startTransition(() => void logoutAction())}

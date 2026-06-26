@@ -49,6 +49,7 @@ export function AccountMenu({
         aria-label="Sign out"
         onClick={onSignOut}
         disabled={pending}
+        className="text-destructive hover:text-destructive hover:bg-destructive/10"
       >
         <LogOut />
       </Button>

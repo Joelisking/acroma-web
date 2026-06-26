@@ -1,5 +1,6 @@
 import type { Customer } from "@/lib/api/types";
-import { formatPhone } from "@/lib/format";
+import { formatPhone, getInitials } from "@/lib/format";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { OptOutToggle } from "./opt-out-toggle";
 
@@ -14,12 +15,18 @@ function formatRelative(iso: string | null): string {
 }
 
 export function CustomerRow({ customer }: { customer: Customer }) {
+  const name = customer.name?.trim() || formatPhone(customer.phone);
   return (
-    <div className="border-border/70 bg-card grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border p-4">
-      <div className="min-w-0">
+    <div className="card-calm flex items-center gap-3 p-3.5">
+      <Avatar className="size-10 shrink-0">
+        <AvatarFallback className="bg-brand-orange-soft text-brand-orange text-sm font-semibold">
+          {getInitials(customer.name, "·")}
+        </AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="text-foreground truncate text-sm font-medium">
-            {customer.name?.trim() || formatPhone(customer.phone)}
+          <p className="text-foreground truncate text-[0.95rem] font-semibold">
+            {name}
           </p>
           {customer.optedOut ? (
             <Badge className="bg-muted text-muted-foreground text-xs">
@@ -27,8 +34,10 @@ export function CustomerRow({ customer }: { customer: Customer }) {
             </Badge>
           ) : null}
         </div>
-        <p className="text-muted-foreground mt-1 text-xs">
-          {formatPhone(customer.phone)} · last chat {formatRelative(customer.lastMessageAt)} · last order {formatRelative(customer.lastOrderAt)}
+        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+          {formatPhone(customer.phone)} · last chat{" "}
+          {formatRelative(customer.lastMessageAt)} · last order{" "}
+          {formatRelative(customer.lastOrderAt)}
         </p>
       </div>
       <OptOutToggle id={customer.id} optedOut={customer.optedOut} />

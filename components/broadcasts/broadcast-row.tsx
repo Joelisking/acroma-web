@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight, Megaphone } from "lucide-react";
 import type { Broadcast } from "@/lib/api/types";
 import { BroadcastStatusBadge } from "./status-badge";
 
@@ -13,19 +14,25 @@ export function BroadcastRow({ broadcast }: { broadcast: Broadcast }) {
   return (
     <Link
       href={`/dashboard/broadcasts/${broadcast.id}`}
-      className="border-border/70 bg-card hover:bg-accent grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border px-4 py-3 transition-colors"
+      className="card-calm hover:border-brand-orange/40 flex items-center gap-3 p-3.5 transition-colors"
     >
-      <div className="min-w-0">
+      <span className="bg-brand-green-soft text-brand-green flex size-10 shrink-0 items-center justify-center rounded-xl">
+        <Megaphone className="size-5" strokeWidth={2} />
+      </span>
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="text-foreground truncate text-sm font-medium">
+          <p className="text-foreground truncate text-[0.95rem] font-semibold">
             {broadcast.name}
           </p>
           <BroadcastStatusBadge status={broadcast.status} />
         </div>
-        <p className="text-muted-foreground mt-1 text-xs">
-          {BUCKET_LABELS[broadcast.audienceBucket]} &middot; {broadcast.totalRecipients} recipients &middot; {broadcast.sentCount} sent &middot; {broadcast.readCount} read
+        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+          {BUCKET_LABELS[broadcast.audienceBucket]} &middot;{" "}
+          {broadcast.totalRecipients} recipients &middot; {broadcast.sentCount}{" "}
+          sent &middot; {broadcast.readCount} read
         </p>
       </div>
+      <ChevronRight className="text-muted-foreground/50 size-4 shrink-0" />
     </Link>
   );
 }
