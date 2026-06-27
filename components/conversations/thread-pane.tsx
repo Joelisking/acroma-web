@@ -33,7 +33,7 @@ export function ThreadPane({ conversation, businessId, activity }: ThreadPanePro
 
   return (
     <div className="bg-paper flex h-full min-w-0 flex-1 flex-col">
-      <header className="border-border bg-card/85 flex items-center gap-3 border-b px-4 py-3 backdrop-blur-md">
+      <header className="border-border bg-card/85 flex items-center gap-3 border-b px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)] backdrop-blur-md md:pt-3">
         <Link
           href="/dashboard/conversations"
           aria-label="Back to chats"

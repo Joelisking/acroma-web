@@ -95,7 +95,7 @@ export function ConversationListPane({
         />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+5.5rem)] md:pb-0">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
           <ConversationsEmpty filtered={Boolean(q || status)} />
         ) : (
