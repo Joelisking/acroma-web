@@ -8,21 +8,28 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { CatalogImagesManager } from "./catalog-images-manager";
+import { CatalogPdfManager } from "./catalog-pdf-manager";
 
 type Props = {
   defaultUrls: string[];
+  defaultPdfUrl: string | null;
   /** User-facing noun: "Catalog", "Menu", or "Services" (vertical-aware). */
   noun: string;
 };
 
 /**
- * Collapsible wrapper around the catalog images manager. Starts open when the
- * merchant has no images yet (so they're prompted to add some) and collapsed
- * once photos exist, keeping the catalog page tidy.
+ * Collapsible wrapper around the catalog PDF + images managers. Starts open
+ * when the merchant has nothing set yet (so they're prompted to add something)
+ * and collapsed once a PDF or photos exist, keeping the catalog page tidy.
  */
-export function CatalogImagesSection({ defaultUrls, noun }: Props) {
+export function CatalogImagesSection({
+  defaultUrls,
+  defaultPdfUrl,
+  noun,
+}: Props) {
   const count = defaultUrls.length;
-  const [open, setOpen] = React.useState(count === 0);
+  const hasAny = count > 0 || !!defaultPdfUrl;
+  const [open, setOpen] = React.useState(!hasAny);
 
   return (
     <Collapsible
@@ -36,11 +43,13 @@ export function CatalogImagesSection({ defaultUrls, noun }: Props) {
             <Images className="size-5" />
           </span>
           <div>
-            <p className="text-foreground text-sm font-medium">{noun} images</p>
+            <p className="text-foreground text-sm font-medium">
+              {noun} on WhatsApp
+            </p>
             <p className="text-muted-foreground text-sm">
-              {count === 0
-                ? `Upload up to 8 photos of your ${noun.toLowerCase()}.`
-                : `${count} ${count === 1 ? "photo" : "photos"} added. Tap to manage.`}
+              {hasAny
+                ? `${defaultPdfUrl ? "PDF set" : `${count} ${count === 1 ? "photo" : "photos"}`}. Tap to manage.`
+                : `Upload a ${noun.toLowerCase()} PDF or photos.`}
             </p>
           </div>
         </div>
@@ -49,12 +58,16 @@ export function CatalogImagesSection({ defaultUrls, noun }: Props) {
           aria-hidden
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-4 px-5 pb-5">
+      <CollapsibleContent className="space-y-5 px-5 pb-5">
         <p className="text-muted-foreground text-sm">
-          When customers ask what you have, Acroma sends them on WhatsApp, in
-          the order you set.
+          When customers ask what you have, Acroma sends this on WhatsApp. A PDF
+          is sent as one tidy document; otherwise the photos go in the order you
+          set.
         </p>
-        <CatalogImagesManager defaultUrls={defaultUrls} noun={noun} />
+        <CatalogPdfManager defaultUrl={defaultPdfUrl} noun={noun} />
+        <div className="border-border/60 border-t pt-5">
+          <CatalogImagesManager defaultUrls={defaultUrls} noun={noun} />
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );

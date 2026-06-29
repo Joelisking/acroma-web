@@ -231,6 +231,26 @@ export async function updateCatalogImagesAction(
   }
 }
 
+export async function updateCatalogPdfAction(
+  url: string | null,
+): Promise<ActionResult<{ id: string; catalogPdfUrl: string | null }>> {
+  try {
+    const data = await apiFetch<{ id: string; catalogPdfUrl: string | null }>(
+      "/settings/catalog-pdf",
+      {
+        method: "PUT",
+        body: { url },
+      },
+    );
+    revalidatePath("/dashboard/settings/business");
+    revalidatePath("/dashboard/catalog");
+    revalidatePath("/dashboard");
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: humanError(err, "Couldn't save catalog PDF") };
+  }
+}
+
 export async function updateAiEnabledAction(
   aiEnabled: boolean,
 ): Promise<ActionResult<{ id: string; aiEnabled: boolean }>> {

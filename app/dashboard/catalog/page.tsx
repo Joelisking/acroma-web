@@ -45,6 +45,7 @@ export default async function CatalogPage() {
 
       <CatalogImagesSection
         defaultUrls={business.catalogImageUrls ?? []}
+        defaultPdfUrl={business.catalogPdfUrl ?? null}
         noun={vocab.catalog}
       />
 

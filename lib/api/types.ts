@@ -49,6 +49,9 @@ export type Business = {
   businessType: BusinessType;
   logoUrl: string | null;
   catalogImageUrls: string[];
+  /** Optional single catalog/menu PDF. When set, Acroma sends it instead of
+   * the images when customers ask what's available. */
+  catalogPdfUrl: string | null;
   whatsappPhoneNumberId: string | null;
   whatsappWebhookActive: boolean;
   aiEnabled: boolean;
