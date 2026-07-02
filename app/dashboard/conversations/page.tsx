@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listConversations } from "@/lib/api/conversations";
 import { getCurrentBusiness } from "@/lib/api/business";
+import { listProducts } from "@/lib/api/products";
 import type { ConversationStatus } from "@/lib/api/types";
 import { InboxShell } from "@/components/conversations/inbox-shell";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
@@ -24,9 +25,10 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
     ? (rawStatus as ConversationStatus)
     : undefined;
 
-  const [business, conversations] = await Promise.all([
+  const [business, conversations, products] = await Promise.all([
     getCurrentBusiness(),
     listConversations(status),
+    listProducts(),
   ]);
   if (!business) return null;
 
@@ -37,6 +39,8 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
         status={status}
         aiEnabled={business.aiEnabled}
         businessId={business.id}
+        business={business}
+        products={products}
       />
       <LiveRefresh businessId={business.id} />
     </div>

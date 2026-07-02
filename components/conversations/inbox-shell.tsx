@@ -4,9 +4,11 @@ import { ConversationListPane } from "./conversation-list-pane";
 import { ThreadPane } from "./thread-pane";
 import type {
   AuditEntry,
+  Business,
   Conversation,
   ConversationStatus,
   ConversationWithMessages,
+  Product,
 } from "@/lib/api/types";
 
 type InboxShellProps = {
@@ -14,6 +16,8 @@ type InboxShellProps = {
   status?: ConversationStatus;
   aiEnabled: boolean;
   businessId: string;
+  business: Business;
+  products: Product[];
   /** When set, its thread fills the right pane (and the list collapses on mobile). */
   activeConversation?: ConversationWithMessages;
   activity?: AuditEntry[];
@@ -30,6 +34,8 @@ export function InboxShell({
   status,
   aiEnabled,
   businessId,
+  business,
+  products,
   activeConversation,
   activity = [],
 }: InboxShellProps) {
@@ -55,6 +61,8 @@ export function InboxShell({
         <ThreadPane
           conversation={activeConversation}
           businessId={businessId}
+          business={business}
+          products={products}
           activity={activity}
         />
       ) : (

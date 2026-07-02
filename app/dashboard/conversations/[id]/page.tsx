@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getConversation, listConversations } from "@/lib/api/conversations";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { listAudit } from "@/lib/api/audit";
+import { listProducts } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/server";
 import type { AuditEntry } from "@/lib/api/types";
 import { InboxShell } from "@/components/conversations/inbox-shell";
@@ -16,10 +17,11 @@ export const metadata: Metadata = { title: "Chat · Acroma" };
 export default async function ConversationDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [business, conversation, conversations] = await Promise.all([
+  const [business, conversation, conversations, products] = await Promise.all([
     getCurrentBusiness(),
     safeGetConversation(id),
     listConversations(),
+    listProducts(),
   ]);
   if (!business) return null;
   if (!conversation) notFound();
@@ -32,6 +34,8 @@ export default async function ConversationDetailPage({ params }: PageProps) {
         conversations={conversations}
         aiEnabled={business.aiEnabled}
         businessId={business.id}
+        business={business}
+        products={products}
         activeConversation={conversation}
         activity={activity}
       />

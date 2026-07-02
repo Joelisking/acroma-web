@@ -11,11 +11,18 @@ import { PendingOwnerBanner } from "./pending-owner-banner";
 import { ChatThread } from "./chat-thread";
 import { ConversationInfo } from "./conversation-info";
 import { formatPhone, getInitials } from "@/lib/format";
-import type { AuditEntry, ConversationWithMessages } from "@/lib/api/types";
+import type {
+  AuditEntry,
+  Business,
+  ConversationWithMessages,
+  Product,
+} from "@/lib/api/types";
 
 type ThreadPaneProps = {
   conversation: ConversationWithMessages;
   businessId: string;
+  business: Business;
+  products: Product[];
   activity: AuditEntry[];
 };
 
@@ -25,7 +32,7 @@ type ThreadPaneProps = {
  * banner; the live message thread + composer; and the slide-in info panel
  * (side panel ≥ md, bottom sheet on mobile).
  */
-export function ThreadPane({ conversation, businessId, activity }: ThreadPaneProps) {
+export function ThreadPane({ conversation, businessId, business, products, activity }: ThreadPaneProps) {
   const [infoOpen, setInfoOpen] = React.useState(false);
   const display =
     conversation.customerName?.trim() || formatPhone(conversation.customerPhone);
@@ -80,7 +87,12 @@ export function ThreadPane({ conversation, businessId, activity }: ThreadPanePro
       </div>
 
       <InfoSheet open={infoOpen} onOpenChange={setInfoOpen} title="Customer details">
-        <ConversationInfo conversation={conversation} activity={activity} />
+        <ConversationInfo
+          conversation={conversation}
+          activity={activity}
+          business={business}
+          products={products}
+        />
       </InfoSheet>
     </div>
   );
