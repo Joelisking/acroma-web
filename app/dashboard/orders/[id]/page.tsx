@@ -3,8 +3,10 @@ import type { Metadata } from "next"
 
 import { getOrder } from "@/lib/api/orders"
 import { getCurrentBusiness } from "@/lib/api/business"
+import { listProducts } from "@/lib/api/products"
 import { ApiError } from "@/lib/api/server"
 import { OrderHeader } from "@/components/orders/order-header"
+import { EditOrderTrigger } from "@/components/orders/edit-order-trigger"
 import { OrderItems } from "@/components/orders/order-items"
 import { OrderStatusStepper } from "@/components/orders/order-status-stepper"
 import { OrderStatusControl } from "@/components/orders/order-status-control"
@@ -22,9 +24,10 @@ export const metadata: Metadata = { title: "Order · Acroma" }
 export default async function OrderDetailPage({ params }: PageProps) {
   const { id } = await params
 
-  const [business, order] = await Promise.all([
+  const [business, order, products] = await Promise.all([
     getCurrentBusiness(),
     safeGetOrder(id),
+    listProducts(),
   ])
   if (!business) return null
   if (!order) notFound()
@@ -34,6 +37,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <OrderHeader order={order} businessType={business.businessType} />
+      <EditOrderTrigger order={order} business={business} products={products} />
 
       <section
         className="card-warm p-6"
