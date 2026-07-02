@@ -11,6 +11,7 @@ import { OrderItems } from "@/components/orders/order-items"
 import { OrderStatusStepper } from "@/components/orders/order-status-stepper"
 import { OrderStatusControl } from "@/components/orders/order-status-control"
 import { PaymentLinkPanel } from "@/components/orders/payment-link-panel"
+import { PendingTopUpCard } from "@/components/orders/pending-topup-card"
 import { OrderQuickReplies } from "@/components/orders/order-quick-replies"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
 import { PickupCard } from "@/components/orders/pickup-card"
@@ -84,6 +85,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       ) : null}
 
       <PaymentLinkPanel order={order} />
+      <PendingTopUpCard order={order} />
 
       {/* Quick replies are goods/food canned messages; not relevant to an
           in-person appointment. */}
