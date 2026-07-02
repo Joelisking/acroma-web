@@ -1,23 +1,42 @@
+"use client";
+
+import * as React from "react";
+import { Plus } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ConversationStatusPill } from "./conversation-status-pill";
 import { ActivityTimeline } from "./activity-timeline";
 import { formatPhone, getInitials } from "@/lib/format";
-import type { AuditEntry, ConversationWithMessages } from "@/lib/api/types";
+import { OrderEditor } from "@/components/orders/order-editor";
+import type {
+  AuditEntry,
+  Business,
+  ConversationWithMessages,
+  Product,
+} from "@/lib/api/types";
 
 const SINCE_FORMAT: Intl.DateTimeFormatOptions = { month: "short", year: "numeric" };
 
 type ConversationInfoProps = {
   conversation: ConversationWithMessages;
   activity: AuditEntry[];
+  business: Business;
+  products: Product[];
 };
 
 /**
  * Shared detail panel for a conversation, shown in the desktop side column and
- * the mobile info sheet. Presentation-only — renders just what the conversation
- * + audit payloads already provide (identity, status, escalation, activity); no
- * extra fetch, no contract change.
+ * the mobile info sheet. Renders conversation identity/status/activity, plus
+ * a "Create order" action that opens the order editor prefilled with this
+ * customer — the escalated-custom-order path.
  */
-export function ConversationInfo({ conversation, activity }: ConversationInfoProps) {
+export function ConversationInfo({
+  conversation,
+  activity,
+  business,
+  products,
+}: ConversationInfoProps) {
+  const [editorOpen, setEditorOpen] = React.useState(false);
   const display = conversation.customerName?.trim() || formatPhone(conversation.customerPhone);
   const initials = getInitials(conversation.customerName, "·");
   const since = new Date(conversation.createdAt).toLocaleDateString(undefined, SINCE_FORMAT);
@@ -37,6 +56,9 @@ export function ConversationInfo({ conversation, activity }: ConversationInfoPro
           </p>
         </div>
         <ConversationStatusPill status={conversation.status} long />
+        <Button type="button" variant="outline" size="sm" onClick={() => setEditorOpen(true)}>
+          <Plus className="size-4" /> Create order
+        </Button>
       </div>
 
       {conversation.pendingOwnerSince && conversation.escalationReason ? (
@@ -51,6 +73,16 @@ export function ConversationInfo({ conversation, activity }: ConversationInfoPro
       <div className="card-warm overflow-hidden px-4">
         <ActivityTimeline entries={activity} className="border-t-0" />
       </div>
+
+      <OrderEditor
+        mode="create"
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        business={business}
+        products={products}
+        customerPhone={conversation.customerPhone}
+        customerName={conversation.customerName}
+      />
     </div>
   );
 }
