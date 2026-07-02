@@ -24,6 +24,7 @@ import type {
   Product,
 } from "@/lib/api/types";
 import { OrderLineRow, type EditableLine } from "./order-line-row";
+import { newKey, linesFromOrder, toLineInput } from "./order-editor-helpers";
 
 type OrderEditorProps = {
   open: boolean;
@@ -35,49 +36,6 @@ type OrderEditorProps = {
   | { mode: "create"; customerPhone: string; customerName?: string | null }
   | { mode: "edit"; order: Order }
 );
-
-function newKey() {
-  return Math.random().toString(36).slice(2);
-}
-
-function linesFromOrder(order: Order): EditableLine[] {
-  return order.items.map((item) =>
-    item.product
-      ? {
-          key: newKey(),
-          kind: "catalog" as const,
-          productId: item.product.id,
-          productName: item.product.name,
-          variantId: item.variantId ?? undefined,
-          unitPrice: item.unitPrice,
-          quantity: item.quantity,
-        }
-      : {
-          key: newKey(),
-          kind: "custom" as const,
-          customName: item.productName ?? "Item",
-          unitPrice: item.unitPrice,
-          quantity: item.quantity,
-        },
-  );
-}
-
-function toLineInput(line: EditableLine): OrderLineInput | null {
-  if (line.kind === "catalog") {
-    if (!line.productId) return null;
-    return {
-      productId: line.productId,
-      ...(line.variantId ? { variantId: line.variantId } : {}),
-      quantity: line.quantity,
-    };
-  }
-  if (!line.customName.trim() || line.unitPrice <= 0) return null;
-  return {
-    customName: line.customName.trim(),
-    unitPrice: line.unitPrice,
-    quantity: line.quantity,
-  };
-}
 
 /**
  * One sheet, two modes: author a brand-new order (from a conversation) or
