@@ -12,10 +12,11 @@ export function PendingTopUpCard({ order }: { order: Order }) {
   const [pending, startTransition] = React.useTransition();
   const topUp = order.pendingTopUp;
   if (!topUp) return null;
+  const topUpId = topUp.id;
 
   function approve() {
     startTransition(async () => {
-      const result = await approveTopUpAction(order.id, topUp!.id);
+      const result = await approveTopUpAction(order.id, topUpId);
       if (!result.ok) toast.error(result.error);
       else toast.success("Payment link sent to the customer on WhatsApp");
     });
@@ -23,7 +24,7 @@ export function PendingTopUpCard({ order }: { order: Order }) {
 
   function reject() {
     startTransition(async () => {
-      const result = await rejectTopUpAction(order.id, topUp!.id);
+      const result = await rejectTopUpAction(order.id, topUpId);
       if (!result.ok) toast.error(result.error);
       else toast.success("Change request dismissed");
     });
@@ -46,7 +47,7 @@ export function PendingTopUpCard({ order }: { order: Order }) {
       <ul className="divide-border/70 divide-y">
         {topUp.requestedItems.map((line, i) => (
           <li
-            key={`${line.productId ?? line.productName}-${i}`}
+            key={`${topUpId}-${line.productId ?? line.variantId ?? line.productName}-${i}`}
             className="flex items-center gap-4 py-2 text-sm"
           >
             <span
