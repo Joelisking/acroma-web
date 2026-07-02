@@ -40,7 +40,7 @@ export function OrderItems({
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-foreground truncate font-medium">
-                {item.product.name}
+                {item.product?.name ?? item.productName ?? "Item"}
               </p>
               <p className="text-muted-foreground text-xs tabular-nums">
                 {formatMoney(item.unitPrice, currency)} each

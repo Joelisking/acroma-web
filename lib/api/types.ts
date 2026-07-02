@@ -236,11 +236,12 @@ export type OrderStatus =
 export type OrderItem = {
   id: string;
   orderId: string;
-  productId: string;
+  productId: string | null;
   variantId: string | null;
   quantity: number;
   unitPrice: number;
-  product: { id: string; name: string };
+  productName: string | null;
+  product: { id: string; name: string } | null;
 };
 
 // ---------------------------------------------------------------------------

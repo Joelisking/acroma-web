@@ -66,10 +66,10 @@ export function shortId(id: string): string {
  * Returns "" for an empty list so callers can branch on it.
  */
 export function formatItemsSummary(
-  items: { quantity: number; product: { name: string } }[],
+  items: { quantity: number; productName?: string | null; product: { name: string } | null }[],
 ): string {
   return items
-    .map((item) => `${item.quantity}× ${item.product.name}`)
+    .map((item) => `${item.quantity}× ${item.product?.name ?? item.productName ?? "Item"}`)
     .join(", ");
 }
 
