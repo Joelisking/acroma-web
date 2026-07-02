@@ -108,6 +108,7 @@ export function OrderLineRow({
         <>
           <Input
             placeholder="Item name"
+            aria-label="Item name"
             className="h-11"
             value={line.customName}
             onChange={(e) => onChange({ ...line, customName: e.target.value })}
@@ -118,6 +119,7 @@ export function OrderLineRow({
             step="0.01"
             min={0.01}
             placeholder="Price"
+            aria-label="Unit price"
             className="h-11 tabular-nums"
             value={line.unitPrice || ""}
             onChange={(e) =>
@@ -133,6 +135,7 @@ export function OrderLineRow({
           inputMode="numeric"
           min={1}
           step={1}
+          aria-label="Quantity"
           className="h-9 w-20 tabular-nums"
           value={line.quantity}
           onChange={(e) =>
