@@ -189,3 +189,39 @@ export async function editOrderAction(
     return { ok: false, error: "Couldn't update the order" };
   }
 }
+
+export async function approveTopUpAction(
+  orderId: string,
+  topUpId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await apiFetch(`/orders/${orderId}/topups/${topUpId}/approve`, {
+      method: "POST",
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    return { ok: true, data: undefined };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't send the payment link" };
+    }
+    return { ok: false, error: "Couldn't send the payment link" };
+  }
+}
+
+export async function rejectTopUpAction(
+  orderId: string,
+  topUpId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await apiFetch(`/orders/${orderId}/topups/${topUpId}/reject`, {
+      method: "POST",
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    return { ok: true, data: undefined };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't reject the change" };
+    }
+    return { ok: false, error: "Couldn't reject the change" };
+  }
+}

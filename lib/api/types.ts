@@ -393,6 +393,8 @@ export type Order = {
   createdAt: string;
   updatedAt: string;
   items: OrderItem[];
+  /** Present only on GET /orders/:id (the list endpoint doesn't include it). */
+  pendingTopUp?: OrderTopUp | null;
 };
 
 export type OrderLineInput =
@@ -414,6 +416,45 @@ export type EditOrderInput = {
   items: OrderLineInput[];
   fulfillment?: OrderFulfillment;
   deliveryAddress?: string;
+};
+
+/**
+ * Mirrors Prisma's `OrderTopUpStatus` enum. Character-identical to the
+ * backend. Source of truth: `acroma-backend/prisma/schema.prisma`.
+ */
+export type OrderTopUpStatus = "PENDING" | "PAID" | "CANCELLED";
+
+/**
+ * A single resolved line captured on an `OrderTopUp`. Mirrors the backend's
+ * `OrderWriterService.ResolvedLine` shape (already-resolved, priced items —
+ * not the raw `OrderLineInput[]` the merchant/AI originally sent).
+ */
+export type OrderTopUpLine = {
+  productId: string | null;
+  variantId: string | null;
+  productName: string;
+  unitPrice: number;
+  quantity: number;
+};
+
+/**
+ * A supplemental payment request captured when a customer asks to change
+ * items on an order that's already paid. See
+ * `acroma-backend/docs/superpowers/specs/2026-07-02-paid-order-topup-design.md`.
+ */
+export type OrderTopUp = {
+  id: string;
+  orderId: string;
+  status: OrderTopUpStatus;
+  requestedItems: OrderTopUpLine[];
+  newSubtotal: number;
+  newTotal: number;
+  deltaAmount: number;
+  paystackRef: string | null;
+  paystackAuthUrl: string | null;
+  escalationReason: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // ---------------------------------------------------------------------------
