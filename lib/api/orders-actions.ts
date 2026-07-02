@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
-import type { Order, OrderStatus } from "./types";
+import type {
+  CreateOrderInput,
+  EditOrderInput,
+  Order,
+  OrderStatus,
+} from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
@@ -143,5 +148,44 @@ export async function updateDeliveryAddressAction(
       };
     }
     return { ok: false, error: "Couldn't update delivery address" };
+  }
+}
+
+export async function createOrderAction(
+  input: CreateOrderInput,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>("/orders", {
+      method: "POST",
+      body: input,
+    });
+    revalidatePath("/dashboard/orders");
+    revalidatePath("/dashboard/conversations");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't create the order" };
+    }
+    return { ok: false, error: "Couldn't create the order" };
+  }
+}
+
+export async function editOrderAction(
+  orderId: string,
+  input: EditOrderInput,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}`, {
+      method: "PATCH",
+      body: input,
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't update the order" };
+    }
+    return { ok: false, error: "Couldn't update the order" };
   }
 }

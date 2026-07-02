@@ -395,6 +395,27 @@ export type Order = {
   items: OrderItem[];
 };
 
+export type OrderLineInput =
+  | { productId: string; variantId?: string; quantity: number }
+  | { customName: string; unitPrice: number; quantity: number };
+
+export type CreateOrderInput = {
+  customerPhone: string;
+  customerName?: string;
+  preferredName?: string;
+  fulfillment: OrderFulfillment;
+  deliveryAddress?: string;
+  paymentMethod: PaymentMethod;
+  items: OrderLineInput[];
+  discountCode?: string;
+};
+
+export type EditOrderInput = {
+  items: OrderLineInput[];
+  fulfillment?: OrderFulfillment;
+  deliveryAddress?: string;
+};
+
 // ---------------------------------------------------------------------------
 // Payments — payout account (Paystack subaccount)
 // ---------------------------------------------------------------------------
