@@ -1,4 +1,8 @@
-import type { DashboardFilter, DashboardRange } from "@/lib/api/types";
+import type {
+  AnalyticsFilter,
+  DashboardFilter,
+  DashboardRange,
+} from "@/lib/api/types";
 
 /** The fallback filter when a merchant has no saved default. */
 export const DEFAULT_DASHBOARD_FILTER: DashboardFilter = { range: "TODAY" };
@@ -28,6 +32,10 @@ const COMPARE_TARGETS: Record<DashboardRange, string> = {
   YESTERDAY: "the day before",
   THIS_WEEK: "last week",
   THIS_MONTH: "last month",
+  LAST_6_HOURS: "the previous 6 hours",
+  LAST_12_HOURS: "the previous 12 hours",
+  LAST_24_HOURS: "the previous 24 hours",
+  LAST_48_HOURS: "the previous 48 hours",
   LAST_7_DAYS: "the previous 7 days",
   LAST_30_DAYS: "the previous 30 days",
   LAST_90_DAYS: "the previous 90 days",
@@ -57,6 +65,32 @@ export function filterToQuery(filter: DashboardFilter): string {
     params.set("customerSegment", filter.customerSegment);
   if (filter.customerPhone) params.set("customerPhone", filter.customerPhone);
   if (filter.compare && canCompare(filter)) params.set("compare", "true");
+  return params.toString();
+}
+
+/** Presets shown on the Analytics range selector (adds hour windows). */
+export const ANALYTICS_RANGE_OPTIONS: { value: DashboardRange; label: string }[] =
+  [
+    { value: "LAST_6_HOURS", label: "Last 6 hours" },
+    { value: "LAST_12_HOURS", label: "Last 12 hours" },
+    { value: "LAST_24_HOURS", label: "Last 24 hours" },
+    { value: "LAST_48_HOURS", label: "Last 48 hours" },
+    { value: "TODAY", label: "Today" },
+    { value: "YESTERDAY", label: "Yesterday" },
+    { value: "LAST_7_DAYS", label: "Last 7 days" },
+    { value: "LAST_30_DAYS", label: "Last 30 days" },
+    { value: "LAST_90_DAYS", label: "Last 90 days" },
+    { value: "THIS_MONTH", label: "This month" },
+    { value: "LIFETIME", label: "Lifetime" },
+    { value: "CUSTOM", label: "Custom range" },
+  ];
+
+/** Builds the query string for GET /dashboard/product-revenue. */
+export function analyticsFilterToQuery(filter: AnalyticsFilter): string {
+  const params = new URLSearchParams();
+  params.set("range", filter.range);
+  if (filter.startDate) params.set("startDate", filter.startDate);
+  if (filter.endDate) params.set("endDate", filter.endDate);
   return params.toString();
 }
 

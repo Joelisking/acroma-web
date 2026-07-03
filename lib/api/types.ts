@@ -582,6 +582,10 @@ export type DashboardRange =
   | "YESTERDAY"
   | "THIS_WEEK"
   | "THIS_MONTH"
+  | "LAST_6_HOURS"
+  | "LAST_12_HOURS"
+  | "LAST_24_HOURS"
+  | "LAST_48_HOURS"
   | "LAST_7_DAYS"
   | "LAST_30_DAYS"
   | "LAST_90_DAYS"
@@ -623,6 +627,37 @@ export type DashboardStats = {
       revenue: number | null;
     };
   };
+};
+
+export type ProductRevenueRow = {
+  productId: string | null;
+  name: string;
+  revenue: number;
+  unitsSold: number;
+  orderCount: number;
+  pctOfTotal: number;
+};
+
+export type ProductRevenueSeriesPoint = {
+  bucket: string;
+  [seriesKey: string]: number | string;
+};
+
+/** Mirrors the backend ProductRevenueReport. */
+export type ProductRevenueReport = {
+  range: { start: string; end: string; label: string };
+  currency: string;
+  totalRevenue: number;
+  bucket: "hour" | "day";
+  products: ProductRevenueRow[];
+  seriesKeys: string[];
+  series: ProductRevenueSeriesPoint[];
+};
+
+export type AnalyticsFilter = {
+  range: DashboardRange;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type DashboardActivityConversation = {

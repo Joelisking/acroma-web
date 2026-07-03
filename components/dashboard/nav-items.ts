@@ -8,6 +8,7 @@ import {
   Ticket,
   Wallet,
   Settings,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import type { Vocabulary } from "@/lib/vocabulary";
@@ -62,6 +63,12 @@ export function getSecondaryNav(): NavGroup[] {
         { href: "/dashboard/customers", label: "Customers", icon: Users },
         { href: "/dashboard/broadcasts", label: "Broadcasts", icon: Megaphone },
         { href: "/dashboard/discounts", label: "Discounts", icon: Ticket },
+      ],
+    },
+    {
+      label: "Measure",
+      items: [
+        { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
       ],
     },
     {

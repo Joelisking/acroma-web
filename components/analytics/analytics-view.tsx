@@ -1,0 +1,104 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { AnalyticsFilterBar } from "./analytics-filter-bar";
+import { ProductRevenueTable } from "./product-revenue-table";
+import { useProductRevenue } from "./use-product-revenue";
+import { formatMoney } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import type { AnalyticsFilter, ProductRevenueReport } from "@/lib/api/types";
+
+const ChartSkeleton = () => (
+  <div className="bg-muted h-[260px] w-full animate-pulse rounded-lg" />
+);
+
+const BarChart = dynamic(
+  () =>
+    import("./product-revenue-bar-chart").then(
+      (m) => m.ProductRevenueBarChart,
+    ),
+  { ssr: false, loading: ChartSkeleton },
+);
+const TrendChart = dynamic(
+  () =>
+    import("./product-revenue-trend-chart").then(
+      (m) => m.ProductRevenueTrendChart,
+    ),
+  { ssr: false, loading: ChartSkeleton },
+);
+
+type Props = {
+  initialFilter: AnalyticsFilter;
+  initialReport: ProductRevenueReport;
+};
+
+export function AnalyticsView({ initialFilter, initialReport }: Props) {
+  const { filter, report, error, isPending, applyFilter } = useProductRevenue(
+    initialFilter,
+    initialReport,
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-muted-foreground text-sm font-medium">
+            Total revenue · {report.range.label}
+          </p>
+          <p className="text-foreground text-3xl font-semibold tracking-tight tabular-nums">
+            {formatMoney(report.totalRevenue, report.currency)}
+          </p>
+        </div>
+        <AnalyticsFilterBar filter={filter} onChange={applyFilter} />
+      </div>
+
+      {error ? (
+        <p className="text-destructive text-sm" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <div
+        className={cn(
+          "grid gap-6 lg:grid-cols-2",
+          isPending && "opacity-60",
+        )}
+      >
+        <section
+          className="bg-card rounded-xl border p-4"
+          aria-label="Revenue by product"
+        >
+          <h2 className="text-foreground mb-3 text-sm font-semibold">
+            Top products
+          </h2>
+          <BarChart products={report.products} currency={report.currency} />
+        </section>
+
+        <section
+          className="bg-card rounded-xl border p-4"
+          aria-label="Revenue over time"
+        >
+          <h2 className="text-foreground mb-3 text-sm font-semibold">
+            Revenue over time
+          </h2>
+          <TrendChart
+            series={report.series}
+            seriesKeys={report.seriesKeys}
+            currency={report.currency}
+            bucket={report.bucket}
+          />
+        </section>
+      </div>
+
+      <section
+        className="bg-card rounded-xl border p-4"
+        aria-label="Product revenue breakdown"
+      >
+        <ProductRevenueTable
+          products={report.products}
+          currency={report.currency}
+        />
+      </section>
+    </div>
+  );
+}
