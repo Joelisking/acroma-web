@@ -7,7 +7,7 @@ import { ChevronRight, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getSecondaryNav, isNavActive } from "./nav-items";
+import { getSecondaryNav, isNavActive, type NavGroup } from "./nav-items";
 import { getInitials } from "./account-menu";
 import { logoutAction } from "@/lib/api/auth";
 import { cn } from "@/lib/utils";
@@ -23,14 +23,18 @@ export function MobileMoreSheet({
   onOpenChange,
   name,
   email,
+  groups,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   name: string;
   email: string;
+  /** Defaults to the full secondary nav (mobile); the tablet rail passes its
+   *  own reduced set since it promotes some items into the rail itself. */
+  groups?: NavGroup[];
 }) {
   const pathname = usePathname();
-  const groups = getSecondaryNav();
+  const navGroups = groups ?? getSecondaryNav();
   const [pending, startTransition] = React.useTransition();
 
   return (
@@ -60,7 +64,7 @@ export function MobileMoreSheet({
         </div>
 
         <div className="mt-4 flex flex-col gap-5">
-          {groups.map((group) => (
+          {navGroups.map((group) => (
             <div key={group.label}>
               <p className="text-muted-foreground px-1 pb-1.5 text-xs font-semibold tracking-wide uppercase">
                 {group.label}

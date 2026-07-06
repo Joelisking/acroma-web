@@ -58,6 +58,19 @@ export function AnalyticsView({ initialFilter, initialReport }: Props) {
         </p>
       ) : null}
 
+      <section
+        className={cn(
+          "bg-card rounded-xl border p-4",
+          isPending && "opacity-60",
+        )}
+        aria-label="Product revenue breakdown"
+      >
+        <ProductRevenueTable
+          products={report.products}
+          currency={report.currency}
+        />
+      </section>
+
       <div
         className={cn(
           "grid gap-6 lg:grid-cols-2",
@@ -89,16 +102,6 @@ export function AnalyticsView({ initialFilter, initialReport }: Props) {
           />
         </section>
       </div>
-
-      <section
-        className="bg-card rounded-xl border p-4"
-        aria-label="Product revenue breakdown"
-      >
-        <ProductRevenueTable
-          products={report.products}
-          currency={report.currency}
-        />
-      </section>
     </div>
   );
 }

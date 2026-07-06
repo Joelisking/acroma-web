@@ -36,10 +36,16 @@ export type NavBadge = {
 
 export type NavBadges = Partial<Record<string, NavBadge>>;
 
+const ANALYTICS_NAV: NavItem = {
+  href: "/dashboard/analytics",
+  label: "Analytics",
+  icon: BarChart3,
+};
+
 /**
  * The four surfaces a merchant lives in during the day. These are the mobile
- * bottom-tab destinations and the top group of the desktop sidebar. Labels
- * swap per vertical (Orders↔Bookings, Catalog↔Menu); routes never change.
+ * bottom-tab destinations. Labels swap per vertical (Orders↔Bookings,
+ * Catalog↔Menu); routes never change.
  */
 export function getPrimaryNav(vocab: Vocabulary): NavItem[] {
   return [
@@ -51,9 +57,21 @@ export function getPrimaryNav(vocab: Vocabulary): NavItem[] {
 }
 
 /**
- * Secondary destinations, grouped. On desktop these render as labelled groups
- * under the primary nav; on mobile they live in the "More" drawer behind the
- * profile tab, so the bottom bar stays at four core tabs plus the avatar.
+ * The main nav for surfaces with room for it — the desktop sidebar's top group
+ * and the tablet rail. Promotes Analytics alongside the four core surfaces.
+ * The mobile bottom bar stays at four (see getPrimaryNav); Analytics lives in
+ * its "More" drawer instead.
+ */
+export function getWideNav(vocab: Vocabulary): NavItem[] {
+  return [...getPrimaryNav(vocab), ANALYTICS_NAV];
+}
+
+/** Hrefs promoted into the wide/main nav, so wider surfaces don't list them twice. */
+const WIDE_PROMOTED_HREFS = new Set<string>([ANALYTICS_NAV.href]);
+
+/**
+ * Secondary destinations, grouped. The full set (including Measure/Analytics)
+ * backs the mobile "More" drawer, so the bottom bar stays at four core tabs.
  */
 export function getSecondaryNav(): NavGroup[] {
   return [
@@ -67,9 +85,7 @@ export function getSecondaryNav(): NavGroup[] {
     },
     {
       label: "Measure",
-      items: [
-        { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-      ],
+      items: [ANALYTICS_NAV],
     },
     {
       label: "Account",
@@ -81,13 +97,34 @@ export function getSecondaryNav(): NavGroup[] {
   ];
 }
 
-/** Routes that count as "secondary", used to light the mobile More tab. */
-export function isSecondaryRoute(pathname: string): boolean {
+/**
+ * Secondary nav for wide surfaces (desktop sidebar, tablet rail), with the
+ * items already promoted into the main nav removed so they don't appear twice.
+ * Empty groups are dropped.
+ */
+export function getWideSecondaryNav(): NavGroup[] {
   return getSecondaryNav()
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((i) => !WIDE_PROMOTED_HREFS.has(i.href)),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
+/** Routes that count as "secondary" on mobile, used to light the More tab. */
+export function isSecondaryRoute(pathname: string): boolean {
+  return routeInGroups(getSecondaryNav(), pathname);
+}
+
+/** Routes behind "More" on wide surfaces (excludes items promoted to the rail). */
+export function isWideSecondaryRoute(pathname: string): boolean {
+  return routeInGroups(getWideSecondaryNav(), pathname);
+}
+
+function routeInGroups(groups: NavGroup[], pathname: string): boolean {
+  return groups
     .flatMap((g) => g.items)
-    .some(
-      (i) => pathname === i.href || pathname.startsWith(`${i.href}/`),
-    );
+    .some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`));
 }
 
 /** Active-state test that ignores the index route's prefix-match trap. */

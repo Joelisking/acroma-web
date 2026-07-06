@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  getPrimaryNav,
-  getSecondaryNav,
+  getWideNav,
+  getWideSecondaryNav,
   isNavActive,
   type NavBadge,
   type NavBadges,
@@ -25,8 +25,8 @@ type SidebarNavProps = {
  */
 export function SidebarNav({ badges, vocab }: SidebarNavProps) {
   const pathname = usePathname();
-  const primary = getPrimaryNav(vocab);
-  const groups = getSecondaryNav();
+  const primary = getWideNav(vocab);
+  const groups = getWideSecondaryNav();
 
   return (
     <nav className="flex flex-col gap-5" aria-label="Primary">

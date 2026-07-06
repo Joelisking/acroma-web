@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  getPrimaryNav,
+  getWideNav,
+  getWideSecondaryNav,
   isNavActive,
-  isSecondaryRoute,
+  isWideSecondaryRoute,
   type NavBadges,
 } from "./nav-items";
 import { getInitials } from "./account-menu";
@@ -32,8 +33,8 @@ type TabletRailProps = {
 export function TabletRail({ badges, vocab, name, email }: TabletRailProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = React.useState(false);
-  const items = getPrimaryNav(vocab);
-  const moreActive = isSecondaryRoute(pathname);
+  const items = getWideNav(vocab);
+  const moreActive = isWideSecondaryRoute(pathname);
 
   return (
     <>
@@ -119,6 +120,7 @@ export function TabletRail({ badges, vocab, name, email }: TabletRailProps) {
         onOpenChange={setMoreOpen}
         name={name}
         email={email}
+        groups={getWideSecondaryNav()}
       />
     </>
   );
