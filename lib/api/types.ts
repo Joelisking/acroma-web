@@ -113,12 +113,22 @@ export type ConversationStatus =
 
 export type MessageSender = "CUSTOMER" | "AI" | "OWNER";
 
+// Mirrors the backend `MessageMediaType` enum (prisma/schema.prisma).
+export type MessageMediaType = "IMAGE" | "DOCUMENT";
+
 export type Message = {
   id: string;
   conversationId: string;
   sender: MessageSender;
   content: string;
   whatsappMsgId: string | null;
+  // Renderable media. `mediaUrl` (a public CDN URL) is set for media WE send
+  // (menu, product images) and renders directly. Customer-sent media has only
+  // a WhatsApp id on the backend; the dashboard fetches those through the
+  // same-origin media proxy route by message id.
+  mediaType: MessageMediaType | null;
+  mediaUrl: string | null;
+  mediaFilename: string | null;
   createdAt: string;
 };
 

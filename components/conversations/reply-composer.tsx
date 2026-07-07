@@ -65,6 +65,9 @@ function ActiveComposer({
       sender: "OWNER",
       content: trimmed,
       whatsappMsgId: null,
+      mediaType: null,
+      mediaUrl: null,
+      mediaFilename: null,
       createdAt: new Date().toISOString(),
     };
     onOptimisticAppend?.(tempMessage);

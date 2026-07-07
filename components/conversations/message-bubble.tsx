@@ -2,6 +2,11 @@ import { Bot } from "lucide-react";
 import type { Message } from "@/lib/api/types";
 import { linkify } from "@/lib/linkify";
 import { cn } from "@/lib/utils";
+import { MessageMedia } from "./message-media";
+
+// When media renders, don't also print the bracketed placeholder we stored as
+// the message content (or the empty string used for pure-media messages).
+const MEDIA_PLACEHOLDERS = new Set(["[image]", ""]);
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
   hour: "numeric",
@@ -11,6 +16,10 @@ const TIME_FORMAT: Intl.DateTimeFormatOptions = {
 export function MessageBubble({ message }: { message: Message }) {
   const isCustomer = message.sender === "CUSTOMER";
   const isAi = message.sender === "AI";
+  const hasMedia = message.mediaType !== null;
+  const showText =
+    message.content.length > 0 &&
+    !(hasMedia && MEDIA_PLACEHOLDERS.has(message.content));
 
   return (
     <div
@@ -34,7 +43,12 @@ export function MessageBubble({ message }: { message: Message }) {
             <Bot className="size-3" strokeWidth={2.25} /> Acroma AI
           </span>
         ) : null}
-        {linkify(message.content)}
+        {hasMedia ? <MessageMedia message={message} /> : null}
+        {showText ? (
+          <div className={cn(hasMedia && "mt-1.5")}>
+            {linkify(message.content)}
+          </div>
+        ) : null}
       </div>
       <span className="text-muted-foreground px-1 text-[0.7rem] tabular-nums">
         {new Date(message.createdAt).toLocaleTimeString(undefined, TIME_FORMAT)}
