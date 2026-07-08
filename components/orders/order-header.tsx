@@ -5,6 +5,7 @@ import { OrderStatusBadge } from "./order-status-badge";
 import { PaymentMethodBadge } from "./payment-method-badge";
 import { FulfillmentBadge } from "./fulfillment-badge";
 import { DiscountBadge } from "./discount-badge";
+import { OrderChatButton } from "./order-chat-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
   formatItemsSummary,
@@ -62,6 +63,8 @@ export function OrderHeader({
               />
             </span>
           </div>
+
+          <OrderChatButton orderId={order.id} className="mt-4" />
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">

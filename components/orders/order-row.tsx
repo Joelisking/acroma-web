@@ -13,6 +13,7 @@ import type { BusinessType, Order } from "@/lib/api/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderCardAction } from "./order-card-action";
+import { OrderChatButton } from "./order-chat-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { firstUrl } from "@/lib/linkify";
 import {
@@ -149,11 +150,14 @@ export function OrderRow({
               >
                 {formatPhone(order.customerPhone)}
               </a>
-              <CopyButton
-                value={order.customerPhone}
-                label="Copy phone number"
-                className="relative z-10 ml-auto"
-              />
+              <div className="ml-auto flex items-center gap-1.5">
+                <CopyButton
+                  value={order.customerPhone}
+                  label="Copy phone number"
+                  className="relative z-10"
+                />
+                <OrderChatButton orderId={order.id} />
+              </div>
             </div>
             {/* Services happen in person at the merchant's location (the
                 appointment time is shown above), so no pickup/delivery row. */}
