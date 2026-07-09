@@ -8,6 +8,7 @@ import {
   CalendarClock,
   AlertCircle,
   Navigation,
+  StickyNote,
 } from "lucide-react";
 import type { BusinessType, Order } from "@/lib/api/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -129,6 +130,13 @@ export function OrderRow({
           {itemsSummary ? (
             <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">
               {itemsSummary}
+            </p>
+          ) : null}
+
+          {order.notes ? (
+            <p className="text-foreground/75 mt-1.5 flex items-start gap-1.5 text-xs">
+              <StickyNote className="mt-0.5 size-3 shrink-0" aria-hidden />
+              <span className="line-clamp-2 break-words">{order.notes}</span>
             </p>
           ) : null}
 

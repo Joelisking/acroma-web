@@ -1,5 +1,5 @@
 import type { OrderItem } from "@/lib/api/types";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatVariantAttributes } from "@/lib/format";
 
 type Props = {
   items: OrderItem[];
@@ -42,6 +42,11 @@ export function OrderItems({
               <p className="text-foreground truncate font-medium">
                 {item.product?.name ?? item.productName ?? "Item"}
               </p>
+              {item.variant?.attributes ? (
+                <p className="text-foreground/80 truncate text-xs font-medium">
+                  {formatVariantAttributes(item.variant.attributes)}
+                </p>
+              ) : null}
               <p className="text-muted-foreground text-xs tabular-nums">
                 {formatMoney(item.unitPrice, currency)} each
               </p>

@@ -252,6 +252,9 @@ export type OrderItem = {
   unitPrice: number;
   productName: string | null;
   product: { id: string; name: string } | null;
+  /** The variant the customer chose (e.g. { Size: "Large" }), when the item has
+   *  variants. Null for plain items. */
+  variant: { attributes: Record<string, string> } | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -405,6 +408,9 @@ export type Order = {
   refundMomoNumber: string | null;
   refundMomoName: string | null;
   refundedAt: string | null;
+  /** Set when the merchant has removed the order from the dashboard. Hidden
+   *  from the default list; recoverable via the Archived filter. */
+  archivedAt: string | null;
   discount: OrderDiscount | null;
   createdAt: string;
   updatedAt: string;

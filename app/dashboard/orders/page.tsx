@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { cookies } from "next/headers";
+import { Archive, ArrowLeft } from "lucide-react";
 import {
   startOfMonth,
   endOfMonth,
@@ -12,8 +14,10 @@ import { listOrders } from "@/lib/api/orders";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getVocabulary } from "@/lib/vocabulary";
 import { HOME_COOKIE } from "@/lib/home-preference";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { HomePreferenceToggle } from "@/components/dashboard/home-preference-toggle";
+import { ArchivedOrders } from "@/components/orders/archived-orders";
 import { OrdersBoard } from "@/components/orders/orders-board";
 import { OrdersView } from "@/components/orders/orders-view";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
@@ -25,6 +29,7 @@ type PageProps = {
     view?: string;
     mode?: string;
     date?: string;
+    archived?: string;
   }>;
 };
 
@@ -35,6 +40,31 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   const vocab = getVocabulary(business.businessType);
   const isServices = business.businessType === "SERVICES";
+
+  // Removed-orders view: a flat list of archived orders, each with a restore
+  // control. Kept off the main board so it never clutters the live operating view.
+  if (sp.archived === "true") {
+    const archived = await listOrders({ archived: true });
+    return (
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <PageHeader
+          title={`Removed ${vocab.orders.toLowerCase()}`}
+          description="Orders you took off your board. Restore any of them anytime."
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/orders">
+                <ArrowLeft className="size-4" />
+                Back to {vocab.orders.toLowerCase()}
+              </Link>
+            </Button>
+          }
+        />
+        <ArchivedOrders orders={archived} businessType={business.businessType} />
+        <LiveRefresh businessId={business.id} events={["order_updated"]} />
+      </div>
+    );
+  }
+
   const homeIsOrders =
     (await cookies()).get(HOME_COOKIE)?.value === "orders";
 
@@ -80,7 +110,17 @@ export default async function OrdersPage({ searchParams }: PageProps) {
             ? "Manage every booking from request to showed-up."
             : "Your live board, from new order to delivered."
         }
-        actions={<HomePreferenceToggle surface="orders" isHome={homeIsOrders} />}
+        actions={
+          <>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/dashboard/orders?archived=true">
+                <Archive className="size-4" />
+                Removed
+              </Link>
+            </Button>
+            <HomePreferenceToggle surface="orders" isHome={homeIsOrders} />
+          </>
+        }
       />
 
       {isServices ? (

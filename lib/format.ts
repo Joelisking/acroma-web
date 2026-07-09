@@ -62,14 +62,42 @@ export function shortId(id: string): string {
 }
 
 /**
- * Compact summary of what was ordered, e.g. "2× Jollof Rice, 1× Soft Drink".
- * Returns "" for an empty list so callers can branch on it.
+ * Render a variant's chosen attributes for display, e.g. { Size: "Large" } →
+ * "Size: Large". With `valuesOnly`, drops the keys → "Large" (for compact
+ * summaries). Returns "" when there are no attributes.
+ */
+export function formatVariantAttributes(
+  attributes: Record<string, string> | null | undefined,
+  opts?: { valuesOnly?: boolean },
+): string {
+  if (!attributes) return "";
+  const entries = Object.entries(attributes);
+  if (entries.length === 0) return "";
+  return entries
+    .map(([k, v]) => (opts?.valuesOnly ? v : `${k}: ${v}`))
+    .join(opts?.valuesOnly ? ", " : " · ");
+}
+
+/**
+ * Compact summary of what was ordered, e.g. "2× Jollof Rice, 1× Kelewele
+ * (Large)". Returns "" for an empty list so callers can branch on it.
  */
 export function formatItemsSummary(
-  items: { quantity: number; productName?: string | null; product: { name: string } | null }[],
+  items: {
+    quantity: number;
+    productName?: string | null;
+    product: { name: string } | null;
+    variant?: { attributes: Record<string, string> } | null;
+  }[],
 ): string {
   return items
-    .map((item) => `${item.quantity}× ${item.product?.name ?? item.productName ?? "Item"}`)
+    .map((item) => {
+      const name = item.product?.name ?? item.productName ?? "Item";
+      const variant = formatVariantAttributes(item.variant?.attributes, {
+        valuesOnly: true,
+      });
+      return `${item.quantity}× ${name}${variant ? ` (${variant})` : ""}`;
+    })
     .join(", ");
 }
 

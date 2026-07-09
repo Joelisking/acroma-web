@@ -100,6 +100,45 @@ export async function delayOrderAction(
   }
 }
 
+// Remove an order from the dashboard (soft-remove, recoverable). Cancels it
+// first if it still holds reserved stock, then hides it from the default list.
+export async function archiveOrderAction(
+  orderId: string,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/archive`, {
+      method: "PATCH",
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't remove the order" };
+    }
+    return { ok: false, error: "Couldn't remove the order" };
+  }
+}
+
+// Recover a removed order back into the list.
+export async function unarchiveOrderAction(
+  orderId: string,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/unarchive`, {
+      method: "PATCH",
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't restore the order" };
+    }
+    return { ok: false, error: "Couldn't restore the order" };
+  }
+}
+
 export async function markOrdersPaidAction(
   orderIds: string[],
   amountPaid?: number,

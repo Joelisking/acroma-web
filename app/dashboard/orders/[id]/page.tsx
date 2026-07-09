@@ -17,6 +17,7 @@ import { PendingTopUpCard } from "@/components/orders/pending-topup-card"
 import { OrderQuickReplies } from "@/components/orders/order-quick-replies"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
 import { OrderNotesCard } from "@/components/orders/order-notes-card"
+import { OrderRemoveButton } from "@/components/orders/order-remove-button"
 import { PickupCard } from "@/components/orders/pickup-card"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
 import { formatAppointment } from "@/lib/format-datetime"
@@ -126,6 +127,26 @@ export default async function OrderDetailPage({ params }: PageProps) {
       </section>
 
       <OrderNotesCard orderId={order.id} notes={order.notes} />
+
+      <section
+        aria-label="Manage order"
+        className="border-border/60 flex flex-wrap items-center justify-between gap-3 border-t pt-6"
+      >
+        <div>
+          <p className="text-foreground text-sm font-medium">
+            {order.archivedAt ? "This order is removed" : "Remove this order"}
+          </p>
+          <p className="text-muted-foreground text-xs">
+            {order.archivedAt
+              ? "It's hidden from your orders list. Restore it to bring it back."
+              : "Take it off your board. You can restore it later from the Removed filter."}
+          </p>
+        </div>
+        <OrderRemoveButton
+          orderId={order.id}
+          archived={order.archivedAt != null}
+        />
+      </section>
 
       <LiveRefresh businessId={business.id} events={["order_updated"]} />
     </div>
