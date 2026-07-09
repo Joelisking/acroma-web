@@ -151,6 +151,30 @@ export async function updateDeliveryAddressAction(
   }
 }
 
+export async function updateOrderNotesAction(
+  orderId: string,
+  notes: string,
+): Promise<ActionResult<Order>> {
+  const trimmed = notes.trim();
+  if (trimmed.length > 2000) {
+    return { ok: false, error: "Note is too long (max 2000 characters)" };
+  }
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/notes`, {
+      method: "PATCH",
+      body: { notes: trimmed },
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't save the note" };
+    }
+    return { ok: false, error: "Couldn't save the note" };
+  }
+}
+
 export async function createOrderAction(
   input: CreateOrderInput,
 ): Promise<ActionResult<Order>> {

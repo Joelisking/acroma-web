@@ -14,6 +14,7 @@ import { PaymentLinkPanel } from "@/components/orders/payment-link-panel"
 import { PendingTopUpCard } from "@/components/orders/pending-topup-card"
 import { OrderQuickReplies } from "@/components/orders/order-quick-replies"
 import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
+import { OrderNotesCard } from "@/components/orders/order-notes-card"
 import { PickupCard } from "@/components/orders/pickup-card"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
 import { formatAppointment } from "@/lib/format-datetime"
@@ -117,19 +118,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         />
       </section>
 
-      {order.notes ? (
-        <section
-          className="card-warm p-5"
-          aria-label="Notes"
-        >
-          <p className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
-            Notes
-          </p>
-          <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-            {order.notes}
-          </p>
-        </section>
-      ) : null}
+      <OrderNotesCard orderId={order.id} notes={order.notes} />
 
       <LiveRefresh businessId={business.id} events={["order_updated"]} />
     </div>
