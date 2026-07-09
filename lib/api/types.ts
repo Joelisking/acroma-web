@@ -399,6 +399,12 @@ export type Order = {
   discountAmount: number;
   scheduledFor: string | null;
   amountPaid: number | null;
+  // Refund owed after a correction dropped the total below what was collected.
+  // > 0 means outstanding; the merchant refunds manually (no auto-refund).
+  refundDueAmount: number;
+  refundMomoNumber: string | null;
+  refundMomoName: string | null;
+  refundedAt: string | null;
   discount: OrderDiscount | null;
   createdAt: string;
   updatedAt: string;
@@ -435,6 +441,13 @@ export type EditOrderInput = {
 export type OrderTopUpStatus = "PENDING" | "PAID" | "CANCELLED";
 
 /**
+ * Mirrors Prisma's `OrderTopUpKind` enum. Character-identical to the backend.
+ * ADD_ON — customer-initiated add; items applied on payment.
+ * CORRECTION — merchant correction; items already applied, ledger tracks balance.
+ */
+export type OrderTopUpKind = "ADD_ON" | "CORRECTION";
+
+/**
  * A single resolved line captured on an `OrderTopUp`. Mirrors the backend's
  * `OrderWriterService.ResolvedLine` shape (already-resolved, priced items —
  * not the raw `OrderLineInput[]` the merchant/AI originally sent).
@@ -456,15 +469,23 @@ export type OrderTopUp = {
   id: string;
   orderId: string;
   status: OrderTopUpStatus;
+  kind: OrderTopUpKind;
   requestedItems: OrderTopUpLine[];
   newSubtotal: number;
   newTotal: number;
+  previousTotal: number | null;
   deltaAmount: number;
+  note: string | null;
   paystackRef: string | null;
   paystackAuthUrl: string | null;
   escalationReason: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type CorrectOrderInput = {
+  items: OrderLineInput[];
+  note?: string;
 };
 
 // ---------------------------------------------------------------------------

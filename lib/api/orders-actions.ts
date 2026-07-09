@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiError } from "./server";
 import type {
+  CorrectOrderInput,
   CreateOrderInput,
   EditOrderInput,
   Order,
@@ -211,6 +212,49 @@ export async function editOrderAction(
       return { ok: false, error: err.message || "Couldn't update the order" };
     }
     return { ok: false, error: "Couldn't update the order" };
+  }
+}
+
+// Merchant-initiated correction of a PAID order. Rewrites the lines and
+// charges only the difference (or flags a refund when it drops below).
+export async function correctOrderAction(
+  orderId: string,
+  input: CorrectOrderInput,
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/correct`, {
+      method: "POST",
+      body: input,
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't correct the order" };
+    }
+    return { ok: false, error: "Couldn't correct the order" };
+  }
+}
+
+// Record the customer's mobile-money refund details, or mark a refund as sent.
+export async function recordRefundAction(
+  orderId: string,
+  input: { momoNumber?: string; momoName?: string; markAs?: "refunded" },
+): Promise<ActionResult<Order>> {
+  try {
+    const order = await apiFetch<Order>(`/orders/${orderId}/refund`, {
+      method: "PATCH",
+      body: input,
+    });
+    revalidatePath(`/dashboard/orders/${orderId}`);
+    revalidatePath("/dashboard/orders");
+    return { ok: true, data: order };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't save refund details" };
+    }
+    return { ok: false, error: "Couldn't save refund details" };
   }
 }
 

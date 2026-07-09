@@ -7,6 +7,8 @@ import { listProducts } from "@/lib/api/products"
 import { ApiError } from "@/lib/api/server"
 import { OrderHeader } from "@/components/orders/order-header"
 import { EditOrderTrigger } from "@/components/orders/edit-order-trigger"
+import { CorrectOrderTrigger } from "@/components/orders/correct-order-trigger"
+import { RefundBanner } from "@/components/orders/refund-banner"
 import { OrderItems } from "@/components/orders/order-items"
 import { OrderStatusStepper } from "@/components/orders/order-status-stepper"
 import { OrderStatusControl } from "@/components/orders/order-status-control"
@@ -39,7 +41,12 @@ export default async function OrderDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <OrderHeader order={order} businessType={business.businessType} />
-      <EditOrderTrigger order={order} business={business} products={products} />
+      <div className="flex flex-wrap gap-2">
+        <EditOrderTrigger order={order} business={business} products={products} />
+        <CorrectOrderTrigger order={order} business={business} products={products} />
+      </div>
+
+      <RefundBanner order={order} />
 
       <section
         className="card-warm p-6"

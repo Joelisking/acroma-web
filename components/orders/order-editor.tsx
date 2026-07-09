@@ -14,7 +14,12 @@ import {
 } from "@/components/ui/select";
 import { InfoSheet } from "@/components/shared/info-sheet";
 import { formatMoney, formatPhone } from "@/lib/format";
-import { createOrderAction, editOrderAction } from "@/lib/api/orders-actions";
+import { cn } from "@/lib/utils";
+import {
+  correctOrderAction,
+  createOrderAction,
+  editOrderAction,
+} from "@/lib/api/orders-actions";
 import type {
   Business,
   Order,
@@ -35,29 +40,34 @@ type OrderEditorProps = {
 } & (
   | { mode: "create"; customerPhone: string; customerName?: string | null }
   | { mode: "edit"; order: Order }
+  | { mode: "correct"; order: Order }
 );
 
 /**
- * One sheet, two modes: author a brand-new order (from a conversation) or
- * edit an unpaid order's line items. Recomputes the total client-side for
- * display only — the backend is the source of truth for pricing.
+ * One sheet, three modes: author a brand-new order (from a conversation), edit
+ * an unpaid order's line items, or correct a PAID order (rewrites the lines and
+ * charges only the difference against what was already collected). Recomputes
+ * the total client-side for display only — the backend is the source of truth.
  */
 export function OrderEditor(props: OrderEditorProps) {
   const { open, onOpenChange, business, products, onDone } = props;
   const isEdit = props.mode === "edit";
+  const isCorrect = props.mode === "correct";
+  const order = props.mode === "create" ? null : props.order;
 
   const [lines, setLines] = React.useState<EditableLine[]>(() =>
-    isEdit ? linesFromOrder(props.order) : [],
+    order ? linesFromOrder(order) : [],
   );
   const [fulfillment, setFulfillment] = React.useState<OrderFulfillment>(
-    isEdit ? props.order.fulfillment : "DELIVERY",
+    order ? order.fulfillment : "DELIVERY",
   );
   const [deliveryAddress, setDeliveryAddress] = React.useState(
-    isEdit ? (props.order.deliveryAddress ?? "") : "",
+    order ? (order.deliveryAddress ?? "") : "",
   );
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(
-    isEdit ? props.order.paymentMethod : "MOMO",
+    order ? order.paymentMethod : "MOMO",
   );
+  const [note, setNote] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -65,10 +75,11 @@ export function OrderEditor(props: OrderEditorProps) {
     if (!open) return;
     // Resync local editor state from props every time the sheet reopens.
     /* eslint-disable react-hooks/set-state-in-effect */
-    setLines(isEdit ? linesFromOrder(props.order) : []);
-    setFulfillment(isEdit ? props.order.fulfillment : "DELIVERY");
-    setDeliveryAddress(isEdit ? (props.order.deliveryAddress ?? "") : "");
-    setPaymentMethod(isEdit ? props.order.paymentMethod : "MOMO");
+    setLines(order ? linesFromOrder(order) : []);
+    setFulfillment(order ? order.fulfillment : "DELIVERY");
+    setDeliveryAddress(order ? (order.deliveryAddress ?? "") : "");
+    setPaymentMethod(order ? order.paymentMethod : "MOMO");
+    setNote("");
     setError(null);
     /* eslint-enable react-hooks/set-state-in-effect */
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,8 +88,16 @@ export function OrderEditor(props: OrderEditorProps) {
   const subtotal = lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
   const lineInputs = lines.map(toLineInput);
   const cartValid = lineInputs.length > 0 && lineInputs.every(Boolean);
-  const addressValid = fulfillment === "PICKUP" || deliveryAddress.trim().length > 0;
+  // Correction never touches delivery, so its address is always "valid".
+  const addressValid =
+    isCorrect || fulfillment === "PICKUP" || deliveryAddress.trim().length > 0;
   const canSubmit = cartValid && addressValid && !pending;
+
+  // Correction preview: what the customer will owe (or be owed) after this
+  // change, against what they've already paid. Display-only; backend is truth.
+  const settled = order ? (order.amountPaid ?? order.totalAmount) : 0;
+  const newTotal = Math.max(0, subtotal - (order?.discountAmount ?? 0));
+  const delta = Math.round((newTotal - settled) * 100) / 100;
 
   function addCatalogLine() {
     setLines((prev) => [
@@ -105,20 +124,30 @@ export function OrderEditor(props: OrderEditorProps) {
     setError(null);
     const items = lineInputs.filter((l): l is OrderLineInput => l !== null);
 
-    const result = isEdit
-      ? await editOrderAction(props.order.id, {
-          items,
-          fulfillment,
-          deliveryAddress: fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
-        })
-      : await createOrderAction({
-          customerPhone: props.customerPhone,
-          customerName: props.customerName ?? undefined,
-          fulfillment,
-          deliveryAddress: fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
-          paymentMethod,
-          items,
-        });
+    let result;
+    if (props.mode === "correct") {
+      result = await correctOrderAction(props.order.id, {
+        items,
+        note: note.trim() || undefined,
+      });
+    } else if (props.mode === "edit") {
+      result = await editOrderAction(props.order.id, {
+        items,
+        fulfillment,
+        deliveryAddress:
+          fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
+      });
+    } else {
+      result = await createOrderAction({
+        customerPhone: props.customerPhone,
+        customerName: props.customerName ?? undefined,
+        fulfillment,
+        deliveryAddress:
+          fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
+        paymentMethod,
+        items,
+      });
+    }
 
     setPending(false);
     if (!result.ok) {
@@ -129,20 +158,23 @@ export function OrderEditor(props: OrderEditorProps) {
     onDone?.(result.data);
   }
 
-  const customerLabel = isEdit
-    ? (props.order.customerName?.trim() || formatPhone(props.order.customerPhone))
-    : (props.customerName?.trim() || formatPhone(props.customerPhone));
+  const title = isCorrect
+    ? "Correct order"
+    : isEdit
+      ? "Edit order"
+      : "Create order";
+  const customerLabel = order
+    ? order.customerName?.trim() || formatPhone(order.customerPhone)
+    : props.mode === "create"
+      ? props.customerName?.trim() || formatPhone(props.customerPhone)
+      : "";
 
   return (
-    <InfoSheet
-      open={open}
-      onOpenChange={onOpenChange}
-      title={isEdit ? "Edit order" : "Create order"}
-    >
+    <InfoSheet open={open} onOpenChange={onOpenChange} title={title}>
       <div className="flex h-full flex-col">
         <div className="flex-1 overflow-y-auto p-5">
           <p className="text-foreground text-lg font-bold tracking-tight">
-            {isEdit ? "Edit order" : "Create order"}
+            {title}
           </p>
           <p className="text-muted-foreground mt-0.5 text-sm">{customerLabel}</p>
 
@@ -168,50 +200,92 @@ export function OrderEditor(props: OrderEditorProps) {
             </Button>
           </div>
 
-          <div className="mt-6 flex flex-col gap-4">
-            {business.acceptsPickup ? (
-              <Select value={fulfillment} onValueChange={(v) => setFulfillment(v as OrderFulfillment)}>
-                <SelectTrigger className="h-11 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DELIVERY">Delivery</SelectItem>
-                  <SelectItem value="PICKUP">Pickup</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : null}
-
-            {fulfillment === "DELIVERY" ? (
+          {isCorrect ? (
+            <div className="mt-6">
               <Textarea
-                placeholder="Delivery address"
-                rows={3}
-                value={deliveryAddress}
-                onChange={(e) => setDeliveryAddress(e.target.value)}
+                placeholder="Reason for the correction (optional, kept as a note on the order)"
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
               />
-            ) : null}
+            </div>
+          ) : (
+            <div className="mt-6 flex flex-col gap-4">
+              {business.acceptsPickup ? (
+                <Select value={fulfillment} onValueChange={(v) => setFulfillment(v as OrderFulfillment)}>
+                  <SelectTrigger className="h-11 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DELIVERY">Delivery</SelectItem>
+                    <SelectItem value="PICKUP">Pickup</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : null}
 
-            {!isEdit && business.acceptsCashOnDelivery ? (
-              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
-                <SelectTrigger className="h-11 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MOMO">Mobile money</SelectItem>
-                  <SelectItem value="CASH_ON_DELIVERY">Cash on delivery</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : null}
-          </div>
+              {fulfillment === "DELIVERY" ? (
+                <Textarea
+                  placeholder="Delivery address"
+                  rows={3}
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                />
+              ) : null}
+
+              {props.mode === "create" && business.acceptsCashOnDelivery ? (
+                <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
+                  <SelectTrigger className="h-11 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MOMO">Mobile money</SelectItem>
+                    <SelectItem value="CASH_ON_DELIVERY">Cash on delivery</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : null}
+            </div>
+          )}
         </div>
 
         <div className="border-border/70 bg-background sticky bottom-0 border-t p-4">
           {error ? <p className="text-destructive mb-2 text-sm">{error}</p> : null}
           <div className="mb-2 flex items-center justify-between text-sm font-medium">
-            <span>Subtotal</span>
-            <span className="tabular-nums">{formatMoney(subtotal, business.currency)}</span>
+            <span>{isCorrect ? "New total" : "Subtotal"}</span>
+            <span className="tabular-nums">
+              {formatMoney(isCorrect ? newTotal : subtotal, business.currency)}
+            </span>
           </div>
+          {isCorrect ? (
+            <div
+              className={cn(
+                "mb-3 flex items-center justify-between rounded-md px-3 py-2 text-sm font-semibold",
+                delta > 0 && "bg-brand-blue-soft text-brand-blue",
+                delta < 0 && "bg-brand-orange-soft text-brand-orange",
+                delta === 0 && "bg-muted text-muted-foreground",
+              )}
+            >
+              <span>
+                {delta > 0
+                  ? "Customer owes"
+                  : delta < 0
+                    ? "Refund due"
+                    : "No change due"}
+              </span>
+              <span className="tabular-nums">
+                {formatMoney(Math.abs(delta), business.currency)}
+              </span>
+            </div>
+          ) : null}
           <Button type="button" className="w-full" disabled={!canSubmit} onClick={handleSubmit}>
-            {pending ? "Saving..." : isEdit ? "Save changes" : "Create order"}
+            {pending
+              ? "Saving..."
+              : isCorrect
+                ? delta > 0
+                  ? "Correct & send link"
+                  : "Save correction"
+                : isEdit
+                  ? "Save changes"
+                  : "Create order"}
           </Button>
         </div>
       </div>
