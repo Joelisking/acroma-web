@@ -8,6 +8,23 @@ export type ReceiptItem = {
   unitPrice: number;
 };
 
+// Mirrors prisma OrderStatus / PaymentMethod — kept character-identical with
+// the backend enums (see acroma-backend/prisma/schema.prisma).
+export type ReceiptOrderStatus =
+  | "PENDING"
+  | "PAYMENT_PENDING"
+  | "PAID"
+  | "PROCESSING"
+  | "PREPARING"
+  | "READY_FOR_PICKUP"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "NO_SHOW"
+  | "PAYMENT_FAILED";
+
+export type ReceiptPaymentMethod = "MOMO" | "CASH_ON_DELIVERY";
+
 export type ReceiptResult = {
   businessName: string;
   logoUrl: string | null;
@@ -15,6 +32,8 @@ export type ReceiptResult = {
   orderId: string;
   createdAt: string;
   customerName: string | null;
+  status: ReceiptOrderStatus;
+  paymentMethod: ReceiptPaymentMethod;
   fulfillment: "DELIVERY" | "PICKUP";
   deliveryAddress: string | null;
   items: ReceiptItem[];
