@@ -35,3 +35,6 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 DEFERRED.md
+
+# git worktrees (local dev isolation)
+.claude/
