@@ -18,3 +18,10 @@ const usdFormatter = new Intl.NumberFormat("en-US", {
 export function formatUsd(microUsd: number): string {
   return usdFormatter.format(microUsdToUsd(microUsd));
 }
+
+const tokenFormatter = new Intl.NumberFormat("en-US");
+
+/** Format an integer token count with thousands separators (e.g. `1,234`). */
+export function formatTokens(n: number): string {
+  return tokenFormatter.format(n);
+}
