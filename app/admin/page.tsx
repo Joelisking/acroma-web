@@ -15,7 +15,7 @@ export default async function AdminUsagePage() {
         <header>
           <h1 className="font-heading text-2xl font-medium">Usage &amp; cost</h1>
           <p className="text-sm text-muted-foreground">
-            Internal token-cost report across all merchants. Dysruptive only.
+            Internal token-cost report across all merchants.
           </p>
         </header>
         <UsageReport />
