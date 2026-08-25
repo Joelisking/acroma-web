@@ -38,3 +38,4 @@ DEFERRED.md
 
 # git worktrees (local dev isolation)
 .claude/
+.env.prod
