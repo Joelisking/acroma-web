@@ -58,6 +58,11 @@ const REASON_CONTENT: Record<string, ReasonContent> = {
     headline: "A customer wants to cancel a paid order",
     body: "They already paid, so Acroma handed this to you. Reply in the thread to handle the refund or change.",
   },
+  "ai-unavailable": {
+    Icon: Clock,
+    headline: "Acroma had a brief hiccup replying",
+    body: "A technical issue kept Acroma from generating a reply just now. It'll pick the conversation back up on its own once things are working again, but feel free to jump in now if it's urgent.",
+  },
 };
 
 /**
