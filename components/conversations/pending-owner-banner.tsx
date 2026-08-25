@@ -37,6 +37,12 @@ const REASON_CONTENT: Record<string, ReasonContent> = {
     body: "A customer just messaged, but your catalog is empty, so Acroma can't take orders yet. Add your first items and Acroma will start replying automatically.",
     cta: { label: "Add items", href: "/dashboard/catalog" },
   },
+  "payment-link-failed": {
+    Icon: Clock,
+    headline: "A customer's payment link failed to send",
+    body: "Something went wrong while setting up their payment — no money or order data was lost. Check your payout settings; Acroma will send the customer their link automatically once it's fixed.",
+    cta: { label: "Check payout settings", href: "/dashboard/settings/payments" },
+  },
   "ungrounded-claim": {
     Icon: Clock,
     headline: "A question Acroma couldn't answer safely",
