@@ -75,6 +75,9 @@ interface UsageReportData {
   tokensByKind: Record<string, number>;
   perBusiness: PerBusiness[];
   daily: UsageDaily[];
+  uncostedEventCount: number;
+  uncostedTokens: number;
+  unpricedModels: string[];
   note: string;
 }
 
@@ -260,6 +263,19 @@ function Report({ data }: { data: UsageReportData }) {
         {new Date(data.from).toLocaleDateString()} –{" "}
         {new Date(data.to).toLocaleDateString()}
       </p>
+
+      {data.uncostedEventCount > 0 ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <span aria-hidden>⚠️</span> Cost under-counted:{" "}
+          {data.uncostedEventCount.toLocaleString()} AI call(s) using{" "}
+          <span className="font-mono">{data.unpricedModels.join(", ")}</span>{" "}
+          have no pricing configured, so {formatTokens(data.uncostedTokens)}{" "}
+          tokens are recorded at $0 cost. Add these model(s) to the backend
+          pricing table (<span className="font-mono">src/usage/pricing.ts</span>)
+          or set the matching{" "}
+          <span className="font-mono">PRICE_</span> env vars.
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Stat
