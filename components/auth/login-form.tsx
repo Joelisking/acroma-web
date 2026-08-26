@@ -27,13 +27,13 @@ export function LoginForm() {
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
 
   function onSubmit(values: LoginInput) {
     startTransition(async () => {
       const result = await loginAction({
-        identifier: values.email,
+        identifier: values.identifier.trim(),
         password: values.password,
       });
       if (!result.ok) {
@@ -43,7 +43,12 @@ export function LoginForm() {
       // `displayName` is the business name for an owner and the worker's own
       // name for staff — a staff login carries no business to read from.
       toast.success(`Welcome back, ${result.data.displayName.split(" ")[0]}`);
-      router.replace("/dashboard");
+      // A worker still on the temporary password has one screen to clear
+      // before anything else. The dashboard layout enforces the same thing,
+      // so this is the polite route, not the only one.
+      router.replace(
+        result.data.mustChangePassword ? "/change-password" : "/dashboard",
+      );
       router.refresh();
     });
   }
@@ -53,14 +58,16 @@ export function LoginForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
-            name="email"
+            name="identifier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email or username</FormLabel>
                 <FormControl>
                   <Input
-                    type="email"
-                    autoComplete="email"
+                    type="text"
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    spellCheck={false}
                     placeholder="you@business.com"
                     className="h-12"
                     {...field}

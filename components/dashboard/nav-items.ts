@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Vocabulary } from "@/lib/vocabulary";
+import type { AuthRole } from "@/lib/api/types";
 
 export type NavItem = {
   href: string;
@@ -43,27 +44,37 @@ const ANALYTICS_NAV: NavItem = {
 };
 
 /**
+ * The two destinations a worker can reach. Everything else is owner ground,
+ * and the API answers 403 there, so listing it would only be a dead end.
+ */
+const STAFF_HREFS = new Set(["/dashboard", "/dashboard/orders"]);
+
+/**
  * The four surfaces a merchant lives in during the day. These are the mobile
  * bottom-tab destinations. Labels swap per vertical (Orders↔Bookings,
- * Catalog↔Menu); routes never change.
+ * Catalog↔Menu); routes never change. A worker sees Today and Orders only.
  */
-export function getPrimaryNav(vocab: Vocabulary): NavItem[] {
-  return [
+export function getPrimaryNav(vocab: Vocabulary, role: AuthRole): NavItem[] {
+  const items: NavItem[] = [
     { href: "/dashboard", label: "Today", icon: Home },
     { href: "/dashboard/orders", label: vocab.orders, icon: ShoppingBag },
     { href: "/dashboard/conversations", label: "Chats", icon: MessageCircle },
     { href: "/dashboard/catalog", label: vocab.catalog, icon: Package },
   ];
+  if (role === "STAFF") return items.filter((i) => STAFF_HREFS.has(i.href));
+  return items;
 }
 
 /**
  * The main nav for surfaces with room for it — the desktop sidebar's top group
  * and the tablet rail. Promotes Analytics alongside the four core surfaces.
  * The mobile bottom bar stays at four (see getPrimaryNav); Analytics lives in
- * its "More" drawer instead.
+ * its "More" drawer instead. Analytics is owner ground, so a worker's wide nav
+ * is the same two entries as the primary one.
  */
-export function getWideNav(vocab: Vocabulary): NavItem[] {
-  return [...getPrimaryNav(vocab), ANALYTICS_NAV];
+export function getWideNav(vocab: Vocabulary, role: AuthRole): NavItem[] {
+  const primary = getPrimaryNav(vocab, role);
+  return role === "STAFF" ? primary : [...primary, ANALYTICS_NAV];
 }
 
 /** Hrefs promoted into the wide/main nav, so wider surfaces don't list them twice. */
@@ -72,8 +83,11 @@ const WIDE_PROMOTED_HREFS = new Set<string>([ANALYTICS_NAV.href]);
 /**
  * Secondary destinations, grouped. The full set (including Measure/Analytics)
  * backs the mobile "More" drawer, so the bottom bar stays at four core tabs.
+ * Every one of these is owner ground, so a worker gets no groups at all and
+ * the "More" drawer falls back to the account block and sign-out.
  */
-export function getSecondaryNav(): NavGroup[] {
+export function getSecondaryNav(role: AuthRole): NavGroup[] {
+  if (role === "STAFF") return [];
   return [
     {
       label: "Grow",
@@ -102,8 +116,8 @@ export function getSecondaryNav(): NavGroup[] {
  * items already promoted into the main nav removed so they don't appear twice.
  * Empty groups are dropped.
  */
-export function getWideSecondaryNav(): NavGroup[] {
-  return getSecondaryNav()
+export function getWideSecondaryNav(role: AuthRole): NavGroup[] {
+  return getSecondaryNav(role)
     .map((group) => ({
       ...group,
       items: group.items.filter((i) => !WIDE_PROMOTED_HREFS.has(i.href)),
@@ -112,13 +126,13 @@ export function getWideSecondaryNav(): NavGroup[] {
 }
 
 /** Routes that count as "secondary" on mobile, used to light the More tab. */
-export function isSecondaryRoute(pathname: string): boolean {
-  return routeInGroups(getSecondaryNav(), pathname);
+export function isSecondaryRoute(pathname: string, role: AuthRole): boolean {
+  return routeInGroups(getSecondaryNav(role), pathname);
 }
 
 /** Routes behind "More" on wide surfaces (excludes items promoted to the rail). */
-export function isWideSecondaryRoute(pathname: string): boolean {
-  return routeInGroups(getWideSecondaryNav(), pathname);
+export function isWideSecondaryRoute(pathname: string, role: AuthRole): boolean {
+  return routeInGroups(getWideSecondaryNav(role), pathname);
 }
 
 function routeInGroups(groups: NavGroup[], pathname: string): boolean {

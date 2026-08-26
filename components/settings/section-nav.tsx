@@ -12,9 +12,11 @@ import {
   Bell,
   ShieldCheck,
   AlarmClock,
+  UsersRound,
 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
+import type { AuthRole } from "@/lib/api/types";
 
 type IconProps = { className?: string; strokeWidth?: number };
 
@@ -27,6 +29,8 @@ type Section = {
   href: string;
   label: string;
   icon: ComponentType<IconProps>;
+  /** Hidden from workers, who have no business managing other workers. */
+  ownerOnly?: boolean;
 };
 
 export const SETTINGS_SECTIONS: Section[] = [
@@ -51,21 +55,33 @@ export const SETTINGS_SECTIONS: Section[] = [
     icon: AlarmClock,
   },
   {
+    href: "/dashboard/settings/workers",
+    label: "Workers",
+    icon: UsersRound,
+    ownerOnly: true,
+  },
+  {
     href: "/dashboard/settings/security",
     label: "Security",
     icon: ShieldCheck,
   },
 ];
 
-export function SectionNav() {
+/** The sections this role has any use for. */
+export function settingsSectionsFor(role: AuthRole): Section[] {
+  return SETTINGS_SECTIONS.filter((s) => !s.ownerOnly || role === "OWNER");
+}
+
+export function SectionNav({ role }: { role: AuthRole }) {
   const pathname = usePathname();
+  const sections = settingsSectionsFor(role);
 
   return (
     <nav
       aria-label="Settings sections"
       className="flex gap-1 overflow-x-auto rounded-full border-border/70 border bg-card p-1 lg:flex-col lg:rounded-2xl lg:bg-transparent lg:border-0 lg:p-0"
     >
-      {SETTINGS_SECTIONS.map((s) => {
+      {sections.map((s) => {
         const active = pathname === s.href || pathname.startsWith(s.href + "/");
         const Icon = s.icon;
         return (

@@ -6,10 +6,13 @@ import { BusinessForm } from "@/components/settings/business-form";
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
 import { OrderAlertsToggle } from "@/components/settings/order-alerts-toggle";
 import { CatalogImagesManager } from "@/components/catalog/catalog-images-manager";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Business · Settings · Acroma" };
 
 export default async function BusinessSettingsPage() {
+  await redirectStaffToOrders();
+
   const business = await getCurrentBusiness();
   if (!business) return null;
 

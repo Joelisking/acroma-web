@@ -9,12 +9,15 @@ import { ApiError } from "@/lib/api/server";
 import type { AuditEntry } from "@/lib/api/types";
 import { InboxShell } from "@/components/conversations/inbox-shell";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const metadata: Metadata = { title: "Chat · Acroma" };
 
 export default async function ConversationDetailPage({ params }: PageProps) {
+  await redirectStaffToOrders();
+
   const { id } = await params;
 
   const [business, conversation, conversations, products] = await Promise.all([

@@ -12,10 +12,12 @@ import {
 } from "./nav-items";
 import { cn } from "@/lib/utils";
 import type { Vocabulary } from "@/lib/vocabulary";
+import type { AuthRole } from "@/lib/api/types";
 
 type SidebarNavProps = {
   badges?: NavBadges;
   vocab: Vocabulary;
+  role: AuthRole;
 };
 
 /**
@@ -23,10 +25,10 @@ type SidebarNavProps = {
  * labelled groups of secondary destinations. Active rows use a filled pill
  * highlight (no side-stripe), matching the grouped-sidebar reference.
  */
-export function SidebarNav({ badges, vocab }: SidebarNavProps) {
+export function SidebarNav({ badges, vocab, role }: SidebarNavProps) {
   const pathname = usePathname();
-  const primary = getWideNav(vocab);
-  const groups = getWideSecondaryNav();
+  const primary = getWideNav(vocab, role);
+  const groups = getWideSecondaryNav(role);
 
   return (
     <nav className="flex flex-col gap-5" aria-label="Primary">

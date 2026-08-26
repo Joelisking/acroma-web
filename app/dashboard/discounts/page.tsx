@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DiscountRow } from "@/components/discounts/discount-row";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Discounts · Acroma" };
 
 export default async function DiscountsPage() {
+  await redirectStaffToOrders();
+
   const [business, discounts] = await Promise.all([
     getCurrentBusiness(),
     listDiscounts(true),

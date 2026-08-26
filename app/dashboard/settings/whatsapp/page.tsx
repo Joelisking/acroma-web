@@ -8,10 +8,13 @@ import { WhatsappStatus } from "@/components/settings/whatsapp-status";
 import { WhatsappForm } from "@/components/settings/whatsapp-form";
 import { WhatsappTestButton } from "@/components/settings/whatsapp-test-button";
 import { CopyField } from "@/components/settings/copy-field";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "WhatsApp · Settings · Acroma" };
 
 export default async function WhatsappSettingsPage() {
+  await redirectStaffToOrders();
+
   const settings = await getWhatsappSettings();
 
   return (

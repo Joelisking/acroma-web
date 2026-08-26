@@ -5,6 +5,7 @@ import { listProducts } from "@/lib/api/products";
 import type { ConversationStatus } from "@/lib/api/types";
 import { InboxShell } from "@/components/conversations/inbox-shell";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Chats · Acroma" };
 
@@ -20,6 +21,8 @@ type PageProps = {
 };
 
 export default async function ConversationsPage({ searchParams }: PageProps) {
+  await redirectStaffToOrders();
+
   const { status: rawStatus } = await searchParams;
   const status = VALID_STATUSES.includes(rawStatus as ConversationStatus)
     ? (rawStatus as ConversationStatus)

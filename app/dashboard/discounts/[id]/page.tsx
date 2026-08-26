@@ -3,12 +3,15 @@ import type { Metadata } from "next";
 import { getDiscount } from "@/lib/api/discounts";
 import { ApiError } from "@/lib/api/server";
 import { DiscountForm } from "@/components/discounts/discount-form";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const metadata: Metadata = { title: "Discount · Acroma" };
 
 export default async function DiscountDetailPage({ params }: PageProps) {
+  await redirectStaffToOrders();
+
   const { id } = await params;
   let discount;
   try {

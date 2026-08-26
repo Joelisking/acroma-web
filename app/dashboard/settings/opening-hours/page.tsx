@@ -5,12 +5,15 @@ import { listProducts } from "@/lib/api/products";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { OpeningHoursForm } from "@/components/settings/opening-hours-form";
 import { BookingCapacityForm } from "@/components/settings/booking-capacity-form";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = {
   title: "Hours · Settings · Acroma",
 };
 
 export default async function OpeningHoursSettingsPage() {
+  await redirectStaffToOrders();
+
   const business = await getCurrentBusiness();
   if (!business) return null;
 

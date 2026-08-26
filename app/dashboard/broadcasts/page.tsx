@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BroadcastRow } from "@/components/broadcasts/broadcast-row";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Broadcasts · Acroma" };
 
 export default async function BroadcastsPage() {
+  await redirectStaffToOrders();
+
   const broadcasts = await listBroadcasts();
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">

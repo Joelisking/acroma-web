@@ -1,7 +1,12 @@
 import { z } from "zod";
 
+/**
+ * Login takes an email (owner) or a username (worker), so the first field is
+ * only checked for presence. An email rule here would reject every staff
+ * login. The backend decides which kind of account the value belongs to.
+ */
 export const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  identifier: z.string().min(1, "Enter your email or username"),
   password: z.string().min(1, "Password is required"),
 });
 

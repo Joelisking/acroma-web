@@ -6,10 +6,13 @@ import { listProducts } from "@/lib/api/products";
 import { getVocabulary } from "@/lib/vocabulary";
 import { distinctCategories } from "@/lib/catalog/categories";
 import { NewProductPageClient } from "@/components/catalog/new-product-page";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "New product · Acroma" };
 
 export default async function NewProductPage() {
+  await redirectStaffToOrders();
+
   const [business, products] = await Promise.all([
     getCurrentBusiness(),
     listProducts().catch(() => []),

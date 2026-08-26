@@ -6,12 +6,15 @@ import { ChevronLeft } from "lucide-react";
 import { getProduct } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/server";
 import { VariantsEditor } from "@/components/catalog/variants/variants-editor";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const metadata: Metadata = { title: "Variants · Acroma" };
 
 export default async function VariantsPage({ params }: PageProps) {
+  await redirectStaffToOrders();
+
   const { id } = await params;
   const product = await safeGetProduct(id);
   if (!product) notFound();

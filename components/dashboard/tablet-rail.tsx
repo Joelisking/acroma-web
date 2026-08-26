@@ -16,12 +16,14 @@ import { getInitials } from "./account-menu";
 import { MobileMoreSheet } from "./mobile-more-sheet";
 import { cn } from "@/lib/utils";
 import type { Vocabulary } from "@/lib/vocabulary";
+import type { AuthRole } from "@/lib/api/types";
 
 type TabletRailProps = {
   badges?: NavBadges;
   vocab: Vocabulary;
   name: string;
   email: string;
+  role: AuthRole;
 };
 
 /**
@@ -30,11 +32,17 @@ type TabletRailProps = {
  * Secondary destinations live behind "More" (the same sheet the mobile bar
  * uses), keeping the rail to five clear, named items.
  */
-export function TabletRail({ badges, vocab, name, email }: TabletRailProps) {
+export function TabletRail({
+  badges,
+  vocab,
+  name,
+  email,
+  role,
+}: TabletRailProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = React.useState(false);
-  const items = getWideNav(vocab);
-  const moreActive = isWideSecondaryRoute(pathname);
+  const items = getWideNav(vocab, role);
+  const moreActive = isWideSecondaryRoute(pathname, role);
 
   return (
     <>
@@ -120,7 +128,8 @@ export function TabletRail({ badges, vocab, name, email }: TabletRailProps) {
         onOpenChange={setMoreOpen}
         name={name}
         email={email}
-        groups={getWideSecondaryNav()}
+        role={role}
+        groups={getWideSecondaryNav(role)}
       />
     </>
   );

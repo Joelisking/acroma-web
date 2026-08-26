@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
 import { getConversationBadgeCounts } from "@/lib/api/conversations";
+import { readMustChangePassword, readRole } from "@/lib/api/cookies";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TabletRail } from "@/components/dashboard/tablet-rail";
 import { TopBar } from "@/components/dashboard/top-bar";
@@ -17,10 +18,16 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [business, onboarding, badgeCounts] = await Promise.all([
+  // A worker still on the temporary password they were handed gets the
+  // change-password screen and nothing else. Checked before any fetch so the
+  // forced screen doesn't wait on data it will never render.
+  if (await readMustChangePassword()) redirect("/change-password");
+
+  const [business, onboarding, badgeCounts, role] = await Promise.all([
     getCurrentBusiness(),
     safeStatus(),
     getConversationBadgeCounts(),
+    readRole(),
   ]);
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
@@ -53,6 +60,7 @@ export default async function DashboardLayout({
         email={business.email}
         badges={badges}
         vocab={vocab}
+        role={role}
       />
 
       <TabletRail
@@ -60,6 +68,7 @@ export default async function DashboardLayout({
         vocab={vocab}
         name={business.name}
         email={business.email}
+        role={role}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -82,6 +91,7 @@ export default async function DashboardLayout({
           vocab={vocab}
           name={business.name}
           email={business.email}
+          role={role}
         />
       </div>
 

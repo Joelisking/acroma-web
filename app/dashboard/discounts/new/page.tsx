@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { DiscountForm } from "@/components/discounts/discount-form";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "New discount · Acroma" };
 
-export default function NewDiscountPage() {
+export default async function NewDiscountPage() {
+  await redirectStaffToOrders();
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <header>

@@ -11,6 +11,7 @@ import { getSecondaryNav, isNavActive, type NavGroup } from "./nav-items";
 import { getInitials } from "./account-menu";
 import { logoutAction } from "@/lib/api/auth";
 import { cn } from "@/lib/utils";
+import type { AuthRole } from "@/lib/api/types";
 
 /**
  * The mobile "More" drawer, opened from the profile tab on the bottom bar.
@@ -23,18 +24,20 @@ export function MobileMoreSheet({
   onOpenChange,
   name,
   email,
+  role,
   groups,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   name: string;
   email: string;
+  role: AuthRole;
   /** Defaults to the full secondary nav (mobile); the tablet rail passes its
    *  own reduced set since it promotes some items into the rail itself. */
   groups?: NavGroup[];
 }) {
   const pathname = usePathname();
-  const navGroups = groups ?? getSecondaryNav();
+  const navGroups = groups ?? getSecondaryNav(role);
   const [pending, startTransition] = React.useTransition();
 
   return (

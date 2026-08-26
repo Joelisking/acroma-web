@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { AiForm } from "@/components/settings/ai-form";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "AI · Settings · Acroma" };
 
 export default async function AiSettingsPage() {
+  await redirectStaffToOrders();
+
   const business = await getCurrentBusiness();
   if (!business) return null;
 

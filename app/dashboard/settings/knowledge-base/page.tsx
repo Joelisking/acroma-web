@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { listFaqEntries } from "@/lib/api/faq";
 import { KnowledgeBaseManager } from "@/components/settings/knowledge-base/knowledge-base-manager";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = {
   title: "Knowledge base · Settings · Acroma",
 };
 
 export default async function KnowledgeBasePage() {
+  await redirectStaffToOrders();
+
   const entries = await listFaqEntries();
 
   return (

@@ -42,6 +42,10 @@ export async function loginAction(input: {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       role: data.role,
+      // Written explicitly either way, so signing in as an owner on a device
+      // a worker used clears the flag instead of inheriting it.
+      mustChangePassword:
+        data.role === "STAFF" ? data.mustChangePassword : false,
     });
     return {
       ok: true,
@@ -79,6 +83,7 @@ export async function registerAction(input: {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       role: "OWNER",
+      mustChangePassword: false,
     });
     return { ok: true, data: { business: data.business } };
   } catch (err) {

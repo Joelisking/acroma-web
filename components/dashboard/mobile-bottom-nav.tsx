@@ -14,12 +14,14 @@ import { getInitials } from "./account-menu";
 import { MobileMoreSheet } from "./mobile-more-sheet";
 import { cn } from "@/lib/utils";
 import type { Vocabulary } from "@/lib/vocabulary";
+import type { AuthRole } from "@/lib/api/types";
 
 type MobileBottomNavProps = {
   badges?: NavBadges;
   vocab: Vocabulary;
   name: string;
   email: string;
+  role: AuthRole;
 };
 
 /**
@@ -33,12 +35,13 @@ export function MobileBottomNav({
   vocab,
   name,
   email,
+  role,
 }: MobileBottomNavProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = React.useState(false);
   const shrunk = useScrollShrink();
-  const items = getPrimaryNav(vocab);
-  const moreActive = isSecondaryRoute(pathname);
+  const items = getPrimaryNav(vocab, role);
+  const moreActive = isSecondaryRoute(pathname, role);
 
   return (
     <>
@@ -105,6 +108,7 @@ export function MobileBottomNav({
         onOpenChange={setMoreOpen}
         name={name}
         email={email}
+        role={role}
       />
     </>
   );

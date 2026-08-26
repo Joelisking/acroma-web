@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { SignOutCard } from "@/components/settings/sign-out-card";
+import { redirectStaffToOrders } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Security · Settings · Acroma" };
 
-export default function SecuritySettingsPage() {
+export default async function SecuritySettingsPage() {
+  await redirectStaffToOrders();
+
   return (
     <div className="space-y-6">
       <SettingsCard
