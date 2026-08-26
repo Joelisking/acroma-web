@@ -8,18 +8,32 @@ import {
   readAccessToken,
   readRefreshToken,
 } from "./cookies";
-import type { AuthResponse, Business } from "./types";
+import type { AuthResponse, AuthRole, Business, LoginResponse } from "./types";
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
+/**
+ * What the login screen needs to route and greet, for either kind of user.
+ * A staff login carries no business, so the greeting name is resolved here
+ * rather than leaving the caller to reach into a field that may not exist.
+ */
+export type LoginResult = {
+  role: AuthRole;
+  /** Business name for an owner, the worker's own name for staff. */
+  displayName: string;
+  /** True only for a worker still on their temporary password. */
+  mustChangePassword: boolean;
+};
+
 export async function loginAction(input: {
-  email: string;
+  /** An email for an owner, a username for a worker. */
+  identifier: string;
   password: string;
-}): Promise<ActionResult<{ business: Business }>> {
+}): Promise<ActionResult<LoginResult>> {
   try {
-    const data = await apiFetch<AuthResponse>("/auth/login", {
+    const data = await apiFetch<LoginResponse>("/auth/login", {
       method: "POST",
       body: input,
       auth: false,
@@ -27,8 +41,23 @@ export async function loginAction(input: {
     await setAuthCookies({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
+      role: data.role,
     });
-    return { ok: true, data: { business: data.business } };
+    return {
+      ok: true,
+      data:
+        data.role === "STAFF"
+          ? {
+              role: "STAFF",
+              displayName: data.staff.name,
+              mustChangePassword: data.mustChangePassword,
+            }
+          : {
+              role: "OWNER",
+              displayName: data.business.name,
+              mustChangePassword: false,
+            },
+    };
   } catch (err) {
     return { ok: false, error: humanError(err, "Login failed") };
   }
@@ -45,9 +74,11 @@ export async function registerAction(input: {
       body: input,
       auth: false,
     });
+    // Registration always creates an owner — /auth/register has no staff path.
     await setAuthCookies({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
+      role: "OWNER",
     });
     return { ok: true, data: { business: data.business } };
   } catch (err) {

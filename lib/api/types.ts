@@ -85,10 +85,71 @@ export type Business = {
   updatedAt: string;
 };
 
+/**
+ * Who is signed in. An owner is the business itself; a staff member is a
+ * worker login that hangs off that business.
+ */
+export type AuthRole = "OWNER" | "STAFF";
+
+/**
+ * The token bundle returned by the owner-only endpoints — `/auth/register`
+ * and `/auth/change-password`. They can only ever be reached by an owner, so
+ * the backend does not stamp a `role` on them and `business` is always there.
+ */
 export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
   business: Business;
+};
+
+export type OwnerLoginResponse = AuthResponse & {
+  role: "OWNER";
+};
+
+/**
+ * Note there is no `business` here. A staff login never receives the business
+ * row, so this is modelled as a separate member of the union rather than by
+ * making `business` optional — that way the compiler forces every caller to
+ * narrow on `role` before it can touch `business`.
+ */
+export type StaffLoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  role: "STAFF";
+  mustChangePassword: boolean;
+  staff: { id: string; name: string };
+};
+
+export type LoginResponse = OwnerLoginResponse | StaffLoginResponse;
+
+/** A worker login belonging to a business. Owner-facing shape — no hashes. */
+export type Staff = {
+  id: string;
+  name: string;
+  username: string;
+  mustChangePassword: boolean;
+  deactivatedAt: string | null;
+  createdAt: string;
+};
+
+/**
+ * The reply to creating a worker. `temporaryPassword` is returned by the
+ * backend exactly once and can never be read back — surface it to the owner
+ * immediately or it is lost. A freshly created worker is always
+ * `mustChangePassword: true` and never deactivated, so the backend leaves
+ * those two fields off this payload.
+ */
+export type CreatedStaff = {
+  id: string;
+  name: string;
+  username: string;
+  createdAt: string;
+  temporaryPassword: string;
+};
+
+/** The reply to a password reset — the new temporary password, once. */
+export type StaffTemporaryPassword = {
+  temporaryPassword: string;
 };
 
 export type RefreshResponse = {
@@ -721,7 +782,7 @@ export type DashboardActivity = {
 };
 
 /** Who triggered an audited event. */
-export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "SYSTEM";
+export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "STAFF" | "SYSTEM";
 
 /**
  * A single row from the backend audit log (`GET /audit`). Read-only;
@@ -735,6 +796,11 @@ export type AuditEntry = {
   conversationId: string | null;
   orderId: string | null;
   actor: AuditActor;
+  /**
+   * The acting worker's name for a staff action. Null for owner, AI, customer
+   * and system actions, and for a worker whose record has since been removed.
+   */
+  actorName: string | null;
   eventType: string;
   summary: string;
   detail: unknown | null;

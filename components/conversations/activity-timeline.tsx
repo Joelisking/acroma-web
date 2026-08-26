@@ -37,6 +37,7 @@ const ACTOR_LABELS: Record<AuditActor, string> = {
   CUSTOMER: "Customer",
   AI: "Acroma AI",
   OWNER: "You",
+  STAFF: "Worker",
   SYSTEM: "System",
 };
 
@@ -44,6 +45,7 @@ const ACTOR_DOT: Record<AuditActor, string> = {
   CUSTOMER: "bg-muted-foreground/50",
   AI: "bg-brand-blue",
   OWNER: "bg-brand-orange",
+  STAFF: "bg-brand-green",
   SYSTEM: "bg-muted-foreground/50",
 };
 
@@ -101,7 +103,7 @@ function ActivityRow({ entry, last }: { entry: AuditEntry; last: boolean }) {
       <div className="min-w-0 flex-1 pb-4">
         <p className="text-foreground text-sm font-medium">{label}</p>
         <p className="text-muted-foreground text-xs">
-          {ACTOR_LABELS[entry.actor] ?? entry.actor} ·{" "}
+          {entry.actorName ?? ACTOR_LABELS[entry.actor] ?? entry.actor} ·{" "}
           {new Date(entry.createdAt).toLocaleString(undefined, TIME_FORMAT)}
         </p>
       </div>

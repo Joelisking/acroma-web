@@ -32,12 +32,17 @@ export function LoginForm() {
 
   function onSubmit(values: LoginInput) {
     startTransition(async () => {
-      const result = await loginAction(values);
+      const result = await loginAction({
+        identifier: values.email,
+        password: values.password,
+      });
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      toast.success(`Welcome back, ${result.data.business.name.split(" ")[0]}`);
+      // `displayName` is the business name for an owner and the worker's own
+      // name for staff — a staff login carries no business to read from.
+      toast.success(`Welcome back, ${result.data.displayName.split(" ")[0]}`);
       router.replace("/dashboard");
       router.refresh();
     });
