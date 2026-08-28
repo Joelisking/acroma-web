@@ -47,7 +47,10 @@ const ANALYTICS_NAV: NavItem = {
  * The two destinations a worker can reach. Everything else is owner ground,
  * and the API answers 403 there, so listing it would only be a dead end.
  */
-const STAFF_HREFS = new Set(["/dashboard", "/dashboard/orders"]);
+// Orders only. Today is an owner surface: it carries revenue, conversation
+// counts and the WhatsApp/payout setup callouts, none of which a worker can
+// act on or should see. Staff home is the orders board.
+const STAFF_HREFS = new Set(["/dashboard/orders"]);
 
 /**
  * The four surfaces a merchant lives in during the day. These are the mobile
