@@ -17,9 +17,12 @@ import {
 export function OrderHeader({
   order,
   businessType,
+  isOwner = true,
 }: {
   order: Order;
   businessType?: BusinessType | null;
+  // The chat link opens a conversation, which is owner-only at the API.
+  isOwner?: boolean;
 }) {
   const customer = order.customerName?.trim();
   const itemsSummary = formatItemsSummary(order.items);
@@ -64,7 +67,7 @@ export function OrderHeader({
             </span>
           </div>
 
-          <OrderChatButton orderId={order.id} className="mt-4" />
+          {isOwner ? <OrderChatButton orderId={order.id} className="mt-4" /> : null}
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">

@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 
 import { getOrder } from "@/lib/api/orders"
 import { getCurrentBusiness } from "@/lib/api/business"
+import { readRole } from "@/lib/api/cookies"
 import { listProducts } from "@/lib/api/products"
 import { ApiError } from "@/lib/api/server"
 import { OrderHeader } from "@/components/orders/order-header"
@@ -38,14 +39,20 @@ export default async function OrderDetailPage({ params }: PageProps) {
   if (!order) notFound()
 
   const isServices = business.businessType === "SERVICES"
+  // Editing, correcting and the customer-nudge quick replies are all
+  // owner-only at the API. Hiding them for staff keeps the screen honest
+  // rather than offering buttons that answer "Forbidden resource".
+  const isOwner = (await readRole()) === "OWNER"
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
-      <OrderHeader order={order} businessType={business.businessType} />
-      <div className="flex flex-wrap gap-2">
-        <EditOrderTrigger order={order} business={business} products={products} />
-        <CorrectOrderTrigger order={order} business={business} products={products} />
-      </div>
+      <OrderHeader order={order} businessType={business.businessType} isOwner={isOwner} />
+      {isOwner ? (
+        <div className="flex flex-wrap gap-2">
+          <EditOrderTrigger order={order} business={business} products={products} />
+          <CorrectOrderTrigger order={order} business={business} products={products} />
+        </div>
+      ) : null}
 
       <RefundBanner order={order} />
 
@@ -98,7 +105,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
       {/* Quick replies are goods/food canned messages; not relevant to an
           in-person appointment. */}
-      {isServices ? null : (
+      {isServices || !isOwner ? null : (
         <OrderQuickReplies orderId={order.id} status={order.status} />
       )}
 
@@ -126,8 +133,13 @@ export default async function OrderDetailPage({ params }: PageProps) {
         />
       </section>
 
-      <OrderNotesCard orderId={order.id} notes={order.notes} />
+      {/* Notes are owner-only at the API. Worth revisiting for the till in
+          sub-project C, where a counter note ("extra pepper") is natural. */}
+      {isOwner ? (
+        <OrderNotesCard orderId={order.id} notes={order.notes} />
+      ) : null}
 
+      {isOwner ? (
       <section
         aria-label="Manage order"
         className="border-border/60 flex flex-wrap items-center justify-between gap-3 border-t pt-6"
@@ -147,6 +159,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
           archived={order.archivedAt != null}
         />
       </section>
+
+      ) : null}
 
       <LiveRefresh businessId={business.id} events={["order_updated"]} />
     </div>

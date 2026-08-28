@@ -12,6 +12,7 @@ import {
 } from "date-fns";
 import { listOrders } from "@/lib/api/orders";
 import { getCurrentBusiness } from "@/lib/api/business";
+import { readRole } from "@/lib/api/cookies";
 import { getVocabulary } from "@/lib/vocabulary";
 import { HOME_COOKIE } from "@/lib/home-preference";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,10 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const business = await getCurrentBusiness();
   if (!business) return null;
+
+  // Chat opens a conversation, which is owner-only at the API. Hide the link
+  // for staff rather than offering a button that answers "Forbidden resource".
+  const isOwner = (await readRole()) === "OWNER";
 
   const vocab = getVocabulary(business.businessType);
   const isServices = business.businessType === "SERVICES";
@@ -132,7 +137,11 @@ export default async function OrdersPage({ searchParams }: PageProps) {
           focusedDate={focusedDate}
         />
       ) : (
-        <OrdersBoard orders={orders} businessType={business.businessType} />
+        <OrdersBoard
+          orders={orders}
+          businessType={business.businessType}
+          isOwner={isOwner}
+        />
       )}
 
       <LiveRefresh

@@ -28,9 +28,11 @@ const TONE_DOT: Record<LaneTone, string> = {
 export function OrdersBoard({
   orders,
   businessType,
+  isOwner = true,
 }: {
   orders: Order[];
   businessType?: BusinessType | null;
+  isOwner?: boolean;
 }) {
   const [showAll, setShowAll] = React.useState(false);
 
@@ -94,6 +96,7 @@ export function OrdersBoard({
           <div className="grid gap-3 lg:grid-cols-2">
             {laneOrders.map((order) => (
               <OrderRow
+                isOwner={isOwner}
                 key={order.id}
                 order={order}
                 businessType={businessType}

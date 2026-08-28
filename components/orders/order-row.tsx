@@ -37,9 +37,12 @@ export function OrderRow({
   selectable,
   selected,
   onToggle,
+  isOwner = true,
 }: {
   order: Order;
   businessType?: BusinessType | null;
+  // The chat link opens a conversation, which is owner-only at the API.
+  isOwner?: boolean;
   selectable?: boolean;
   selected?: boolean;
   onToggle?: (id: string) => void;
@@ -164,7 +167,7 @@ export function OrderRow({
                   label="Copy phone number"
                   className="relative z-10"
                 />
-                <OrderChatButton orderId={order.id} />
+                {isOwner ? <OrderChatButton orderId={order.id} /> : null}
               </div>
             </div>
             {/* Services happen in person at the merchant's location (the
