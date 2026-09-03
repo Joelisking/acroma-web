@@ -379,6 +379,22 @@ author has contributing access**. A commit authored by anyone else is refused
 with "Deployment Blocked", and a blocked deployment cannot be redeployed — the
 fix is a fresh commit by an author Vercel accepts.
 
-This silently froze production on July's code for two months. Both repos now
-set `user.email` locally to the owning account's address; do not override it
-per-commit, and check the deployment actually went green after pushing.
+Both repos set the deploying identity locally:
+
+```bash
+git config --local user.name  "asera-hq"
+git config --local user.email "info@asera.tech"
+```
+
+Several addresses belong to the same person and most of them fail:
+`adujoel7@gmail.com` links to `Joelisking` and is refused, and
+`dysruptivetech@gmail.com` links to no GitHub account at all, which is worse
+than being refused. Never assume an address works because it belongs to the
+right human. Confirm attribution before trusting a push:
+
+```bash
+gh api repos/asera-hq/acroma-web/commits/<sha> --jq '.author.login'
+```
+
+That must print `dysruptive`. This silently froze production on July's code
+for two months, so check the deployment actually went green after pushing.
