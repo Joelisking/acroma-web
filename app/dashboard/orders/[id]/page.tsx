@@ -78,6 +78,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
             paymentMethod={order.paymentMethod}
             businessType={business.businessType}
             fulfillment={order.fulfillment}
+            source={order.source}
             totalAmount={order.totalAmount}
             currency={order.currency}
           />

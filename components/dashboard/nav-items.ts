@@ -9,6 +9,7 @@ import {
   Wallet,
   Settings,
   BarChart3,
+  Calculator,
   type LucideIcon,
 } from "lucide-react";
 import type { Vocabulary } from "@/lib/vocabulary";
@@ -47,10 +48,12 @@ const ANALYTICS_NAV: NavItem = {
  * The two destinations a worker can reach. Everything else is owner ground,
  * and the API answers 403 there, so listing it would only be a dead end.
  */
-// Orders only. Today is an owner surface: it carries revenue, conversation
-// counts and the WhatsApp/payout setup callouts, none of which a worker can
-// act on or should see. Staff home is the orders board.
-const STAFF_HREFS = new Set(["/dashboard/orders"]);
+// The till and today's orders. Today is an owner surface: it carries revenue,
+// conversation counts and the WhatsApp/payout setup callouts, none of which a
+// worker can act on or should see. Staff home is the till, because ringing up
+// the person in front of them is the job; Orders is the second tab for
+// checking what is already paid or ready.
+const STAFF_HREFS = ["/dashboard/till", "/dashboard/orders"];
 
 /**
  * The four surfaces a merchant lives in during the day. These are the mobile
@@ -60,11 +63,18 @@ const STAFF_HREFS = new Set(["/dashboard/orders"]);
 export function getPrimaryNav(vocab: Vocabulary, role: AuthRole): NavItem[] {
   const items: NavItem[] = [
     { href: "/dashboard", label: "Today", icon: Home },
+    { href: "/dashboard/till", label: "Till", icon: Calculator },
     { href: "/dashboard/orders", label: vocab.orders, icon: ShoppingBag },
     { href: "/dashboard/conversations", label: "Chats", icon: MessageCircle },
     { href: "/dashboard/catalog", label: vocab.catalog, icon: Package },
   ];
-  if (role === "STAFF") return items.filter((i) => STAFF_HREFS.has(i.href));
+  if (role === "STAFF") {
+    // Till first: a worker's home is the screen they ring up on.
+    const byHref = new Map(items.map((i) => [i.href, i]));
+    return STAFF_HREFS.map((href) => byHref.get(href)).filter(
+      (i): i is NavItem => i !== undefined,
+    );
+  }
   return items;
 }
 

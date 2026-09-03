@@ -3,14 +3,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { WhatsappGuide } from "@/components/settings/whatsapp-guide";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = {
   title: "WhatsApp setup guide · Settings · Acroma",
 };
 
 export default async function WhatsappGuidePage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">

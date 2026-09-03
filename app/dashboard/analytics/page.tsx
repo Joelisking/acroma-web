@@ -4,7 +4,7 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { getProductRevenue } from "@/lib/api/analytics";
 import { AnalyticsView } from "@/components/analytics/analytics-view";
 import type { AnalyticsFilter, ProductRevenueReport } from "@/lib/api/types";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Analytics · Acroma" };
 
@@ -21,7 +21,7 @@ const EMPTY_REPORT: ProductRevenueReport = {
 };
 
 export default async function AnalyticsPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const business = await getCurrentBusiness();
   if (!business) return null;

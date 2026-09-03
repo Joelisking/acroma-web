@@ -33,7 +33,13 @@ export function OrderCardAction({
   const [payOpen, setPayOpen] = React.useState(false);
 
   const { primary } = splitOrderActions(
-    nextActions(order.status, order.paymentMethod, businessType, order.fulfillment),
+    nextActions(
+      order.status,
+      order.paymentMethod,
+      businessType,
+      order.fulfillment,
+      order.source,
+    ),
   );
   if (!primary) return null;
 

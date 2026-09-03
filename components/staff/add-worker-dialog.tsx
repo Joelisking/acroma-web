@@ -54,7 +54,7 @@ export function AddWorkerDialog({ businessName }: { businessName: string }) {
           <DialogDescription>
             {created
               ? "Copy the password before you close this."
-              : "They get their own login and see orders only."}
+              : "They get their own login, the till, and today's orders."}
           </DialogDescription>
         </DialogHeader>
 

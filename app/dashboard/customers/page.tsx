@@ -5,12 +5,12 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CustomerRow } from "@/components/customers/customer-row";
 import { ExportCsvButton } from "@/components/customers/export-csv-button";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Customers · Acroma" };
 
 export default async function CustomersPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const customers = await listCustomers();
   return (

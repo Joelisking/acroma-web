@@ -443,6 +443,14 @@ export type ProductFormValues = {
 // Orders
 // ---------------------------------------------------------------------------
 
+/**
+ * Mirrors Prisma's `OrderSource` enum. Character-identical to the backend.
+ * Source of truth: `acroma-backend/prisma/schema.prisma`.
+ * WHATSAPP — taken by the AI or authored from a conversation.
+ * TILL — a walk-in rung up at the counter.
+ */
+export type OrderSource = "WHATSAPP" | "TILL";
+
 export type Order = {
   id: string;
   businessId: string;
@@ -458,6 +466,7 @@ export type Order = {
   deliveryAddress: string | null;
   fulfillment: OrderFulfillment;
   paymentMethod: PaymentMethod;
+  source: OrderSource;
   subtotal: number;
   discountId: string | null;
   discountAmount: number;
@@ -485,7 +494,11 @@ export type OrderLineInput =
   | { customName: string; unitPrice: number; quantity: number };
 
 export type CreateOrderInput = {
-  customerPhone: string;
+  /** Omitted means WHATSAPP. TILL relaxes the phone requirement below. */
+  source?: OrderSource;
+  /** Required for a WhatsApp order; optional at the till, where a walk-in may
+   *  give no number and the backend substitutes its walk-in marker. */
+  customerPhone?: string;
   customerName?: string;
   preferredName?: string;
   fulfillment: OrderFulfillment;

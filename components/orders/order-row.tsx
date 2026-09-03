@@ -26,6 +26,12 @@ import {
   shortId,
 } from "@/lib/format";
 import { formatAppointment } from "@/lib/format-datetime";
+import {
+  CustomPriceBadge,
+  TillBadge,
+  hasCustomPricing,
+  isWalkIn,
+} from "./till-badges";
 
 function isAppointmentPast(scheduledFor: string): boolean {
   return new Date(scheduledFor).getTime() < Date.now();
@@ -47,8 +53,11 @@ export function OrderRow({
   selected?: boolean;
   onToggle?: (id: string) => void;
 }) {
-  const customer =
-    order.customerName?.trim() || formatPhone(order.customerPhone);
+  const walkIn = isWalkIn(order.customerPhone);
+  const customer = walkIn
+    ? "Walk-in"
+    : order.customerName?.trim() || formatPhone(order.customerPhone);
+  const fromTill = order.source === "TILL";
   const itemsSummary = formatItemsSummary(order.items);
   const isDelivery = order.fulfillment === "DELIVERY";
   const isServices = businessType === "SERVICES";
@@ -123,6 +132,13 @@ export function OrderRow({
             </div>
           </div>
 
+          {fromTill || hasCustomPricing(order) ? (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {fromTill ? <TillBadge /> : null}
+              {hasCustomPricing(order) ? <CustomPriceBadge /> : null}
+            </div>
+          ) : null}
+
           {needsReview ? (
             <span className="bg-brand-orange-soft text-brand-orange mt-2 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium whitespace-nowrap">
               <AlertCircle className="size-3 shrink-0" />
@@ -155,20 +171,30 @@ export function OrderRow({
               <span className="bg-brand-orange-soft text-brand-orange flex size-7 shrink-0 items-center justify-center rounded-lg">
                 <Phone className="size-3.5" />
               </span>
-              <a
-                href={`tel:${order.customerPhone}`}
-                className="text-foreground hover:text-brand-orange relative z-10 text-xs font-medium tabular-nums"
-              >
-                {formatPhone(order.customerPhone)}
-              </a>
-              <div className="ml-auto flex items-center gap-1.5">
-                <CopyButton
-                  value={order.customerPhone}
-                  label="Copy phone number"
-                  className="relative z-10"
-                />
-                {isOwner ? <OrderChatButton orderId={order.id} /> : null}
-              </div>
+              {walkIn ? (
+                // Nobody gave a number, so there is nothing to call, copy or
+                // open a chat with.
+                <span className="text-muted-foreground text-xs font-medium">
+                  No number given
+                </span>
+              ) : (
+                <>
+                  <a
+                    href={`tel:${order.customerPhone}`}
+                    className="text-foreground hover:text-brand-orange relative z-10 text-xs font-medium tabular-nums"
+                  >
+                    {formatPhone(order.customerPhone)}
+                  </a>
+                  <div className="ml-auto flex items-center gap-1.5">
+                    <CopyButton
+                      value={order.customerPhone}
+                      label="Copy phone number"
+                      className="relative z-10"
+                    />
+                    {isOwner ? <OrderChatButton orderId={order.id} /> : null}
+                  </div>
+                </>
+              )}
             </div>
             {/* Services happen in person at the merchant's location (the
                 appointment time is shown above), so no pickup/delivery row. */}

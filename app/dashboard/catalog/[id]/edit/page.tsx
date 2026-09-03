@@ -9,14 +9,14 @@ import { getVocabulary } from "@/lib/vocabulary";
 import { distinctCategories } from "@/lib/catalog/categories";
 import { ApiError } from "@/lib/api/server";
 import { EditProductForm } from "@/components/catalog/edit-product-form";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const metadata: Metadata = { title: "Edit product · Acroma" };
 
 export default async function EditProductPage({ params }: PageProps) {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const { id } = await params;
   const [product, business, products] = await Promise.all([

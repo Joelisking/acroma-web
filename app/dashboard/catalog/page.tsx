@@ -11,12 +11,12 @@ import { ProductCard } from "@/components/catalog/product-card"
 import { MenuList } from "@/components/catalog/menu-list"
 import { CatalogEmpty } from "@/components/catalog/catalog-empty"
 import { CatalogImagesSection } from "@/components/catalog/catalog-images-section"
-import { redirectStaffToOrders } from "@/lib/api/owner-only"
+import { redirectStaffHome } from "@/lib/api/owner-only"
 
 export const metadata: Metadata = { title: "Catalog · Acroma" }
 
 export default async function CatalogPage() {
-  await redirectStaffToOrders()
+  await redirectStaffHome()
 
   const [business, products] = await Promise.all([
     getCurrentBusiness(),

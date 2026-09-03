@@ -5,14 +5,14 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { ReminderSettingsForm } from "@/components/settings/reminder-settings-form";
 import { AppointmentReminderSettingsForm } from "@/components/settings/appointment-reminder-settings-form";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = {
   title: "Reminders · Settings · Acroma",
 };
 
 export default async function RemindersSettingsPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const [settings, business] = await Promise.all([
     getReminderSettings(),

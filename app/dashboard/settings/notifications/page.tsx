@@ -3,14 +3,14 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { EmailNotificationsCard } from "@/components/settings/email-notifications-card";
 import { PushNotificationsCard } from "@/components/settings/push-notifications-card";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = {
   title: "Notifications · Settings · Acroma",
 };
 
 export default async function NotificationsSettingsPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const business = await getCurrentBusiness();
   if (!business) return null;

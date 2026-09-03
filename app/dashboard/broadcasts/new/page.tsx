@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { listTemplates } from "@/lib/api/templates";
 import { listDiscounts } from "@/lib/api/discounts";
 import { BroadcastComposer } from "@/components/broadcasts/broadcast-composer";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "New broadcast · Acroma" };
 
 export default async function NewBroadcastPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const [templates, discounts] = await Promise.all([
     listTemplates(),

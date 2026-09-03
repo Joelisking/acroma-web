@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export default async function SettingsIndex() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   redirect("/dashboard/settings/whatsapp");
 }

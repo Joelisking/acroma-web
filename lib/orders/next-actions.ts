@@ -13,6 +13,7 @@ import {
 import type {
   BusinessType,
   OrderFulfillment,
+  OrderSource,
   OrderStatus,
   PaymentMethod,
 } from "@/lib/api/types";
@@ -46,6 +47,7 @@ export function nextActions(
   paymentMethod: PaymentMethod,
   businessType?: BusinessType | null,
   fulfillment?: OrderFulfillment | null,
+  source?: OrderSource | null,
 ): OrderAction[] {
   const vocab = getVocabulary(businessType);
   const isFood = businessType === "FOOD_BEVERAGES";
@@ -137,7 +139,12 @@ export function nextActions(
     }
   }
 
-  if (paymentMethod === "CASH_ON_DELIVERY") {
+  // A till cash sale is collected at the counter and created already PAID, so
+  // the money question is settled before this table is ever consulted. What is
+  // left is the same fulfilment ladder a paid MoMo order walks, which is why a
+  // till order skips the cash-on-delivery branch whatever it was paid with.
+  // Mirrors TILL_TRANSITIONS in the backend's orders.service.ts.
+  if (paymentMethod === "CASH_ON_DELIVERY" && source !== "TILL") {
     switch (status) {
       case "PENDING":
         return [

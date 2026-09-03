@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 import { getBroadcast } from "@/lib/api/broadcasts";
 import { ApiError } from "@/lib/api/server";
 import { BroadcastDetail } from "@/components/broadcasts/broadcast-detail";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 type PageProps = { params: Promise<{ id: string }> };
 
 export const metadata: Metadata = { title: "Broadcast · Acroma" };
 
 export default async function BroadcastDetailPage({ params }: PageProps) {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const { id } = await params;
   let broadcast;

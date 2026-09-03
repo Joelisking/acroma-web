@@ -35,8 +35,9 @@ export function WorkersList({
 
       {rows.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border/70 px-4 py-8 text-center text-sm text-muted-foreground">
-          Add a worker and they get their own username and password. They see
-          orders only, and their name sits on every action they take.
+          Add a worker and they get their own username and password. They get
+          the till and today&apos;s orders, and their name sits on every action
+          they take.
         </p>
       ) : (
         <ul className="divide-y divide-border/70">

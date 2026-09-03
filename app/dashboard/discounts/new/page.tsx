@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { DiscountForm } from "@/components/discounts/discount-form";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "New discount · Acroma" };
 
 export default async function NewDiscountPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

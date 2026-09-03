@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getCurrentBusiness } from "@/lib/api/business";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 import { HOME_COOKIE } from "@/lib/home-preference";
 import { HomePreferenceToggle } from "@/components/dashboard/home-preference-toggle";
 import { getPayoutAccount } from "@/lib/api/payments";
@@ -36,7 +36,7 @@ export default async function OverviewPage() {
   // Today is owner-only: it shows revenue, conversation counts and the
   // WhatsApp/payout setup callouts, which link to pages a worker cannot open.
   // The staff home is the orders board.
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   // Honour the merchant's chosen home surface. A cold launch or post-login
   // entry to /dashboard has no in-app referer, so it routes to Orders when

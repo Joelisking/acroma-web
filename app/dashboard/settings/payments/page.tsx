@@ -4,12 +4,12 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { PayoutAccountSummary } from "@/components/payments/payout-account-summary";
 import { AcceptCodToggle } from "@/components/settings/accept-cod-toggle";
-import { redirectStaffToOrders } from "@/lib/api/owner-only";
+import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "Payments · Settings · Acroma" };
 
 export default async function PaymentsSettingsPage() {
-  await redirectStaffToOrders();
+  await redirectStaffHome();
 
   const [account, banksBank, banksMomo, business] = await Promise.all([
     getPayoutAccount(),

@@ -16,6 +16,7 @@ import {
 import type {
   BusinessType,
   OrderFulfillment,
+  OrderSource,
   OrderStatus,
   PaymentMethod,
 } from "@/lib/api/types";
@@ -32,6 +33,7 @@ export function OrderStatusControl({
   paymentMethod,
   businessType,
   fulfillment,
+  source,
   totalAmount,
   currency,
 }: {
@@ -40,6 +42,7 @@ export function OrderStatusControl({
   paymentMethod: PaymentMethod;
   businessType?: BusinessType | null;
   fulfillment?: OrderFulfillment | null;
+  source?: OrderSource | null;
   totalAmount: number;
   currency: string;
 }) {
@@ -47,7 +50,7 @@ export function OrderStatusControl({
   const [payOpen, setPayOpen] = React.useState(false);
 
   const { primary, secondary } = splitOrderActions(
-    nextActions(status, paymentMethod, businessType, fulfillment),
+    nextActions(status, paymentMethod, businessType, fulfillment, source),
   );
   if (!primary) return null;
 
