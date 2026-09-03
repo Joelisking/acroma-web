@@ -350,3 +350,35 @@ A change is done when:
 7. The screen has been opened to confirm the change actually works.
 
 If any of those is missing, it's not done — say so, don't claim success.
+
+---
+
+## 12. Shipping — which remote actually deploys
+
+This repository exists in **three** places on GitHub. They are not
+interchangeable, and pushing to the wrong one looks exactly like success.
+
+| Remote       | GitHub repo                     | Deploys?                          |
+|--------------|---------------------------------|-----------------------------------|
+| `asera-hq`   | `asera-hq/acroma-web`           | **Yes — this is production**      |
+| `origin`     | `Asera-Technologies/acroma-web` | No                                |
+| `joelisking` | `Joelisking/acroma-web`         | No (builds to `acroma-web.vercel.app`) |
+
+`acroma.asera.tech` is served by the `aseratechnology` Vercel project, which
+builds from **`asera-hq/acroma-web`**. Push there, or the merchant never sees
+the change. Push to all three to keep the copies in sync.
+
+`asera-hq` is a private repo on a personal account, reachable over the
+`github.com-asera-hq` SSH alias. Configured over HTTPS it answers 404, which
+reads as "repo does not exist" when it actually means "you cannot see it".
+
+### The commit-author trap
+
+That Vercel account is on the Hobby plan, which **only deploys commits whose
+author has contributing access**. A commit authored by anyone else is refused
+with "Deployment Blocked", and a blocked deployment cannot be redeployed — the
+fix is a fresh commit by an author Vercel accepts.
+
+This silently froze production on July's code for two months. Both repos now
+set `user.email` locally to the owning account's address; do not override it
+per-commit, and check the deployment actually went green after pushing.
