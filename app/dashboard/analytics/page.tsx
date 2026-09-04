@@ -14,6 +14,7 @@ const EMPTY_REPORT: ProductRevenueReport = {
   range: { start: "", end: "", label: "Last 24 hours" },
   currency: "GHS",
   totalRevenue: 0,
+  revenueByMethod: { paystack: 0, cash: 0 },
   bucket: "hour",
   products: [],
   seriesKeys: [],
