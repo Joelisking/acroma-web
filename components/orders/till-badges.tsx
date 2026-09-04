@@ -1,13 +1,7 @@
 import { Calculator, PencilLine } from "lucide-react"
 import type { Order } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
-
-/** The reserved marker the backend stores when a walk-in gave no number. */
-export const WALK_IN_PHONE = "WALK_IN"
-
-export function isWalkIn(phone: string): boolean {
-  return phone === WALK_IN_PHONE
-}
+export { isWalkIn, WALK_IN_PHONE } from "@/lib/walk-in"
 
 /**
  * Whether an order carries a line a worker priced by hand. Catalog lines always

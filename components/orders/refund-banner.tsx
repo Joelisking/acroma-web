@@ -1,18 +1,19 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { toast } from "sonner";
-import { RotateCcw } from "lucide-react";
+import * as React from "react"
+import { toast } from "sonner"
+import { RotateCcw } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CopyButton } from "@/components/ui/copy-button";
-import { formatMoney, formatPhone } from "@/lib/format";
-import { recordRefundAction } from "@/lib/api/orders-actions";
-import type { Order } from "@/lib/api/types";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { CopyButton } from "@/components/ui/copy-button"
+import { formatMoney, formatPhone } from "@/lib/format"
+import { isWalkIn } from "@/lib/walk-in"
+import { recordRefundAction } from "@/lib/api/orders-actions"
+import type { Order } from "@/lib/api/types"
 
-type Props = { order: Order };
+type Props = { order: Order }
 
 /**
  * Shown when a correction left the customer owed money. We never auto-refund —
@@ -21,29 +22,29 @@ type Props = { order: Order };
  */
 export function RefundBanner({ order }: Props) {
   const [momoNumber, setMomoNumber] = React.useState(
-    order.refundMomoNumber ?? "",
-  );
-  const [momoName, setMomoName] = React.useState(order.refundMomoName ?? "");
-  const [pending, startTransition] = React.useTransition();
+    order.refundMomoNumber ?? ""
+  )
+  const [momoName, setMomoName] = React.useState(order.refundMomoName ?? "")
+  const [pending, startTransition] = React.useTransition()
 
   if (order.refundedAt) {
     return (
       <section className="card-warm p-5" aria-label="Refund">
-        <p className="text-brand-green text-xs font-bold tracking-widest uppercase">
+        <p className="text-xs font-bold tracking-widest text-brand-green uppercase">
           Refund sent
         </p>
-        <p className="text-muted-foreground mt-2 text-sm">
+        <p className="mt-2 text-sm text-muted-foreground">
           Marked refunded on {new Date(order.refundedAt).toLocaleDateString()}.
         </p>
       </section>
-    );
+    )
   }
 
-  if (order.refundDueAmount <= 0) return null;
+  if (order.refundDueAmount <= 0) return null
 
   const detailsChanged =
     momoNumber.trim() !== (order.refundMomoNumber ?? "") ||
-    momoName.trim() !== (order.refundMomoName ?? "");
+    momoName.trim() !== (order.refundMomoName ?? "")
 
   function save(markRefunded: boolean) {
     startTransition(async () => {
@@ -51,44 +52,51 @@ export function RefundBanner({ order }: Props) {
         momoNumber: momoNumber.trim(),
         momoName: momoName.trim(),
         ...(markRefunded ? { markAs: "refunded" as const } : {}),
-      });
+      })
       if (!result.ok) {
-        toast.error(result.error);
-        return;
+        toast.error(result.error)
+        return
       }
-      toast.success(markRefunded ? "Marked refunded" : "Details saved");
-    });
+      toast.success(markRefunded ? "Marked refunded" : "Details saved")
+    })
   }
 
+  const walkIn = isWalkIn(order.customerPhone)
   const customer =
-    order.customerName?.trim() || formatPhone(order.customerPhone);
+    order.customerName?.trim() || formatPhone(order.customerPhone)
 
   return (
     <section
-      className="border-brand-orange/30 bg-brand-orange-soft rounded-xl border p-5"
+      className="rounded-xl border border-brand-orange/30 bg-brand-orange-soft p-5"
       aria-label="Refund due"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-brand-orange text-xs font-bold tracking-widest uppercase">
+          <p className="text-xs font-bold tracking-widest text-brand-orange uppercase">
             Refund due
           </p>
-          <p className="text-brand-navy mt-1 text-2xl font-bold tabular-nums">
+          <p className="mt-1 text-2xl font-bold text-brand-navy tabular-nums">
             {formatMoney(order.refundDueAmount, order.currency)}
           </p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Owed to {customer} · {formatPhone(order.customerPhone)}
+          <p className="mt-1 text-sm text-muted-foreground">
+            {walkIn
+              ? "Owed to a walk-in customer. No number was taken, so this has to be settled in person."
+              : `Owed to ${customer} · ${formatPhone(order.customerPhone)}`}
           </p>
         </div>
-        <CopyButton
-          value={order.customerPhone}
-          label="Copy customer number"
-        />
+        {/* Nothing to copy for a walk-in, and offering it would imply the
+            merchant can reach someone who left no way to be reached. */}
+        {walkIn ? null : (
+          <CopyButton
+            value={order.customerPhone}
+            label="Copy customer number"
+          />
+        )}
       </div>
 
-      <p className="text-muted-foreground mt-4 text-sm">
-        Send this back manually. Ask the customer for the mobile money number and
-        the name on it, then record them here.
+      <p className="mt-4 text-sm text-muted-foreground">
+        Send this back manually. Ask the customer for the mobile money number
+        and the name on it, then record them here.
       </p>
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -135,5 +143,5 @@ export function RefundBanner({ order }: Props) {
         </Button>
       </div>
     </section>
-  );
+  )
 }

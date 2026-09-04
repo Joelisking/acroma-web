@@ -1,8 +1,9 @@
 /**
  * Small, dependency-free formatters used across the app.
  */
+import { isWalkIn } from "./walk-in"
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000
 
 /**
  * Render a timestamp as a compact relative label:
@@ -13,20 +14,20 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  *   else → "Mar 5"
  */
 export function formatRelativeShort(input: string | Date): string {
-  const date = typeof input === "string" ? new Date(input) : input;
-  const diffMs = Date.now() - date.getTime();
-  if (diffMs < 60_000) return "just now";
+  const date = typeof input === "string" ? new Date(input) : input
+  const diffMs = Date.now() - date.getTime()
+  if (diffMs < 60_000) return "just now"
 
-  const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 60) return `${minutes}m`;
+  const minutes = Math.floor(diffMs / 60_000)
+  if (minutes < 60) return `${minutes}m`
 
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h`
 
-  const days = Math.floor(diffMs / DAY_MS);
-  if (days < 7) return `${days}d`;
+  const days = Math.floor(diffMs / DAY_MS)
+  if (days < 7) return `${days}d`
 
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
 }
 
 /**
@@ -34,7 +35,11 @@ export function formatRelativeShort(input: string | Date): string {
  * with light grouping if compact). Falls back to the input.
  */
 export function formatPhone(phone: string): string {
-  return phone.replace(/^(\+\d{3})(\d{2})(\d{3})(\d{4})$/, "$1 $2 $3 $4");
+  // A till walk-in has no number, only the reserved marker. Guarding here
+  // rather than at each of the ten call sites means no screen can ever print
+  // "WALK_IN" at a merchant, or offer to copy it as if it were dialable.
+  if (isWalkIn(phone)) return "Walk-in"
+  return phone.replace(/^(\+\d{3})(\d{2})(\d{3})(\d{4})$/, "$1 $2 $3 $4")
 }
 
 /**
@@ -47,18 +52,18 @@ export function formatMoney(amount: number, currency: string): string {
       style: "currency",
       currency,
       maximumFractionDigits: 2,
-    }).format(amount);
+    }).format(amount)
   } catch {
     return `${currency} ${amount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })}`;
+    })}`
   }
 }
 
 /** Short order id chip — last 6 of the uuid, uppercased. */
 export function shortId(id: string): string {
-  return id.replace(/-/g, "").slice(-6).toUpperCase();
+  return id.replace(/-/g, "").slice(-6).toUpperCase()
 }
 
 /**
@@ -68,14 +73,14 @@ export function shortId(id: string): string {
  */
 export function formatVariantAttributes(
   attributes: Record<string, string> | null | undefined,
-  opts?: { valuesOnly?: boolean },
+  opts?: { valuesOnly?: boolean }
 ): string {
-  if (!attributes) return "";
-  const entries = Object.entries(attributes);
-  if (entries.length === 0) return "";
+  if (!attributes) return ""
+  const entries = Object.entries(attributes)
+  if (entries.length === 0) return ""
   return entries
     .map(([k, v]) => (opts?.valuesOnly ? v : `${k}: ${v}`))
-    .join(opts?.valuesOnly ? ", " : " · ");
+    .join(opts?.valuesOnly ? ", " : " · ")
 }
 
 /**
@@ -84,25 +89,25 @@ export function formatVariantAttributes(
  */
 export function formatItemsSummary(
   items: {
-    quantity: number;
-    productName?: string | null;
-    product: { name: string } | null;
-    variant?: { attributes: Record<string, string> } | null;
-  }[],
+    quantity: number
+    productName?: string | null
+    product: { name: string } | null
+    variant?: { attributes: Record<string, string> } | null
+  }[]
 ): string {
   return items
     .map((item) => {
-      const name = item.product?.name ?? item.productName ?? "Item";
+      const name = item.product?.name ?? item.productName ?? "Item"
       const variant = formatVariantAttributes(item.variant?.attributes, {
         valuesOnly: true,
-      });
-      return `${item.quantity}× ${name}${variant ? ` (${variant})` : ""}`;
+      })
+      return `${item.quantity}× ${name}${variant ? ` (${variant})` : ""}`
     })
-    .join(", ");
+    .join(", ")
 }
 
 export function getInitials(name: string | null | undefined, fallback = "?") {
-  if (!name) return fallback;
+  if (!name) return fallback
   return (
     name
       .split(/\s+/)
@@ -110,5 +115,5 @@ export function getInitials(name: string | null | undefined, fallback = "?") {
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase() ?? "")
       .join("") || fallback
-  );
+  )
 }
