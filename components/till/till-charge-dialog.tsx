@@ -4,7 +4,7 @@ import * as React from "react"
 import { Check, Loader2, Send } from "lucide-react"
 import { toast } from "sonner"
 import type { Order } from "@/lib/api/types"
-import { formatMoney } from "@/lib/format"
+import { formatMoney, formatPhone } from "@/lib/format"
 import { sendPaymentLinkAction } from "@/lib/api/till-actions"
 import { updateOrderStatusAction } from "@/lib/api/orders-actions"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { QrCode } from "./qr-code"
 import { isPaid } from "./till-tickets"
+import { isWalkIn } from "@/lib/walk-in"
 
 type TillChargeDialogProps = {
   order: Order | null
@@ -42,7 +43,7 @@ export function TillChargeDialog({
   if (!order) return null
 
   const paid = isPaid(order)
-  const canSend = order.customerPhone !== "WALK_IN" && !!order.paystackAuthUrl
+  const canSend = !isWalkIn(order.customerPhone) && !!order.paystackAuthUrl
 
   async function handleSend() {
     if (!order) return
@@ -112,15 +113,24 @@ export function TillChargeDialog({
 
         <div className="flex flex-col gap-2">
           {!paid && canSend ? (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={busy}
-              onClick={handleSend}
-            >
-              <Send className="size-4" />
-              Send link on WhatsApp
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy}
+                onClick={handleSend}
+              >
+                <Send className="size-4" />
+                Send link on WhatsApp
+              </Button>
+              {/* Show the number the message will actually go to. The backend
+                  rewrites a locally-typed number into international form, so
+                  this is a worker's chance to catch a wrong digit before the
+                  customer walks away. */}
+              <p className="text-center text-xs text-muted-foreground tabular-nums">
+                to {formatPhone(order.customerPhone)}
+              </p>
+            </>
           ) : null}
           <Button
             type="button"
