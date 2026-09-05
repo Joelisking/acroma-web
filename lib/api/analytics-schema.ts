@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { z } from "zod"
 
 const seriesPoint = z
   .object({ bucket: z.string() })
-  .catchall(z.union([z.number(), z.string()]));
+  .catchall(z.union([z.number(), z.string()]))
 
 export const productRevenueReportSchema = z.object({
   range: z.object({ start: z.string(), end: z.string(), label: z.string() }),
@@ -22,8 +22,20 @@ export const productRevenueReportSchema = z.object({
       unitsSold: z.number(),
       orderCount: z.number(),
       pctOfTotal: z.number(),
-    }),
+      // Optional so an older API still parses. Zod DROPS undeclared keys, so
+      // a new field must be added here or it never reaches the page.
+      variants: z
+        .array(
+          z.object({
+            label: z.string().nullable(),
+            unitsSold: z.number(),
+            revenue: z.number(),
+            pctOfProduct: z.number(),
+          })
+        )
+        .optional(),
+    })
   ),
   seriesKeys: z.array(z.string()),
   series: z.array(seriesPoint),
-});
+})

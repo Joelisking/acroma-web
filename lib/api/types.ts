@@ -742,6 +742,15 @@ export type DashboardStats = {
   }
 }
 
+/** One variant's share of a product, e.g. 50 of 100 King Combos were Pork. */
+export type VariantBreakdownRow = {
+  /** Null means the order predates the choice being structured. */
+  label: string | null
+  unitsSold: number
+  revenue: number
+  pctOfProduct: number
+}
+
 export type ProductRevenueRow = {
   productId: string | null
   name: string
@@ -749,6 +758,11 @@ export type ProductRevenueRow = {
   unitsSold: number
   orderCount: number
   pctOfTotal: number
+  /**
+   * How this product's units split across its variants. Optional because the
+   * API may not have deployed yet; empty for products never sold with one.
+   */
+  variants?: VariantBreakdownRow[]
 }
 
 export type ProductRevenueSeriesPoint = {
