@@ -60,7 +60,7 @@ export function SiteFooter() {
               <li className="text-white/55">
                 Investors and partners,{" "}
                 <a
-                  href="mailto:papayawaduasare@gmail.com"
+                  href="mailto:info@asera.tech"
                   className="text-brand-orange transition-colors hover:text-white"
                 >
                   get in touch
