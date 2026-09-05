@@ -3,6 +3,7 @@ import { getCurrentBusiness } from "@/lib/api/business";
 import { getVocabulary } from "@/lib/vocabulary";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { BusinessForm } from "@/components/settings/business-form";
+import { DeliveryFeeField } from "@/components/settings/delivery-fee-field"
 import { AcceptPickupToggle } from "@/components/settings/accept-pickup-toggle";
 import { OrderAlertsToggle } from "@/components/settings/order-alerts-toggle";
 import { CatalogImagesManager } from "@/components/catalog/catalog-images-manager";
@@ -65,6 +66,10 @@ export default async function BusinessSettingsPage() {
         >
           <div className="space-y-6">
             <AcceptPickupToggle initial={business.acceptsPickup} />
+            <DeliveryFeeField
+              initial={business.deliveryFee}
+              currency={business.currency}
+            />
             <OrderAlertsToggle initial={business.orderAlertsEnabled} />
           </div>
         </SettingsCard>

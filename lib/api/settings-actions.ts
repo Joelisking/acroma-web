@@ -81,6 +81,28 @@ export async function updateAcceptsCashOnDeliveryAction(
   }
 }
 
+export async function updateDeliveryFeeAction(
+  deliveryFee: number,
+): Promise<ActionResult<{ id: string; deliveryFee: number }>> {
+  try {
+    const data = await apiFetch<{ id: string; deliveryFee: number }>(
+      "/settings/order-options",
+      {
+        method: "PATCH",
+        body: { deliveryFee },
+      },
+    );
+    revalidatePath("/dashboard/settings/business");
+    revalidatePath("/dashboard/till");
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: humanError(err, "Couldn't save the delivery charge"),
+    };
+  }
+}
+
 export async function updateAcceptsPickupAction(
   acceptsPickup: boolean,
 ): Promise<ActionResult<{ id: string; acceptsPickup: boolean }>> {

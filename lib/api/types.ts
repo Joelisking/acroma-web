@@ -63,6 +63,11 @@ export type Business = {
    */
   acceptsPickup: boolean
   /**
+   * Flat charge added to delivery orders taken at the till, in the merchant's
+   * own currency. 0 means delivery is free. Chat orders are not charged it.
+   */
+  deliveryFee: number
+  /**
    * When true, the merchant gets the "order coming in" heads-up push the
    * moment the AI is about to create an order. Defaults to true.
    */

@@ -19,6 +19,17 @@ import { QrCode } from "./qr-code"
 import { isPaid } from "./till-tickets"
 import { isWalkIn } from "@/lib/walk-in"
 
+// WhatsApp will not carry a free-form message to a customer who has not
+// written to the business in the last 24 hours, which is most people standing
+// at a counter. Saying so plainly beats a generic failure, because "ask them
+// to message you first" is a thing the worker can actually do.
+const REFUSAL_COPY = {
+  OUT_OF_WINDOW:
+    "They haven't messaged you in the last 24 hours, so WhatsApp won't deliver it. Ask them to scan the QR.",
+  OPTED_OUT:
+    "They asked to stop receiving messages. Ask them to scan the QR.",
+} as const
+
 type TillChargeDialogProps = {
   order: Order | null
   open: boolean
@@ -55,9 +66,14 @@ export function TillChargeDialog({
       return
     }
     if (!res.data.ok) {
-      // Meta's 24-hour window. Not a failure to fix, just a route that is
-      // closed for this customer, and the QR is already on screen.
-      toast.error("Couldn't reach them on WhatsApp. Ask them to scan the QR.")
+      // Not a failure to fix, just a route that is closed for this customer,
+      // and the QR is already on screen. Say which route and why, so the
+      // worker knows whether asking the customer to message first would help.
+      if (res.data.reason === "UNREACHABLE") {
+        toast.error("Couldn't reach them on WhatsApp. Ask them to scan the QR.")
+      } else {
+        toast.info(REFUSAL_COPY[res.data.reason])
+      }
       return
     }
     toast.success("Link sent on WhatsApp.")

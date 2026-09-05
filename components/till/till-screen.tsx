@@ -2,7 +2,13 @@
 
 import * as React from "react"
 import { toast } from "sonner"
-import type { Business, Order, Product, ProductVariant } from "@/lib/api/types"
+import type {
+  Business,
+  Order,
+  OrderFulfillment,
+  Product,
+  ProductVariant,
+} from "@/lib/api/types"
 import {
   addLine,
   cartLineFromProduct,
@@ -20,6 +26,7 @@ import { VariantDialog } from "./variant-dialog"
 import { CustomLineDialog } from "./custom-line-dialog"
 import { useTillTickets } from "./use-till-tickets"
 import { TillCartBar } from "./till-cart-bar"
+import { TillFulfillment } from "./till-fulfillment"
 
 type TillScreenProps = {
   business: Business
@@ -42,6 +49,10 @@ export function TillScreen({
 }: TillScreenProps) {
   const [lines, setLines] = React.useState<CartLine[]>([])
   const [phone, setPhone] = React.useState("")
+  const [fulfillment, setFulfillment] =
+    React.useState<OrderFulfillment>("PICKUP")
+  const [address, setAddress] = React.useState("")
+  const [addressTouched, setAddressTouched] = React.useState(false)
   const [busy, setBusy] = React.useState(false)
   const [variantFor, setVariantFor] = React.useState<Product | null>(null)
   const [customOpen, setCustomOpen] = React.useState(false)
@@ -80,16 +91,32 @@ export function TillScreen({
   function resetCart() {
     setLines([])
     setPhone("")
+    setFulfillment("PICKUP")
+    setAddress("")
+    setAddressTouched(false)
   }
 
+  // Only charged on delivery, and only what this merchant has configured.
+  const deliveryFee =
+    fulfillment === "DELIVERY" ? (business.deliveryFee ?? 0) : 0
+
   async function createOrder(paymentMethod: "MOMO" | "CASH_ON_DELIVERY") {
+    // You cannot deliver to nowhere. Surface it before taking any money.
+    if (fulfillment === "DELIVERY" && address.trim().length === 0) {
+      setAddressTouched(true)
+      toast.error("Add where the order is going first.")
+      return
+    }
     setBusy(true)
     const res = await createOrderAction({
       source: "TILL",
       // Blank means walk-in; the backend substitutes its marker rather than
       // storing an empty string.
       ...(phone.trim() ? { customerPhone: phone.trim() } : {}),
-      fulfillment: "PICKUP",
+      fulfillment,
+      ...(fulfillment === "DELIVERY"
+        ? { deliveryAddress: address.trim() }
+        : {}),
       paymentMethod,
       items: toOrderLines(lines),
     })
@@ -149,6 +176,18 @@ export function TillScreen({
       onCharge={() => void createOrder("MOMO")}
       onCash={() => void createOrder("CASH_ON_DELIVERY")}
       busy={busy}
+      deliveryFee={deliveryFee}
+      fulfillment={
+        <TillFulfillment
+          value={fulfillment}
+          onChange={setFulfillment}
+          address={address}
+          onAddressChange={setAddress}
+          deliveryFee={business.deliveryFee ?? 0}
+          currency={business.currency}
+          showAddressError={addressTouched}
+        />
+      }
     />
   )
 

@@ -4,6 +4,7 @@ import { Banknote, Minus, Plus, QrCode as QrIcon, X } from "lucide-react"
 import type { CartLine } from "@/lib/till"
 import { cartCount, cartTotal } from "@/lib/till"
 import { formatMoney } from "@/lib/format"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -12,6 +13,10 @@ type TillCartProps = {
   currency: string
   phone: string
   onPhoneChange: (value: string) => void
+  /** Rendered above the total: the pickup/delivery choice and its address. */
+  fulfillment: React.ReactNode
+  /** Charged on this order, already decided by the fulfillment control. */
+  deliveryFee: number
   onQuantityChange: (key: string, quantity: number) => void
   onClear: () => void
   onCharge: () => void
@@ -28,13 +33,16 @@ export function TillCart({
   currency,
   phone,
   onPhoneChange,
+  fulfillment,
+  deliveryFee,
   onQuantityChange,
   onClear,
   onCharge,
   onCash,
   busy,
 }: TillCartProps) {
-  const total = cartTotal(lines)
+  const goods = cartTotal(lines)
+  const total = goods + deliveryFee
   const count = cartCount(lines)
   const empty = lines.length === 0
 
@@ -112,7 +120,25 @@ export function TillCart({
         </ul>
       )}
 
-      <div className="flex items-center justify-between border-t border-border pt-3">
+      {fulfillment}
+
+      {/* Shown as its own line so the worker can answer "why is it 40 and not
+          35" without doing arithmetic in front of the customer. */}
+      {deliveryFee > 0 ? (
+        <div className="flex items-center justify-between border-t border-border pt-3 text-sm">
+          <span className="text-muted-foreground">Delivery</span>
+          <span className="font-medium text-foreground tabular-nums">
+            {formatMoney(deliveryFee, currency)}
+          </span>
+        </div>
+      ) : null}
+
+      <div
+        className={cn(
+          "flex items-center justify-between",
+          deliveryFee > 0 ? "" : "border-t border-border pt-3"
+        )}
+      >
         <span className="text-base font-bold text-foreground">Total</span>
         <span className="text-xl font-bold text-foreground tabular-nums">
           {formatMoney(total, currency)}

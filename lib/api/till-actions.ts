@@ -8,13 +8,18 @@ type ActionResult<T = void> =
   | { ok: false; error: string }
 
 /**
- * Backend `SendLinkResult`. A refused send is not an error: Meta's 24-hour
- * customer service window rejecting a stranger is the expected case, and the
- * answer is the QR already on the counter screen.
+ * Backend `SendLinkResult`. A refused send is not an error: WhatsApp's 24-hour
+ * customer service window closing out a counter customer is the expected case,
+ * and the answer is the QR already on screen. The reasons stay apart because
+ * the worker can act on the difference.
  */
 type SendLinkResult =
   | { ok: true }
-  | { ok: false; reason: "UNREACHABLE"; detail: string }
+  | {
+      ok: false
+      reason: "OUT_OF_WINDOW" | "OPTED_OUT" | "UNREACHABLE"
+      detail: string
+    }
 
 /**
  * Push an order's existing payment link to the customer over WhatsApp. The
