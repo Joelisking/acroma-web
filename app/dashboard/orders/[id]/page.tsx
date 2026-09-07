@@ -136,6 +136,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           currency={order.currency}
           subtotal={order.subtotal}
           discountAmount={order.discountAmount}
+          deliveryFee={order.deliveryFee ?? 0}
           total={order.totalAmount}
           discountCode={order.discount?.code ?? null}
         />

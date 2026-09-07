@@ -6,6 +6,7 @@ type Props = {
   currency: string;
   subtotal: number;
   discountAmount: number;
+  deliveryFee: number;
   total: number;
   discountCode: string | null;
 };
@@ -15,6 +16,7 @@ export function OrderItems({
   currency,
   subtotal,
   discountAmount,
+  deliveryFee,
   total,
   discountCode,
 }: Props) {
@@ -57,18 +59,28 @@ export function OrderItems({
           </li>
         ))}
       </ul>
-      {discountAmount > 0 ? (
+      {discountAmount > 0 || deliveryFee > 0 ? (
         <dl className="border-border/70 mt-4 space-y-1 border-t pt-4 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Subtotal</dt>
             <dd className="text-foreground">{formatMoney(subtotal, currency)}</dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-muted-foreground">
-              Discount{discountCode ? ` (${discountCode})` : ""}
-            </dt>
-            <dd className="text-brand-green">-{formatMoney(discountAmount, currency)}</dd>
-          </div>
+          {discountAmount > 0 ? (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">
+                Discount{discountCode ? ` (${discountCode})` : ""}
+              </dt>
+              <dd className="text-brand-green">-{formatMoney(discountAmount, currency)}</dd>
+            </div>
+          ) : null}
+          {/* The trip is its own line so a total that sits above the food is
+              explained rather than looking like a pricing mistake. */}
+          {deliveryFee > 0 ? (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Delivery</dt>
+              <dd className="text-foreground">{formatMoney(deliveryFee, currency)}</dd>
+            </div>
+          ) : null}
           <div className="border-border/40 mt-2 flex justify-between border-t pt-2 text-base font-medium">
             <dt>Total</dt>
             <dd>{formatMoney(total, currency)}</dd>

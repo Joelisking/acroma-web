@@ -473,6 +473,7 @@ export type Order = {
   paymentMethod: PaymentMethod
   source: OrderSource
   subtotal: number
+  deliveryFee: number
   discountId: string | null
   discountAmount: number
   scheduledFor: string | null
