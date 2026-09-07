@@ -32,7 +32,9 @@ export type OrderAction = {
  * Returns the contextually-relevant next-status actions for an order, ordered
  * with the single most likely next step first.
  *
- * Branches on payment method: COD follows a physical fulfilment flow; MOMO
+ * Branches on source first: a till order is a counter sale, so the hand-off is
+ * the dominant move and the prepare step is demoted. Otherwise it branches on
+ * payment method: COD follows a physical fulfilment flow; MOMO
  * follows a payment-first flow. Fulfilment branches the physical flow — a
  * pickup order becomes "ready for pickup" then "picked up" and never goes "out
  * for delivery". Food merchants (FOOD_BEVERAGES) get a PREPARING (cooking) step
@@ -89,6 +91,16 @@ export function nextActions(
     label: "Mark cash received",
     Icon: CheckCircle2,
   };
+  const processingAction: OrderAction = {
+    status: "PROCESSING",
+    label: "Start processing",
+    Icon: Cog,
+  };
+  const markPaidAction: OrderAction = {
+    status: "PAID",
+    label: "Mark as paid",
+    Icon: CheckCircle2,
+  };
 
   // The final fulfilment step and the in-progress options leading to it.
   const fulfilAction = isPickup ? pickedUpAction : deliveredAction;
@@ -139,24 +151,46 @@ export function nextActions(
     }
   }
 
-  // A till cash sale is collected at the counter and created already PAID, so
-  // the money question is settled before this table is ever consulted. What is
-  // left is the same fulfilment ladder a paid MoMo order walks, which is why a
-  // till order skips the cash-on-delivery branch whatever it was paid with.
-  // Mirrors TILL_TRANSITIONS in the backend's orders.service.ts.
-  if (paymentMethod === "CASH_ON_DELIVERY" && source !== "TILL") {
+  // A till sale is collected at the counter and handed straight across it, so
+  // the money question is settled before this table is ever consulted and the
+  // obvious next move is the hand-off, not the kitchen queue. Preparing stays
+  // in the list but secondary, so it sits on the detail page rather than the
+  // board card, for counter food that genuinely takes time to cook.
+  // The backend allows the PAID -> DELIVERED shortcut for a till order; mirrors
+  // TILL_TRANSITIONS in the backend's orders.service.ts.
+  if (source === "TILL") {
+    switch (status) {
+      case "PENDING":
+      case "PAYMENT_PENDING":
+        return [markPaidAction, cancelAction];
+      case "PAID":
+        return [
+          fulfilAction,
+          ...(isFood ? [preparingAction] : [processingAction]),
+          cancelAction,
+        ];
+      case "PROCESSING":
+        return [
+          fulfilAction,
+          ...(isFood ? [preparingAction] : []),
+          ...progressActions,
+        ];
+      case "PREPARING":
+        return [fulfilAction, ...progressActions];
+      case "READY_FOR_PICKUP":
+        return [fulfilAction];
+      case "SHIPPED":
+        return [deliveredAction];
+      default:
+        return [];
+    }
+  }
+
+  if (paymentMethod === "CASH_ON_DELIVERY") {
     switch (status) {
       case "PENDING":
         return [
-          ...(isFood
-            ? [preparingAction]
-            : [
-                {
-                  status: "PROCESSING",
-                  label: "Start processing",
-                  Icon: Cog,
-                } satisfies OrderAction,
-              ]),
+          ...(isFood ? [preparingAction] : [processingAction]),
           cancelAction,
         ];
       case "PROCESSING":
@@ -182,21 +216,10 @@ export function nextActions(
   switch (status) {
     case "PENDING":
     case "PAYMENT_PENDING":
-      return [
-        { status: "PAID", label: "Mark as paid", Icon: CheckCircle2 },
-        cancelAction,
-      ];
+      return [markPaidAction, cancelAction];
     case "PAID":
       return [
-        ...(isFood
-          ? [preparingAction]
-          : [
-              {
-                status: "PROCESSING",
-                label: "Start processing",
-                Icon: Cog,
-              } satisfies OrderAction,
-            ]),
+        ...(isFood ? [preparingAction] : [processingAction]),
         cancelAction,
       ];
     case "PROCESSING":
