@@ -21,11 +21,12 @@ import { isWalkIn } from "@/lib/walk-in"
 
 // WhatsApp will not carry a free-form message to a customer who has not
 // written to the business in the last 24 hours, which is most people standing
-// at a counter. Saying so plainly beats a generic failure, because "ask them
-// to message you first" is a thing the worker can actually do.
+// at a counter. With the counter template approved the backend sends that
+// instead, so OUT_OF_WINDOW now means the template is missing, and the fix is
+// one switch in settings rather than anything the worker can do at the till.
 const REFUSAL_COPY = {
   OUT_OF_WINDOW:
-    "They haven't messaged you in the last 24 hours, so WhatsApp won't deliver it. Ask them to scan the QR.",
+    "They haven't messaged you in 24 hours. Turn on counter payment links in WhatsApp settings to reach customers like this. For now, ask them to scan the QR.",
   OPTED_OUT:
     "They asked to stop receiving messages. Ask them to scan the QR.",
 } as const

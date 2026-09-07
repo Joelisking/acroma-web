@@ -3,11 +3,14 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 import { getWhatsappSettings } from "@/lib/api/settings";
+import { listTemplates } from "@/lib/api/templates";
+import { findTillPaymentTemplate } from "@/lib/till-template";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { WhatsappStatus } from "@/components/settings/whatsapp-status";
 import { WhatsappForm } from "@/components/settings/whatsapp-form";
 import { WhatsappTestButton } from "@/components/settings/whatsapp-test-button";
 import { CopyField } from "@/components/settings/copy-field";
+import { TillTemplateSetup } from "@/components/settings/till-template-setup";
 import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "WhatsApp · Settings · Acroma" };
@@ -16,6 +19,12 @@ export default async function WhatsappSettingsPage() {
   await redirectStaffHome();
 
   const settings = await getWhatsappSettings();
+  // A merchant who has not connected WhatsApp has no WABA to hold a template,
+  // and the backend refuses the sync, so don't ask for one.
+  const templates = settings.whatsappBusinessAccountId
+    ? await listTemplates()
+    : [];
+  const tillTemplate = findTillPaymentTemplate(templates);
 
   return (
     <div className="space-y-6">
@@ -52,6 +61,16 @@ export default async function WhatsappSettingsPage() {
           active={settings.whatsappWebhookActive}
           healthy={settings.whatsappHealthy}
           lastError={settings.whatsappLastError}
+        />
+      </SettingsCard>
+
+      <SettingsCard
+        title="Counter payment links"
+        description="Let the till send a payment link to a customer who has never messaged you."
+      >
+        <TillTemplateSetup
+          status={tillTemplate?.status ?? null}
+          connected={!!settings.whatsappBusinessAccountId}
         />
       </SettingsCard>
 
