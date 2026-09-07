@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 
+import { listAudit } from "@/lib/api/audit"
 import { getOrder } from "@/lib/api/orders"
 import { getCurrentBusiness } from "@/lib/api/business"
 import { readRole } from "@/lib/api/cookies"
 import { listProducts } from "@/lib/api/products"
 import { ApiError } from "@/lib/api/server"
+import type { AuditEntry } from "@/lib/api/types"
 import { OrderHeader } from "@/components/orders/order-header"
 import { EditOrderTrigger } from "@/components/orders/edit-order-trigger"
 import { CorrectOrderTrigger } from "@/components/orders/correct-order-trigger"
@@ -20,6 +22,7 @@ import { DeliveryAddressCard } from "@/components/orders/delivery-address-card"
 import { OrderNotesCard } from "@/components/orders/order-notes-card"
 import { OrderRemoveButton } from "@/components/orders/order-remove-button"
 import { PickupCard } from "@/components/orders/pickup-card"
+import { ActivityTimeline } from "@/components/conversations/activity-timeline"
 import { LiveRefresh } from "@/components/conversations/live-refresh"
 import { formatAppointment } from "@/lib/format-datetime"
 
@@ -30,19 +33,23 @@ export const metadata: Metadata = { title: "Order · Acroma" }
 export default async function OrderDetailPage({ params }: PageProps) {
   const { id } = await params
 
-  const [business, order, products] = await Promise.all([
+  // Editing, correcting and the customer-nudge quick replies are all
+  // owner-only at the API. Hiding them for staff keeps the screen honest
+  // rather than offering buttons that answer "Forbidden resource".
+  // Read first, because GET /audit is owner-only too: asking for it as staff
+  // would just 403 and render an empty timeline.
+  const isOwner = (await readRole()) === "OWNER"
+
+  const [business, order, products, activity] = await Promise.all([
     getCurrentBusiness(),
     safeGetOrder(id),
     listProducts(),
+    isOwner ? safeListActivity(id) : Promise.resolve<AuditEntry[]>([]),
   ])
   if (!business) return null
   if (!order) notFound()
 
   const isServices = business.businessType === "SERVICES"
-  // Editing, correcting and the customer-nudge quick replies are all
-  // owner-only at the API. Hiding them for staff keeps the screen honest
-  // rather than offering buttons that answer "Forbidden resource".
-  const isOwner = (await readRole()) === "OWNER"
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
@@ -140,6 +147,15 @@ export default async function OrderDetailPage({ params }: PageProps) {
         <OrderNotesCard orderId={order.id} notes={order.notes} />
       ) : null}
 
+      {/* The order's own history: every status change, plus why a payment
+          link failed and what brought it back. Owner-only, matching the
+          endpoint. */}
+      {isOwner ? (
+        <section aria-label="Activity">
+          <ActivityTimeline entries={activity} />
+        </section>
+      ) : null}
+
       {isOwner ? (
       <section
         aria-label="Manage order"
@@ -166,6 +182,16 @@ export default async function OrderDetailPage({ params }: PageProps) {
       <LiveRefresh businessId={business.id} events={["order_updated"]} />
     </div>
   )
+}
+
+// The Activity timeline is a non-critical aid; never let an audit fetch
+// failure take down the order view.
+async function safeListActivity(orderId: string): Promise<AuditEntry[]> {
+  try {
+    return await listAudit({ orderId })
+  } catch {
+    return []
+  }
 }
 
 async function safeGetOrder(id: string) {
