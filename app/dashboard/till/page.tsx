@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { listProducts, listVariants } from "@/lib/api/products"
+import { listProducts } from "@/lib/api/products"
 import { listOrders } from "@/lib/api/orders"
 import { getCurrentBusiness } from "@/lib/api/business"
 import type { ProductVariant } from "@/lib/api/types"
@@ -27,24 +27,33 @@ export default async function TillPage() {
       label: `#${order.id.slice(0, 4).toUpperCase()}`,
     }))
 
-  // Preload variants for the items that have them. A worker choosing a size
-  // with a customer waiting should not pay for a round trip, and a counter
-  // catalog is small enough that this stays cheap.
+  // Variants ride along on the products response, so the size picker costs no
+  // extra requests at all.
   //
-  // This used to swallow every failure into an empty list, which is how a
-  // worker account rang up a whole evening with no sizes on anything: the
-  // variants route was owner-only, every request 403'd, and the catch turned
-  // "you are not allowed" into "this product has no options". Count the
-  // failures instead so the screen can say so.
-  const withVariants = products.filter((p) => p.hasVariants && isSellable(p))
-  const variantLists = await Promise.all(
-    withVariants.map((p) =>
-      listVariants(p.id).catch((): ProductVariant[] | null => null)
-    )
+  // This used to fetch each variant-bearing product's options separately: an
+  // N+1 on every till load, and the reason a worker account rang up a whole
+  // evening with no sizes on anything. That route was owner-only, so each
+  // request 403'd, and a `.catch(() => [])` turned "you are not allowed" into
+  // "this product has no options" with nothing on screen to say otherwise. The
+  // data was in the products response the whole time, fetched again through a
+  // door that happened to be locked.
+  const sellableWithVariants = products.filter(
+    (p) => p.hasVariants && isSellable(p)
   )
-  const variantsUnavailable = variantLists.filter((v) => v === null).length
   const variantsByProduct: Record<string, ProductVariant[]> =
-    Object.fromEntries(withVariants.map((p, i) => [p.id, variantLists[i] ?? []]))
+    Object.fromEntries(
+      sellableWithVariants.map((p) => [
+        p.id,
+        (p.variants ?? []).filter((v) => v.isActive),
+      ])
+    )
+
+  // One silent failure survives the change: a product flagged as having
+  // options but carrying none rings up at its base price with nothing to
+  // choose. Rare, but a worker should hear about it rather than undercharge.
+  const variantsUnavailable = sellableWithVariants.filter(
+    (p) => (variantsByProduct[p.id] ?? []).length === 0
+  ).length
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">

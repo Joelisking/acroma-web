@@ -35,9 +35,10 @@ type TillScreenProps = {
   /** Variants preloaded per product, so choosing a size costs no round trip. */
   variantsByProduct: Record<string, ProductVariant[]>
   /**
-   * How many products failed to load their variants. Surfaced rather than
-   * swallowed: an empty picker is indistinguishable from an item that
-   * genuinely has one size, and a worker cannot tell they are selling blind.
+   * How many sellable products are flagged as having options but arrived with
+   * none. Surfaced rather than swallowed: an empty picker is indistinguishable
+   * from an item that genuinely has one size, so without this a worker cannot
+   * tell they are undercharging.
    */
   variantsUnavailable: number
   /** Today's counter orders still waiting on payment, so a reload keeps them. */
@@ -212,9 +213,9 @@ export function TillScreen({
           />
           <span>
             {variantsUnavailable} item{variantsUnavailable === 1 ? "" : "s"}{" "}
-            couldn&apos;t load their options, so they&apos;ll ring up at the
-            base price. Reload, or ask the owner to check this account&apos;s
-            access.
+            {variantsUnavailable === 1 ? "has" : "have"} no options set up, so{" "}
+            {variantsUnavailable === 1 ? "it" : "they"}&apos;ll ring up at the
+            base price. Check the catalog if that&apos;s not right.
           </span>
         </div>
       ) : null}
