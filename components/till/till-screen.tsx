@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import type {
   Business,
@@ -33,6 +34,12 @@ type TillScreenProps = {
   products: Product[]
   /** Variants preloaded per product, so choosing a size costs no round trip. */
   variantsByProduct: Record<string, ProductVariant[]>
+  /**
+   * How many products failed to load their variants. Surfaced rather than
+   * swallowed: an empty picker is indistinguishable from an item that
+   * genuinely has one size, and a worker cannot tell they are selling blind.
+   */
+  variantsUnavailable: number
   /** Today's counter orders still waiting on payment, so a reload keeps them. */
   openTickets: Ticket[]
 }
@@ -45,6 +52,7 @@ export function TillScreen({
   business,
   products,
   variantsByProduct,
+  variantsUnavailable,
   openTickets,
 }: TillScreenProps) {
   const [lines, setLines] = React.useState<CartLine[]>([])
@@ -193,6 +201,24 @@ export function TillScreen({
 
   return (
     <div className="flex flex-col gap-4">
+      {variantsUnavailable > 0 ? (
+        <div
+          role="status"
+          className="border-brand-orange/25 bg-brand-orange-soft text-brand-navy/80 flex items-start gap-2 rounded-2xl border p-3 text-sm"
+        >
+          <TriangleAlert
+            className="text-brand-orange mt-0.5 size-4 shrink-0"
+            strokeWidth={1.75}
+          />
+          <span>
+            {variantsUnavailable} item{variantsUnavailable === 1 ? "" : "s"}{" "}
+            couldn&apos;t load their options, so they&apos;ll ring up at the
+            base price. Reload, or ask the owner to check this account&apos;s
+            access.
+          </span>
+        </div>
+      ) : null}
+
       <TillTickets tickets={tickets} onOpen={handleOpenTicket} />
 
       <div className="grid gap-4 md:grid-cols-[1fr_17rem] md:items-start lg:grid-cols-[1fr_20rem]">

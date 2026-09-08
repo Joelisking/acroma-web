@@ -85,7 +85,15 @@ export function OrderLineRow({
                 onChange({
                   ...line,
                   variantId,
-                  unitPrice: variant?.priceOverride ?? line.unitPrice,
+                  // A variant with no priceOverride sells at the product's
+                  // base price. Falling back to `line.unitPrice` instead kept
+                  // whatever the previously-picked variant cost, so switching
+                  // Sausage from Large (override 20) to Regular (no override)
+                  // still charged 20 rather than the 15 base.
+                  unitPrice:
+                    variant?.priceOverride ??
+                    catalogProduct?.basePrice ??
+                    line.unitPrice,
                 });
               }}
             >

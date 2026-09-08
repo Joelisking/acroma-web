@@ -1,4 +1,9 @@
-import { Clock, PackagePlus, type LucideIcon } from "lucide-react";
+import {
+  Clock,
+  MessageSquareWarning,
+  PackagePlus,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -62,6 +67,15 @@ const REASON_CONTENT: Record<string, ReasonContent> = {
     Icon: Clock,
     headline: "Acroma had a brief hiccup replying",
     body: "A technical issue kept Acroma from generating a reply just now. It'll pick the conversation back up on its own once things are working again, but feel free to jump in now if it's urgent.",
+  },
+  "reply-undeliverable": {
+    Icon: MessageSquareWarning,
+    headline: "Acroma's reply couldn't be delivered",
+    body: "Acroma wrote a reply but WhatsApp wouldn't accept it, so this customer has heard nothing. That usually means their number came through incomplete. Reply here to reach them, and check your WhatsApp connection if it keeps happening.",
+    cta: {
+      label: "Check WhatsApp connection",
+      href: "/dashboard/settings/whatsapp",
+    },
   },
 };
 

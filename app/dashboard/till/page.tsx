@@ -30,12 +30,21 @@ export default async function TillPage() {
   // Preload variants for the items that have them. A worker choosing a size
   // with a customer waiting should not pay for a round trip, and a counter
   // catalog is small enough that this stays cheap.
+  //
+  // This used to swallow every failure into an empty list, which is how a
+  // worker account rang up a whole evening with no sizes on anything: the
+  // variants route was owner-only, every request 403'd, and the catch turned
+  // "you are not allowed" into "this product has no options". Count the
+  // failures instead so the screen can say so.
   const withVariants = products.filter((p) => p.hasVariants && isSellable(p))
   const variantLists = await Promise.all(
-    withVariants.map((p) => listVariants(p.id).catch(() => []))
+    withVariants.map((p) =>
+      listVariants(p.id).catch((): ProductVariant[] | null => null)
+    )
   )
+  const variantsUnavailable = variantLists.filter((v) => v === null).length
   const variantsByProduct: Record<string, ProductVariant[]> =
-    Object.fromEntries(withVariants.map((p, i) => [p.id, variantLists[i]]))
+    Object.fromEntries(withVariants.map((p, i) => [p.id, variantLists[i] ?? []]))
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -47,6 +56,7 @@ export default async function TillPage() {
         business={business}
         products={products}
         variantsByProduct={variantsByProduct}
+        variantsUnavailable={variantsUnavailable}
         openTickets={openTickets}
       />
     </div>
