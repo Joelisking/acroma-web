@@ -38,6 +38,12 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptResult }) {
     month: "long",
     year: "numeric",
   });
+  // What the customer actually paid. `totalAmount` is the merchant's share of
+  // the split, so a receipt showing it alone would be short of the figure on
+  // the customer's own MoMo statement by the service charge. Both fields fall
+  // back for a backend that predates them, and for cash orders that carry none.
+  const serviceCharge = receipt.serviceCharge ?? 0;
+  const charged = receipt.amountCharged ?? receipt.totalAmount + serviceCharge;
 
   return (
     <article className="card-warm mx-auto max-w-md overflow-hidden print:rounded-none print:border-0 print:shadow-none">
@@ -80,7 +86,7 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptResult }) {
             {HERO_LABEL[status.tone]}
           </p>
           <p className="mt-1 text-3xl font-bold tracking-tight text-brand-navy tabular-nums">
-            {formatMoney(receipt.totalAmount, receipt.currency)}
+            {formatMoney(charged, receipt.currency)}
           </p>
         </div>
       </div>
@@ -146,10 +152,18 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptResult }) {
             </span>
           </div>
         )}
+        {serviceCharge > 0 && (
+          <div className="text-muted-foreground flex justify-between">
+            <span>Service charge</span>
+            <span className="tabular-nums">
+              {formatMoney(serviceCharge, receipt.currency)}
+            </span>
+          </div>
+        )}
         <div className="mt-1 flex justify-between border-t pt-2 text-base font-semibold text-brand-navy">
           <span>Total</span>
           <span className="tabular-nums">
-            {formatMoney(receipt.totalAmount, receipt.currency)}
+            {formatMoney(charged, receipt.currency)}
           </span>
         </div>
         <div className="text-muted-foreground flex justify-between pt-1 text-xs">

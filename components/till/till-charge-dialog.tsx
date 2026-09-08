@@ -97,9 +97,22 @@ export function TillChargeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
+          {/* The amount the QR will actually ask for. `totalAmount` is the
+              merchant's share of the split, so showing it here would put a
+              different number on the counter screen than on the customer's
+              phone the moment they scan. */}
           <DialogTitle className="text-center text-2xl tabular-nums">
-            {formatMoney(order.totalAmount, order.currency)}
+            {formatMoney(
+              order.totalAmount + (order.serviceCharge ?? 0),
+              order.currency,
+            )}
           </DialogTitle>
+          {order.serviceCharge ? (
+            <p className="text-muted-foreground text-center text-xs">
+              {formatMoney(order.totalAmount, order.currency)} plus{" "}
+              {formatMoney(order.serviceCharge, order.currency)} service charge
+            </p>
+          ) : null}
           <DialogDescription className="text-center">
             {paid
               ? "Payment received."

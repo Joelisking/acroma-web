@@ -474,6 +474,15 @@ export type Order = {
   source: OrderSource
   subtotal: number
   deliveryFee: number
+  /**
+   * The Acroma platform fee the CUSTOMER paid on top of this order, in the
+   * merchant's currency. Deliberately NOT part of `totalAmount`: totalAmount is
+   * what the merchant is owed and settles to their payout account, so every
+   * revenue figure on the dashboard stays correct without subtracting this.
+   * The customer was charged `totalAmount + serviceCharge`. Always 0 on cash
+   * orders. Optional because the two apps deploy independently.
+   */
+  serviceCharge?: number
   discountId: string | null
   discountAmount: number
   scheduledFor: string | null

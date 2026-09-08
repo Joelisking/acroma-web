@@ -39,7 +39,15 @@ export type ReceiptResult = {
   items: ReceiptItem[];
   subtotal: number;
   discountAmount: number;
+  /** What the merchant is owed. NOT what the customer paid, when a service
+   *  charge applies. */
   totalAmount: number;
+  /** The Acroma platform fee the customer paid on top. 0 on cash orders.
+   *  Optional: the two apps deploy independently. */
+  serviceCharge?: number;
+  /** What the customer was actually charged (totalAmount + serviceCharge).
+   *  Optional for the same reason. */
+  amountCharged?: number;
 };
 
 export async function getReceipt(token: string): Promise<ReceiptResult> {

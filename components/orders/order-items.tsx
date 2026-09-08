@@ -7,6 +7,9 @@ type Props = {
   subtotal: number;
   discountAmount: number;
   deliveryFee: number;
+  /** The Acroma fee the CUSTOMER paid on top. Not part of `total`, which stays
+   *  what this merchant is owed and what settles to their payout account. */
+  serviceCharge?: number;
   total: number;
   discountCode: string | null;
 };
@@ -17,6 +20,7 @@ export function OrderItems({
   subtotal,
   discountAmount,
   deliveryFee,
+  serviceCharge = 0,
   total,
   discountCode,
 }: Props) {
@@ -59,7 +63,7 @@ export function OrderItems({
           </li>
         ))}
       </ul>
-      {discountAmount > 0 || deliveryFee > 0 ? (
+      {discountAmount > 0 || deliveryFee > 0 || serviceCharge > 0 ? (
         <dl className="border-border/70 mt-4 space-y-1 border-t pt-4 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Subtotal</dt>
@@ -85,6 +89,19 @@ export function OrderItems({
             <dt>Total</dt>
             <dd>{formatMoney(total, currency)}</dd>
           </div>
+          {/* The merchant's total above is what settles to their payout
+              account. The customer was charged the Acroma service charge on
+              top, so it is named here rather than left as an unexplained gap
+              between this page and what the customer says they paid. */}
+          {serviceCharge > 0 ? (
+            <div className="text-muted-foreground flex justify-between text-xs">
+              <dt>Customer paid</dt>
+              <dd className="tabular-nums">
+                {formatMoney(total + serviceCharge, currency)} (incl.{" "}
+                {formatMoney(serviceCharge, currency)} service charge)
+              </dd>
+            </div>
+          ) : null}
         </dl>
       ) : null}
     </>
