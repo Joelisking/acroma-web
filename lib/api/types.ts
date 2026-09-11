@@ -800,6 +800,13 @@ export type ProductRevenueReport = {
    * page must not go blank over one missing breakdown.
    */
   revenueByMethod?: { paystack: number; cash: number }
+  /**
+   * Orders that went out for delivery versus were collected, and the delivery
+   * charges those trips brought in. `fees` is the only place the delivery fee
+   * is visible: the product figures strip it out so dishes are not inflated
+   * by rider trips. Optional for the same deploy-independence reason as above.
+   */
+  delivery?: { orders: number; pickups: number; fees: number }
   bucket: "hour" | "day"
   products: ProductRevenueRow[]
   seriesKeys: string[]

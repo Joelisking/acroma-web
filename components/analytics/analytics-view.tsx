@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import { AnalyticsFilterBar } from "./analytics-filter-bar"
 import { ProductRevenueTable } from "./product-revenue-table"
 import { RevenueSplit } from "./revenue-split"
+import { DeliverySummary } from "./delivery-summary"
 import { useProductRevenue } from "./use-product-revenue"
 import { formatMoney } from "@/lib/format"
 import { cn } from "@/lib/utils"
@@ -55,6 +56,14 @@ export function AnalyticsView({ initialFilter, initialReport }: Props) {
               cash={report.revenueByMethod.cash}
               currency={report.currency}
               className="max-w-md"
+            />
+          ) : null}
+          {report.delivery ? (
+            <DeliverySummary
+              orders={report.delivery.orders}
+              pickups={report.delivery.pickups}
+              fees={report.delivery.fees}
+              currency={report.currency}
             />
           ) : null}
         </div>

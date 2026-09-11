@@ -13,6 +13,9 @@ export const productRevenueReportSchema = z.object({
   revenueByMethod: z
     .object({ paystack: z.number(), cash: z.number() })
     .optional(),
+  delivery: z
+    .object({ orders: z.number(), pickups: z.number(), fees: z.number() })
+    .optional(),
   bucket: z.union([z.literal("hour"), z.literal("day")]),
   products: z.array(
     z.object({
