@@ -8,7 +8,7 @@ type ActionResult<T = void> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
-const WORKERS_PATH = "/dashboard/settings/workers";
+const WORKERS_PATH = "/dashboard/settings/team";
 
 export type StaffInput = {
   name: string;

@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   AlarmClock,
   UsersRound,
-  UserRoundPlus,
 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
@@ -58,12 +57,6 @@ export const SETTINGS_SECTIONS: Section[] = [
   {
     href: "/dashboard/settings/team",
     label: "Team",
-    icon: UserRoundPlus,
-    ownerOnly: true,
-  },
-  {
-    href: "/dashboard/settings/workers",
-    label: "Workers",
     icon: UsersRound,
     ownerOnly: true,
   },
