@@ -183,11 +183,16 @@ export type TeamMember = {
   joinedAt: string
 }
 
-/** An invite link that has not been used, cancelled, or expired yet. */
+/**
+ * An invite link that has not been used, cancelled, or expired yet. `url` is
+ * the full link, so it can be copied again; null only for links minted before
+ * the backend kept the token.
+ */
 export type TeamInvite = {
   id: string
   createdAt: string
   expiresAt: string
+  url?: string | null
 }
 
 export type TeamResponse = {
@@ -195,7 +200,7 @@ export type TeamResponse = {
   invites: TeamInvite[]
 }
 
-/** The reply to minting an invite. `url` carries the token and is shown once. */
+/** The reply to minting an invite. */
 export type CreatedInvite = TeamInvite & { url: string }
 
 /** What the join page learns about a link before asking for anything. */

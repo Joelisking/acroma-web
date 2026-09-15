@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Link2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { CopyButton } from "@/components/ui/copy-button"
 import { revokeInviteAction } from "@/lib/api/team-actions"
 import type { TeamInvite } from "@/lib/api/types"
 
@@ -17,11 +18,7 @@ function expiresIn(iso: string): string {
   return `expires in ${Math.max(1, Math.round(ms / 60_000))} min`
 }
 
-/**
- * A link that is out in the world but not yet used. The URL itself is not
- * recoverable (the backend only keeps a hash), so the only action is to
- * cancel it and make a new one.
- */
+/** A link that is out in the world but not yet used: copy it again, or cancel it. */
 export function InviteRow({ invite }: { invite: TeamInvite }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
@@ -44,6 +41,9 @@ export function InviteRow({ invite }: { invite: TeamInvite }) {
         <Link2 className="size-4 shrink-0 text-muted-foreground" />
         <span className="text-foreground">Invite link</span>
         <span className="text-muted-foreground">· {expiresIn(invite.expiresAt)}</span>
+        {invite.url ? (
+          <CopyButton value={invite.url} label="Copy invite link" />
+        ) : null}
       </div>
       <Button
         type="button"
