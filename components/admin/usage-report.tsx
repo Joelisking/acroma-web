@@ -38,9 +38,9 @@ const UsageTrendChart = dynamic(
   { ssr: false, loading: ChartSkeleton },
 );
 
-// The four kinds the backend attributes cost/tokens to, in display order. Kinds
+// The five kinds the backend attributes cost/tokens to, in display order. Kinds
 // not present in a given period are omitted.
-const KIND_ORDER = ["REPLY", "IMAGE", "TRANSCRIPTION", "ORDER_MESSAGE"];
+const KIND_ORDER = ["REPLY", "IMAGE", "TRANSCRIPTION", "ORDER_MESSAGE", "PROMPT_CACHE"];
 
 interface PerBusiness {
   businessId: string;
