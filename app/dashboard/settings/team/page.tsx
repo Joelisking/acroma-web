@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { getTeam } from "@/lib/api/team"
+import { readActorEmail } from "@/lib/api/cookies"
 import { redirectStaffHome } from "@/lib/api/owner-only"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { TeamList } from "@/components/team/team-list"
@@ -12,7 +13,7 @@ export default async function TeamSettingsPage() {
   // from landing on a page that would only show them an error.
   await redirectStaffHome()
 
-  const team = await getTeam()
+  const [team, viewerEmail] = await Promise.all([getTeam(), readActorEmail()])
 
   return (
     <div className="space-y-6">
@@ -20,7 +21,7 @@ export default async function TeamSettingsPage() {
         title="Team"
         description="People who run this business with you. Everyone here can do everything you can: orders, chats, catalog, payments and settings. Share an invite link to add someone."
       >
-        <TeamList team={team} />
+        <TeamList team={team} viewerEmail={viewerEmail} />
       </SettingsCard>
     </div>
   )

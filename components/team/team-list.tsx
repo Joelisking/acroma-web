@@ -8,7 +8,14 @@ import { MemberRow } from "./member-row"
  * Members first (owner pinned at the top by the backend), then any links
  * that are still waiting to be used.
  */
-export function TeamList({ team }: { team: TeamResponse }) {
+export function TeamList({
+  team,
+  viewerEmail,
+}: {
+  team: TeamResponse
+  /** Who is looking, so their own row does not offer to remove them. */
+  viewerEmail: string | null
+}) {
   const { members, invites } = team
 
   return (
@@ -25,7 +32,11 @@ export function TeamList({ team }: { team: TeamResponse }) {
 
         <ul className="divide-y divide-border/70">
           {members.map((m) => (
-            <MemberRow key={m.id} member={m} />
+            <MemberRow
+              key={m.id}
+              member={m}
+              isViewer={viewerEmail !== null && m.email === viewerEmail}
+            />
           ))}
         </ul>
       </div>

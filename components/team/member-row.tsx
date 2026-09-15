@@ -4,7 +4,13 @@ import type { TeamMember } from "@/lib/api/types"
 import { RemoveMemberButton } from "./remove-member-button"
 
 /** One person with owner-level access, and whether they can be removed. */
-export function MemberRow({ member }: { member: TeamMember }) {
+export function MemberRow({
+  member,
+  isViewer,
+}: {
+  member: TeamMember
+  isViewer: boolean
+}) {
   const isOwner = member.role === "OWNER"
 
   return (
@@ -26,9 +32,10 @@ export function MemberRow({ member }: { member: TeamMember }) {
         <p className="truncate text-xs text-muted-foreground">{member.email}</p>
       </div>
 
-      {/* The original owner is the business itself and cannot be removed.
-          Anyone else can be, by an owner or a fellow admin. */}
-      {isOwner ? null : (
+      {/* The original owner is the business itself and cannot be removed,
+          and nobody removes themselves (the API refuses it too). Anyone else
+          can be, by an owner or a fellow admin. */}
+      {isOwner || isViewer ? null : (
         <div className="flex shrink-0 items-center gap-2">
           <RemoveMemberButton member={member} />
         </div>
