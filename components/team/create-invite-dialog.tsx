@@ -68,7 +68,7 @@ export function CreateInviteDialog() {
           {pending ? "Creating link" : "Invite someone"}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Send this link</DialogTitle>
           <DialogDescription>
@@ -92,9 +92,12 @@ export function CreateInviteDialog() {
 
 function InviteLinkPanel({ url }: { url: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/40 px-3 py-2.5">
+    // min-w-0 matters: DialogContent is a grid, and a grid child defaults to
+    // min-width:auto, so an unbreakable token would push this row (and the
+    // dialog's text) past the card edge instead of wrapping inside it.
+    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-border/70 bg-muted/40 px-3 py-2.5">
       <Link2 className="size-4 shrink-0 text-muted-foreground" />
-      <code className="min-w-0 flex-1 truncate font-mono text-xs text-foreground">
+      <code className="min-w-0 flex-1 font-mono text-xs break-all text-foreground select-all">
         {url}
       </code>
       <CopyButton value={url} label="Copy invite link" />
