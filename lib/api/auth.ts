@@ -46,6 +46,12 @@ export async function loginAction(input: {
       // a worker used clears the flag instead of inheriting it.
       mustChangePassword:
         data.role === "STAFF" ? data.mustChangePassword : false,
+      email:
+        data.role === "ADMIN"
+          ? data.user.email
+          : data.role === "OWNER"
+            ? data.business.email
+            : undefined,
     });
     return {
       ok: true,
@@ -57,7 +63,7 @@ export async function loginAction(input: {
               mustChangePassword: data.mustChangePassword,
             }
           : {
-              role: "OWNER",
+              role: data.role,
               displayName: data.business.name,
               mustChangePassword: false,
             },
@@ -84,6 +90,7 @@ export async function registerAction(input: {
       refreshToken: data.refreshToken,
       role: "OWNER",
       mustChangePassword: false,
+      email: data.business.email,
     });
     return { ok: true, data: { business: data.business } };
   } catch (err) {

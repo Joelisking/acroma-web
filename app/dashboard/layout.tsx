@@ -2,7 +2,11 @@ import { redirect } from "next/navigation";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
 import { getConversationBadgeCounts } from "@/lib/api/conversations";
-import { readMustChangePassword, readRole } from "@/lib/api/cookies";
+import {
+  readActorEmail,
+  readMustChangePassword,
+  readRole,
+} from "@/lib/api/cookies";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TabletRail } from "@/components/dashboard/tablet-rail";
 import { TopBar } from "@/components/dashboard/top-bar";
@@ -23,12 +27,14 @@ export default async function DashboardLayout({
   // forced screen doesn't wait on data it will never render.
   if (await readMustChangePassword()) redirect("/change-password");
 
-  const [business, onboarding, badgeCounts, role] = await Promise.all([
-    getCurrentBusiness(),
-    safeStatus(),
-    getConversationBadgeCounts(),
-    readRole(),
-  ]);
+  const [business, onboarding, badgeCounts, role, actorEmail] =
+    await Promise.all([
+      getCurrentBusiness(),
+      safeStatus(),
+      getConversationBadgeCounts(),
+      readRole(),
+      readActorEmail(),
+    ]);
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
   // cookies still in the browser, sends us back to /dashboard, and we loop.
@@ -57,7 +63,7 @@ export default async function DashboardLayout({
     <div className="theme-warm bg-paper text-foreground flex h-dvh overflow-hidden">
       <Sidebar
         businessName={business.name}
-        email={business.email}
+        email={actorEmail ?? business.email}
         badges={badges}
         vocab={vocab}
         role={role}
@@ -67,7 +73,7 @@ export default async function DashboardLayout({
         badges={badges}
         vocab={vocab}
         name={business.name}
-        email={business.email}
+        email={actorEmail ?? business.email}
         role={role}
       />
 
@@ -90,7 +96,7 @@ export default async function DashboardLayout({
           badges={badges}
           vocab={vocab}
           name={business.name}
-          email={business.email}
+          email={actorEmail ?? business.email}
           role={role}
         />
       </div>

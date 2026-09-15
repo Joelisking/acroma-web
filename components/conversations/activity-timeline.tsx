@@ -36,7 +36,8 @@ const EVENT_LABELS: Record<string, string> = {
 const ACTOR_LABELS: Record<AuditActor, string> = {
   CUSTOMER: "Customer",
   AI: "Acroma AI",
-  OWNER: "You",
+  OWNER: "Owner",
+  ADMIN: "Admin",
   STAFF: "Worker",
   SYSTEM: "System",
 };
@@ -45,6 +46,7 @@ const ACTOR_DOT: Record<AuditActor, string> = {
   CUSTOMER: "bg-muted-foreground/50",
   AI: "bg-brand-blue",
   OWNER: "bg-brand-orange",
+  ADMIN: "bg-brand-orange",
   STAFF: "bg-brand-green",
   SYSTEM: "bg-muted-foreground/50",
 };

@@ -42,6 +42,19 @@ export const registerSchema = z
     message: "Passwords don't match",
   });
 
+/** The invite join form. Same password bar as a fresh owner registration. */
+export const joinSchema = z
+  .object({
+    name: z.string().min(2, "Enter your name").max(80),
+    email: z.string().email("Enter a valid email address"),
+    password: strongPassword,
+    confirmPassword: z.string().min(1, "Confirm your password"),
+  })
+  .refine((v) => v.password === v.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords don't match",
+  });
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
@@ -73,6 +86,7 @@ export const changePasswordSchema = z
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type JoinInput = z.infer<typeof joinSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

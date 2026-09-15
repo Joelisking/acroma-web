@@ -41,7 +41,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
 
   // Chat opens a conversation, which is owner-only at the API. Hide the link
   // for staff rather than offering a button that answers "Forbidden resource".
-  const isOwner = (await readRole()) === "OWNER";
+  const isOwner = (await readRole()) !== "STAFF";
 
   const vocab = getVocabulary(business.businessType);
   const isServices = business.businessType === "SERVICES";

@@ -38,7 +38,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
   // rather than offering buttons that answer "Forbidden resource".
   // Read first, because GET /audit is owner-only too: asking for it as staff
   // would just 403 and render an empty timeline.
-  const isOwner = (await readRole()) === "OWNER"
+  const isOwner = (await readRole()) !== "STAFF"
 
   const [business, order, products, activity] = await Promise.all([
     getCurrentBusiness(),

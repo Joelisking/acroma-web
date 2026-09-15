@@ -94,7 +94,11 @@ export type Business = {
  * Who is signed in. An owner is the business itself; a staff member is a
  * worker login that hangs off that business.
  */
-export type AuthRole = "OWNER" | "STAFF"
+/**
+ * OWNER is the business row's own login. ADMIN is an invited person with a
+ * live membership and every permission an owner has. STAFF is a till worker.
+ */
+export type AuthRole = "OWNER" | "ADMIN" | "STAFF"
 
 /**
  * The token bundle returned by the owner-only endpoints — `/auth/register`
@@ -125,7 +129,16 @@ export type StaffLoginResponse = {
   staff: { id: string; name: string }
 }
 
-export type LoginResponse = OwnerLoginResponse | StaffLoginResponse
+/** An invited admin. Same bundle as an owner plus who the person is. */
+export type AdminLoginResponse = AuthResponse & {
+  role: "ADMIN"
+  user: { id: string; name: string; email: string }
+}
+
+export type LoginResponse =
+  | OwnerLoginResponse
+  | AdminLoginResponse
+  | StaffLoginResponse
 
 /** A worker login belonging to a business. Owner-facing shape — no hashes. */
 export type Staff = {
@@ -155,6 +168,40 @@ export type CreatedStaff = {
 /** The reply to a password reset — the new temporary password, once. */
 export type StaffTemporaryPassword = {
   temporaryPassword: string
+}
+
+/**
+ * A person with owner-level access. The original owner comes first with
+ * `role: "OWNER"` and the business id as `id`; everyone else is an invited
+ * admin whose `id` is their membership row.
+ */
+export type TeamMember = {
+  id: string
+  name: string
+  email: string
+  role: "OWNER" | "ADMIN"
+  joinedAt: string
+}
+
+/** An invite link that has not been used, cancelled, or expired yet. */
+export type TeamInvite = {
+  id: string
+  createdAt: string
+  expiresAt: string
+}
+
+export type TeamResponse = {
+  members: TeamMember[]
+  invites: TeamInvite[]
+}
+
+/** The reply to minting an invite. `url` carries the token and is shown once. */
+export type CreatedInvite = TeamInvite & { url: string }
+
+/** What the join page learns about a link before asking for anything. */
+export type InvitePreview = {
+  businessName: string
+  expiresAt: string
 }
 
 export type RefreshResponse = {
@@ -843,7 +890,7 @@ export type DashboardActivity = {
 }
 
 /** Who triggered an audited event. */
-export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "STAFF" | "SYSTEM"
+export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "ADMIN" | "STAFF" | "SYSTEM"
 
 /**
  * A single row from the backend audit log (`GET /audit`). Read-only;

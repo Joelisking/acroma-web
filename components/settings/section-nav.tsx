@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   AlarmClock,
   UsersRound,
+  UserRoundPlus,
 } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ type Section = {
   href: string;
   label: string;
   icon: ComponentType<IconProps>;
-  /** Hidden from workers, who have no business managing other workers. */
+  /** Hidden from workers. Owners and admins both see it. */
   ownerOnly?: boolean;
 };
 
@@ -55,6 +56,12 @@ export const SETTINGS_SECTIONS: Section[] = [
     icon: AlarmClock,
   },
   {
+    href: "/dashboard/settings/team",
+    label: "Team",
+    icon: UserRoundPlus,
+    ownerOnly: true,
+  },
+  {
     href: "/dashboard/settings/workers",
     label: "Workers",
     icon: UsersRound,
@@ -69,7 +76,7 @@ export const SETTINGS_SECTIONS: Section[] = [
 
 /** The sections this role has any use for. */
 export function settingsSectionsFor(role: AuthRole): Section[] {
-  return SETTINGS_SECTIONS.filter((s) => !s.ownerOnly || role === "OWNER");
+  return SETTINGS_SECTIONS.filter((s) => !s.ownerOnly || role !== "STAFF");
 }
 
 export function SectionNav({ role }: { role: AuthRole }) {

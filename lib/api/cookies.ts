@@ -8,6 +8,11 @@ export const ACCESS_COOKIE = "acroma_access";
 export const REFRESH_COOKIE = "acroma_refresh";
 export const ROLE_COOKIE = "acroma_role";
 export const MUST_CHANGE_PASSWORD_COOKIE = "acroma_must_change_password";
+// The signed-in person's own email, for the account menu. An admin's
+// business row carries the OWNER's email, which is not who they are. Display
+// only, never a boundary. Goes away in phase 2 when identity has a real
+// endpoint.
+export const EMAIL_COOKIE = "acroma_email";
 
 const ACCESS_TTL_SECONDS = 60 * 15; // 15 min — matches backend access expiry
 const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
@@ -39,6 +44,8 @@ type SetTokensInput = {
    * `false` clears it so a fresh login never inherits the last person's.
    */
   mustChangePassword?: boolean;
+  /** The acting person's email. Omitted = leave whatever is there. */
+  email?: string;
 };
 
 export async function setAuthCookies({
@@ -46,6 +53,7 @@ export async function setAuthCookies({
   refreshToken,
   role,
   mustChangePassword,
+  email,
 }: SetTokensInput) {
   const store = await cookies();
 
@@ -72,6 +80,13 @@ export async function setAuthCookies({
       });
     }
 
+    if (email) {
+      store.set(EMAIL_COOKIE, email, {
+        ...cookieOptions,
+        maxAge: REFRESH_TTL_SECONDS,
+      });
+    }
+
     if (mustChangePassword === true) {
       store.set(MUST_CHANGE_PASSWORD_COOKIE, "1", {
         ...cookieOptions,
@@ -92,6 +107,7 @@ export async function clearAuthCookies() {
     store.delete(REFRESH_COOKIE);
     store.delete(ROLE_COOKIE);
     store.delete(MUST_CHANGE_PASSWORD_COOKIE);
+    store.delete(EMAIL_COOKIE);
   } catch {
     // Read-only cookie store (Server Component) — ignore.
   }
@@ -117,7 +133,15 @@ export async function readRefreshToken() {
  */
 export async function readRole(): Promise<AuthRole> {
   const store = await cookies();
-  return store.get(ROLE_COOKIE)?.value === "STAFF" ? "STAFF" : "OWNER";
+  const value = store.get(ROLE_COOKIE)?.value;
+  if (value === "STAFF" || value === "ADMIN") return value;
+  return "OWNER";
+}
+
+/** The signed-in person's email when we know it; null for older sessions. */
+export async function readActorEmail(): Promise<string | null> {
+  const store = await cookies();
+  return store.get(EMAIL_COOKIE)?.value ?? null;
 }
 
 /**
