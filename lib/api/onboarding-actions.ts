@@ -44,7 +44,7 @@ export async function completeOnboardingAndConnectWhatsappAction(): Promise<void
     console.error(err);
   }
   revalidatePath("/dashboard", "layout");
-  redirect("/dashboard/settings/whatsapp?from=onboarding");
+  redirect("/whatsapp/connect");
 }
 
 export async function completeOnboardingAndGoToCatalogAction(): Promise<void> {

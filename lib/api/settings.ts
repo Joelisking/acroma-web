@@ -1,29 +1,36 @@
-import "server-only";
+import "server-only"
 
-import { apiFetch } from "./server";
-import type { BookingCapacitySettings, ReminderSettings } from "./types";
+import { apiFetch } from "./server"
+import type { BookingCapacitySettings, ReminderSettings } from "./types"
 
 export type WhatsappSettings = {
-  whatsappPhoneNumberId: string | null;
-  whatsappBusinessAccountId: string | null;
-  whatsappVerifyToken: string | null;
-  whatsappWebhookActive: boolean;
+  connection: {
+    appKey: string
+    status: string
+    displayPhoneNumber: string
+    tokenExpiresAt: string | null
+    dataAccessExpiresAt: string | null
+  } | null
+  whatsappPhoneNumberId: string | null
+  whatsappBusinessAccountId: string | null
+  whatsappVerifyToken: string | null
+  whatsappWebhookActive: boolean
   // Token health. `whatsappHealthy` is false once a probe (or a failed send)
   // finds the access token dead; `whatsappLastError` is the reason to surface.
-  whatsappHealthy: boolean;
-  whatsappTokenExpiresAt: string | null;
-  whatsappLastError: string | null;
-  webhookUrl: string;
-};
+  whatsappHealthy: boolean
+  whatsappTokenExpiresAt: string | null
+  whatsappLastError: string | null
+  webhookUrl: string
+}
 
 export async function getWhatsappSettings(): Promise<WhatsappSettings> {
-  return apiFetch<WhatsappSettings>("/settings/whatsapp");
+  return apiFetch<WhatsappSettings>("/settings/whatsapp")
 }
 
 export async function getReminderSettings(): Promise<ReminderSettings> {
-  return apiFetch<ReminderSettings>("/settings/reminders");
+  return apiFetch<ReminderSettings>("/settings/reminders")
 }
 
 export async function getBookingCapacity(): Promise<BookingCapacitySettings> {
-  return apiFetch<BookingCapacitySettings>("/settings/booking-capacity");
+  return apiFetch<BookingCapacitySettings>("/settings/booking-capacity")
 }
