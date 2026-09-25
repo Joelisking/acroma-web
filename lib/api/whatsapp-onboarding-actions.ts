@@ -24,9 +24,16 @@ async function safe<T>(operation: () => Promise<T>): Promise<SignupAction<T>> {
 export async function startWhatsappSignup(): Promise<
   SignupAction<SignupStart>
 > {
-  return safe(() =>
-    apiFetch<SignupStart>("/whatsapp-onboarding/attempts", { method: "POST" })
-  )
+  return safe(async () => {
+    const existing = await apiFetch<SignupStart | null>(
+      "/whatsapp-onboarding/attempts/recover",
+      { method: "POST" }
+    )
+    return (
+      existing ??
+      apiFetch<SignupStart>("/whatsapp-onboarding/attempts", { method: "POST" })
+    )
+  })
 }
 export async function sendSignupCode(
   id: string,

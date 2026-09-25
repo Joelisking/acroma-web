@@ -48,13 +48,22 @@ export function WhatsappConnect() {
               ? "Preparing…"
               : signup.attempt
                 ? "Prepare a new connection"
-                : "Prepare connection"}
+                : "Prepare or resume connection"}
           </Button>
           {signup.attempt && !signup.progress && (
             <Button onClick={signup.launch}>Continue with Meta</Button>
           )}
         </div>
       )}
+      {signup.progress?.status === "ACTION_REQUIRED" &&
+        !signup.progress.needsPin && (
+          <Button
+            disabled={signup.busy}
+            onClick={() => void signup.submitPin()}
+          >
+            Resume existing setup
+          </Button>
+        )}
       {signup.progress?.needsPin && (
         <form
           className="max-w-sm space-y-3"

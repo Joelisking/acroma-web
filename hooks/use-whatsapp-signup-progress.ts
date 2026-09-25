@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, type MutableRefObject } from "react"
+import { useEffect, type MutableRefObject } from "react"
 import {
   getSignupProgress,
   resumeWhatsappSignup,
@@ -10,6 +10,10 @@ import type {
   SignupProgress,
   SignupStart,
 } from "@/lib/api/whatsapp-onboarding"
+import {
+  startSignupPolling,
+  signupStopped,
+} from "@/lib/whatsapp/signup-polling"
 import { parseSignupEvent } from "@/lib/whatsapp/signup-events"
 export function useWhatsappSignupProgress(
   attempt: SignupStart | undefined,
@@ -19,7 +23,6 @@ export function useWhatsappSignupProgress(
   apply: (result: SignupAction<SignupProgress>) => void,
   setError: (message: string) => void
 ) {
-  const resuming = useRef(false)
   useEffect(() => {
     if (!attempt) return
     const listener = (event: MessageEvent<unknown>) => {
@@ -46,38 +49,13 @@ export function useWhatsappSignupProgress(
     return () => window.removeEventListener("message", listener)
   }, [attempt, active, receivedCode, apply, setError])
   useEffect(() => {
-    if (
-      !attempt ||
-      !progress ||
-      [
-        "CONNECTED",
-        "ACTION_REQUIRED",
-        "FAILED",
-        "CANCELLED",
-        "EXPIRED",
-      ].includes(progress.status)
-    )
-      return
-    let cancelled = false
-    const timer = window.setTimeout(() => {
-      if (progress.status === "VALIDATING" && !resuming.current) {
-        resuming.current = true
-        void resumeWhatsappSignup(attempt.attemptId, attempt.nonce)
-          .then((result) => {
-            if (!cancelled) apply(result)
-          })
-          .finally(() => {
-            resuming.current = false
-          })
-      } else {
-        void getSignupProgress(attempt.attemptId).then((result) => {
-          if (!cancelled) apply(result)
-        })
-      }
-    }, 1500)
-    return () => {
-      cancelled = true
-      window.clearTimeout(timer)
-    }
+    if (!attempt || !progress || signupStopped(progress.status)) return
+    return startSignupPolling({
+      read: () => getSignupProgress(attempt.attemptId),
+      resume: () => resumeWhatsappSignup(attempt.attemptId, attempt.nonce),
+      apply,
+      schedule: (fn, delay) => window.setTimeout(fn, delay),
+      cancel: (timer) => window.clearTimeout(timer),
+    })
   }, [attempt, progress, apply])
 }

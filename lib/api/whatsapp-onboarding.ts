@@ -11,6 +11,7 @@ export type SignupStatus =
   | "CANCELLED"
   | "EXPIRED"
 export type SignupStart = {
+  progress?: SignupProgress
   attemptId: string
   nonce: string
   expiresAt: string
