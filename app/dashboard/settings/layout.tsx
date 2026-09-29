@@ -1,13 +1,14 @@
-import { SectionNav } from "@/components/settings/section-nav";
-import { PageHeader } from "@/components/shared/page-header";
-import { readRole } from "@/lib/api/cookies";
+import { SettingsSectionsLayout } from "@/components/settings/settings-sections-layout"
+import { PageHeader } from "@/components/shared/page-header"
+import { readRole } from "@/lib/api/cookies"
+import { getCurrentBusiness } from "@/lib/api/business"
 
 export default async function SettingsLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const role = await readRole();
+  const [role, business] = await Promise.all([readRole(), getCurrentBusiness()])
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -16,12 +17,9 @@ export default async function SettingsLayout({
         description="Connect channels, configure payments, and tune Acroma to your business."
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <SectionNav role={role} />
-        </aside>
-        <div className="min-w-0">{children}</div>
-      </div>
+      <SettingsSectionsLayout role={role} businessType={business?.businessType}>
+        {children}
+      </SettingsSectionsLayout>
     </div>
-  );
+  )
 }

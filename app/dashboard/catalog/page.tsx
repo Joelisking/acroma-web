@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Plus } from "lucide-react"
@@ -23,6 +24,7 @@ export default async function CatalogPage() {
     listProducts(),
   ])
   if (!business) return null
+  if (business?.businessType === "REAL_ESTATE") redirect("/dashboard/properties");
 
   const vocab = getVocabulary(business.businessType)
   const isFood = business.businessType === "FOOD_BEVERAGES"

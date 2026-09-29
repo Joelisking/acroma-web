@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -38,6 +39,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const business = await getCurrentBusiness();
   if (!business) return null;
+  if (business?.businessType === "REAL_ESTATE") redirect("/dashboard/appointments");
 
   // Chat opens a conversation, which is owner-only at the API. Hide the link
   // for staff rather than offering a button that answers "Forbidden resource".

@@ -58,6 +58,7 @@ export default async function OverviewPage() {
   const business = await getCurrentBusiness();
   // Layout already enforces auth, but TS doesn't know that.
   if (!business) return null;
+  if (business.businessType === "REAL_ESTATE") redirect("/dashboard/appointments");
 
   const initialFilter =
     business.dashboardDefaultFilter ?? DEFAULT_DASHBOARD_FILTER;

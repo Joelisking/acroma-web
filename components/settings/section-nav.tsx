@@ -1,107 +1,119 @@
-"use client";
+"use client"
 
-import type { ComponentType } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useId } from "react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { settingsSectionsFor } from "./settings-sections"
+import type { AuthRole, BusinessType } from "@/lib/api/types"
+import { Label } from "@/components/ui/label"
 import {
-  MessageCircle,
-  Building2,
-  Clock,
-  CreditCard,
-  BookOpen,
-  Bell,
-  ShieldCheck,
-  AlarmClock,
-  UsersRound,
-} from "lucide-react";
-import { LogoMark } from "@/components/brand/logo-mark";
-import { cn } from "@/lib/utils";
-import type { AuthRole } from "@/lib/api/types";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-type IconProps = { className?: string; strokeWidth?: number };
-
-/** The Acroma mark, inheriting the nav item's text colour. */
-function AiMark({ className }: IconProps) {
-  return <LogoMark tone="current" className={className} />;
-}
-
-type Section = {
-  href: string;
-  label: string;
-  icon: ComponentType<IconProps>;
-  /** Hidden from workers. Owners and admins both see it. */
-  ownerOnly?: boolean;
-};
-
-export const SETTINGS_SECTIONS: Section[] = [
-  { href: "/dashboard/settings/whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { href: "/dashboard/settings/business", label: "Business", icon: Building2 },
-  { href: "/dashboard/settings/opening-hours", label: "Hours", icon: Clock },
-  { href: "/dashboard/settings/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/settings/ai", label: "AI", icon: AiMark },
-  {
-    href: "/dashboard/settings/knowledge-base",
-    label: "Knowledge",
-    icon: BookOpen,
-  },
-  {
-    href: "/dashboard/settings/notifications",
-    label: "Notifications",
-    icon: Bell,
-  },
-  {
-    href: "/dashboard/settings/reminders",
-    label: "Reminders",
-    icon: AlarmClock,
-  },
-  {
-    href: "/dashboard/settings/team",
-    label: "Team",
-    icon: UsersRound,
-    ownerOnly: true,
-  },
-  {
-    href: "/dashboard/settings/security",
-    label: "Security",
-    icon: ShieldCheck,
-  },
-];
-
-/** The sections this role has any use for. */
-export function settingsSectionsFor(role: AuthRole): Section[] {
-  return SETTINGS_SECTIONS.filter((s) => !s.ownerOnly || role !== "STAFF");
-}
-
-export function SectionNav({ role }: { role: AuthRole }) {
-  const pathname = usePathname();
-  const sections = settingsSectionsFor(role);
+export function SectionNav({
+  role,
+  businessType,
+}: {
+  role: AuthRole
+  businessType?: BusinessType
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const selectId = useId()
+  const sections = settingsSectionsFor(role, businessType)
+  const activeSection = sections.find(
+    (s) => pathname === s.href || pathname.startsWith(s.href + "/")
+  )
+  const ActiveIcon = activeSection?.icon
 
   return (
-    <nav
-      aria-label="Settings sections"
-      className="flex gap-1 overflow-x-auto rounded-full border-border/70 border bg-card p-1 lg:flex-col lg:rounded-2xl lg:bg-transparent lg:border-0 lg:p-0"
-    >
-      {sections.map((s) => {
-        const active = pathname === s.href || pathname.startsWith(s.href + "/");
-        const Icon = s.icon;
-        return (
-          <Link
-            key={s.href}
-            href={s.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
-              "lg:rounded-lg lg:text-sm lg:px-3 lg:py-2",
-              active
-                ? "bg-brand-orange text-primary-foreground lg:bg-sidebar-accent lg:text-sidebar-accent-foreground"
-                : "text-muted-foreground hover:text-foreground lg:hover:bg-sidebar-accent/60",
-            )}
+    <nav aria-label="Settings sections" className="min-w-0">
+      <div className="lg:hidden">
+        <Label htmlFor={selectId} className="sr-only">
+          Settings section
+        </Label>
+        <Select
+          value={activeSection?.href ?? ""}
+          onValueChange={(href) => router.push(href)}
+        >
+          <SelectTrigger
+            id={selectId}
+            className="w-full max-w-sm min-w-0 gap-3 rounded-xl border-border bg-card px-3 py-3 text-left shadow-sm hover:border-primary/40 data-[size=default]:h-auto data-[state=open]:border-primary/50"
           >
-            <Icon className="size-4" strokeWidth={1.75} />
-            <span>{s.label}</span>
-          </Link>
-        );
-      })}
+            <span className="flex min-w-0 flex-1 items-center gap-3">
+              {ActiveIcon && (
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
+                  <ActiveIcon className="size-4" strokeWidth={1.75} />
+                </span>
+              )}
+              <span className="min-w-0">
+                <span className="mb-0.5 block text-xs font-normal text-muted-foreground">
+                  Settings
+                </span>
+                <SelectValue placeholder="Choose a section">
+                  <span className="block truncate font-medium">
+                    {activeSection?.label}
+                  </span>
+                </SelectValue>
+              </span>
+            </span>
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            align="start"
+            className="rounded-xl p-1"
+          >
+            <SelectGroup className="space-y-1">
+              {sections.map((s) => {
+                const Icon = s.icon
+                return (
+                  <SelectItem
+                    key={s.href}
+                    value={s.href}
+                    textValue={s.label}
+                    className="min-h-11 rounded-lg px-3 pr-9 data-[state=checked]:bg-accent data-[state=checked]:font-medium data-[state=checked]:text-accent-foreground"
+                  >
+                    <Icon
+                      className="size-4 text-muted-foreground"
+                      strokeWidth={1.75}
+                    />
+                    {s.label}
+                  </SelectItem>
+                )
+              })}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="hidden flex-col gap-1 lg:flex">
+        {sections.map((s) => {
+          const active =
+            pathname === s.href || pathname.startsWith(s.href + "/")
+          const Icon = s.icon
+          return (
+            <Link
+              key={s.href}
+              href={s.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                active
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
+              )}
+            >
+              <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+              <span>{s.label}</span>
+            </Link>
+          )
+        })}
+      </div>
     </nav>
-  );
+  )
 }

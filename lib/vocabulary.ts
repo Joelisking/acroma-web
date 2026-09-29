@@ -13,6 +13,7 @@ import type { BusinessType } from "@/lib/api/types";
  * completeness".
  */
 export type Vocabulary = {
+  realEstate?: boolean;
   /** "Catalog" | "Menu" — used for the nav label and page headings. */
   catalog: string;
   /** "Product" | "Menu item" — singular, title case. */
@@ -121,5 +122,6 @@ export function getVocabulary(
 ): Vocabulary {
   if (businessType === "FOOD_BEVERAGES") return FOOD;
   if (businessType === "SERVICES") return SERVICES;
+  if (businessType === "REAL_ESTATE") return { ...SERVICES, realEstate: true, catalog: "Properties", item: "Property", items: "Properties", itemLower: "property", itemsLower: "properties", orders: "Appointments", order: "Appointment", ordersLower: "appointments" };
   return GENERAL;
 }

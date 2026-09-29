@@ -9,7 +9,7 @@ import {
   completeOnboardingAndGoToCatalogAction,
 } from "@/lib/api/onboarding-actions";
 
-export function CatalogDoneStep() {
+export function CatalogDoneStep({ realEstate = false }: { realEstate?: boolean }) {
   const [pendingDash, startDashTransition] = React.useTransition();
   const [pendingCatalog, startCatalogTransition] = React.useTransition();
   const anyPending = pendingDash || pendingCatalog;
@@ -42,8 +42,7 @@ export function CatalogDoneStep() {
           </h2>
           <p className="text-secondary-foreground/75 max-w-md text-sm leading-relaxed">
             Acroma is set up. The moment a customer messages your WhatsApp,
-            you&apos;ll see it light up the dashboard in real time. Orders,
-            payments, and all.
+            you&apos;ll see it light up the dashboard in real time. {realEstate ? "Property enquiries, appointments, and all." : "Orders, payments, and all."}
           </p>
         </div>
       </div>
@@ -53,10 +52,9 @@ export function CatalogDoneStep() {
           <Package className="size-4.5" strokeWidth={1.75} aria-hidden />
         </span>
         <div className="space-y-1">
-          <p className="text-foreground text-sm font-medium">Add your catalog</p>
+          <p className="text-foreground text-sm font-medium">{realEstate ? "Add your properties" : "Add your catalog"}</p>
           <p className="text-muted-foreground text-xs leading-relaxed">
-            Your catalog is what Acroma uses to describe products and take
-            orders. Add items now or come back any time from the dashboard.
+            {realEstate ? "Add listings, asking prices and photos so buyers can find properties. Choose free or paid viewings and consultations in appointment settings." : "Your catalog is what Acroma uses to describe products and take orders. Add items now or come back any time from the dashboard."}
           </p>
         </div>
       </div>
@@ -79,7 +77,7 @@ export function CatalogDoneStep() {
           {pendingCatalog ? (
             <Loader2 className="size-4 animate-spin" />
           ) : null}
-          Set up my catalog first
+          {realEstate ? "Add my properties first" : "Set up my catalog first"}
         </Button>
       </div>
     </div>

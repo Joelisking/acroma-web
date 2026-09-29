@@ -1,66 +1,65 @@
-"use server";
+"use server"
 
-import { revalidatePath } from "next/cache";
-import { apiFetch, ApiError } from "./server";
-import type { WhatsappSettings } from "./settings";
+import { revalidatePath } from "next/cache"
+import { apiFetch, ApiError } from "./server"
+import type { WhatsappSettings } from "./settings"
 import type {
   BookingCapacitySettings,
   OpeningHours,
   OrdersView,
   ReminderSettings,
-} from "./types";
+} from "./types"
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
-  | { ok: false; error: string };
+  | { ok: false; error: string }
 
 type WhatsappInput = {
-  phoneNumberId?: string;
-  accessToken?: string;
-  businessAccountId?: string;
-};
+  phoneNumberId?: string
+  accessToken?: string
+  businessAccountId?: string
+}
 
 export async function updateWhatsappAction(
-  input: WhatsappInput,
+  input: WhatsappInput
 ): Promise<ActionResult<WhatsappSettings>> {
   try {
     const data = await apiFetch<WhatsappSettings>("/settings/whatsapp", {
       method: "PATCH",
       body: input,
-    });
-    revalidatePath("/dashboard/settings/whatsapp");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+    })
+    revalidatePath("/dashboard/settings/whatsapp")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Couldn't save WhatsApp") };
+    return { ok: false, error: humanError(err, "Couldn't save WhatsApp") }
   }
 }
 
 export async function testWhatsappAction(
-  toPhone: string,
+  toPhone: string
 ): Promise<ActionResult> {
   // Strip everything that isn't a digit (handles "+", spaces, dashes, etc.).
-  const normalized = toPhone.replace(/\D/g, "");
+  const normalized = toPhone.replace(/\D/g, "")
   if (!/^\d{8,15}$/.test(normalized)) {
     return {
       ok: false,
-      error:
-        "Use a full WhatsApp number with country code, e.g. 233244000000.",
-    };
+      error: "Use a full WhatsApp number with country code, e.g. 233244000000.",
+    }
   }
   try {
     await apiFetch<{ success: boolean }>("/settings/whatsapp/test", {
       method: "POST",
       body: { toPhone: normalized },
-    });
-    return { ok: true, data: undefined };
+    })
+    return { ok: true, data: undefined }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Test message failed") };
+    return { ok: false, error: humanError(err, "Test message failed") }
   }
 }
 
 export async function updateAcceptsCashOnDeliveryAction(
-  acceptsCashOnDelivery: boolean,
+  acceptsCashOnDelivery: boolean
 ): Promise<ActionResult<{ id: string; acceptsCashOnDelivery: boolean }>> {
   try {
     const data = await apiFetch<{ id: string; acceptsCashOnDelivery: boolean }>(
@@ -68,21 +67,21 @@ export async function updateAcceptsCashOnDeliveryAction(
       {
         method: "PATCH",
         body: { acceptsCashOnDelivery },
-      },
-    );
-    revalidatePath("/dashboard/settings/payments");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+      }
+    )
+    revalidatePath("/dashboard/settings/payments")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save payment method preferences"),
-    };
+    }
   }
 }
 
 export async function updateDeliveryFeeAction(
-  deliveryFee: number,
+  deliveryFee: number
 ): Promise<ActionResult<{ id: string; deliveryFee: number }>> {
   try {
     const data = await apiFetch<{ id: string; deliveryFee: number }>(
@@ -90,21 +89,21 @@ export async function updateDeliveryFeeAction(
       {
         method: "PATCH",
         body: { deliveryFee },
-      },
-    );
-    revalidatePath("/dashboard/settings/business");
-    revalidatePath("/dashboard/till");
-    return { ok: true, data };
+      }
+    )
+    revalidatePath("/dashboard/settings/business")
+    revalidatePath("/dashboard/till")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save the delivery charge"),
-    };
+    }
   }
 }
 
 export async function updateAcceptsPickupAction(
-  acceptsPickup: boolean,
+  acceptsPickup: boolean
 ): Promise<ActionResult<{ id: string; acceptsPickup: boolean }>> {
   try {
     const data = await apiFetch<{ id: string; acceptsPickup: boolean }>(
@@ -112,67 +111,69 @@ export async function updateAcceptsPickupAction(
       {
         method: "PATCH",
         body: { acceptsPickup },
-      },
-    );
-    revalidatePath("/dashboard/settings/payments");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+      }
+    )
+    revalidatePath("/dashboard/settings/payments")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save pickup preference"),
-    };
+    }
   }
 }
 
 export async function updateOrderAlertsEnabledAction(
-  orderAlertsEnabled: boolean,
+  orderAlertsEnabled: boolean
 ): Promise<
   ActionResult<{
-    id: string;
-    acceptsPickup: boolean;
-    orderAlertsEnabled: boolean;
+    id: string
+    acceptsPickup: boolean
+    orderAlertsEnabled: boolean
   }>
 > {
   try {
     const data = await apiFetch<{
-      id: string;
-      acceptsPickup: boolean;
-      orderAlertsEnabled: boolean;
+      id: string
+      acceptsPickup: boolean
+      orderAlertsEnabled: boolean
     }>("/settings/order-options", {
       method: "PATCH",
       body: { orderAlertsEnabled },
-    });
-    revalidatePath("/dashboard/settings/payments");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+    })
+    revalidatePath("/dashboard/settings/payments")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save alert preference"),
-    };
+    }
   }
 }
 
 export async function updateOpeningHoursAction(
-  hours: OpeningHours,
+  hours: OpeningHours
 ): Promise<ActionResult<{ id: string; openingHours: OpeningHours | null }>> {
   try {
     const data = await apiFetch<{
-      id: string;
-      openingHours: OpeningHours | null;
+      id: string
+      openingHours: OpeningHours | null
     }>("/settings/opening-hours", {
       method: "PATCH",
       body: hours,
-    });
-    revalidatePath("/dashboard/settings/opening-hours");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+    })
+    revalidatePath("/dashboard/settings/opening-hours")
+    revalidatePath("/dashboard/appointments/settings")
+    revalidatePath("/dashboard/appointments")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save opening hours"),
-    };
+    }
   }
 }
 
@@ -181,60 +182,62 @@ export async function clearOpeningHoursAction(): Promise<
 > {
   try {
     const data = await apiFetch<{
-      id: string;
-      openingHours: OpeningHours | null;
+      id: string
+      openingHours: OpeningHours | null
     }>("/settings/opening-hours", {
       method: "DELETE",
-    });
-    revalidatePath("/dashboard/settings/opening-hours");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+    })
+    revalidatePath("/dashboard/settings/opening-hours")
+    revalidatePath("/dashboard/appointments/settings")
+    revalidatePath("/dashboard/appointments")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't clear opening hours"),
-    };
+    }
   }
 }
 
 export async function updateReminderSettingsAction(
-  patch: Partial<ReminderSettings>,
+  patch: Partial<ReminderSettings>
 ): Promise<ActionResult<ReminderSettings>> {
   try {
     const data = await apiFetch<ReminderSettings>("/settings/reminders", {
       method: "PATCH",
       body: patch,
-    });
-    revalidatePath("/dashboard/settings/reminders");
-    return { ok: true, data };
+    })
+    revalidatePath("/dashboard/settings/reminders")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save reminder settings"),
-    };
+    }
   }
 }
 
 export async function updateBookingCapacityAction(
-  body: Partial<BookingCapacitySettings>,
+  body: Partial<BookingCapacitySettings>
 ): Promise<ActionResult<BookingCapacitySettings>> {
   try {
     const data = await apiFetch<BookingCapacitySettings>(
       "/settings/booking-capacity",
-      { method: "PATCH", body },
-    );
-    revalidatePath("/dashboard/settings/opening-hours");
-    return { ok: true, data };
+      { method: "PATCH", body }
+    )
+    revalidatePath("/dashboard/settings/opening-hours")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save booking capacity settings"),
-    };
+    }
   }
 }
 
 export async function updateCatalogImagesAction(
-  urls: string[],
+  urls: string[]
 ): Promise<ActionResult<{ id: string; catalogImageUrls: string[] }>> {
   try {
     const data = await apiFetch<{ id: string; catalogImageUrls: string[] }>(
@@ -242,19 +245,19 @@ export async function updateCatalogImagesAction(
       {
         method: "PUT",
         body: { urls },
-      },
-    );
-    revalidatePath("/dashboard/settings/business");
-    revalidatePath("/dashboard/catalog");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+      }
+    )
+    revalidatePath("/dashboard/settings/business")
+    revalidatePath("/dashboard/catalog")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Couldn't save catalog images") };
+    return { ok: false, error: humanError(err, "Couldn't save catalog images") }
   }
 }
 
 export async function updateCatalogPdfAction(
-  url: string | null,
+  url: string | null
 ): Promise<ActionResult<{ id: string; catalogPdfUrl: string | null }>> {
   try {
     const data = await apiFetch<{ id: string; catalogPdfUrl: string | null }>(
@@ -262,54 +265,54 @@ export async function updateCatalogPdfAction(
       {
         method: "PUT",
         body: { url },
-      },
-    );
-    revalidatePath("/dashboard/settings/business");
-    revalidatePath("/dashboard/catalog");
-    revalidatePath("/dashboard");
-    return { ok: true, data };
+      }
+    )
+    revalidatePath("/dashboard/settings/business")
+    revalidatePath("/dashboard/catalog")
+    revalidatePath("/dashboard")
+    return { ok: true, data }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Couldn't save catalog PDF") };
+    return { ok: false, error: humanError(err, "Couldn't save catalog PDF") }
   }
 }
 
 export async function updateAiEnabledAction(
-  aiEnabled: boolean,
+  aiEnabled: boolean
 ): Promise<ActionResult<{ id: string; aiEnabled: boolean }>> {
   try {
     const data = await apiFetch<{ id: string; aiEnabled: boolean }>(
-      '/settings/ai',
-      { method: 'PATCH', body: { aiEnabled } },
-    );
-    revalidatePath('/dashboard');
-    revalidatePath('/dashboard/conversations');
-    revalidatePath('/dashboard/settings/ai');
-    return { ok: true, data };
+      "/settings/ai",
+      { method: "PATCH", body: { aiEnabled } }
+    )
+    revalidatePath("/dashboard")
+    revalidatePath("/dashboard/conversations")
+    revalidatePath("/dashboard/settings/ai")
+    return { ok: true, data }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Couldn't update AI mode") };
+    return { ok: false, error: humanError(err, "Couldn't update AI mode") }
   }
 }
 
 export async function setOrdersViewAction(
-  view: OrdersView,
+  view: OrdersView
 ): Promise<ActionResult<{ id: string; ordersDefaultView: OrdersView }>> {
   try {
     const data = await apiFetch<{ id: string; ordersDefaultView: OrdersView }>(
       "/settings/orders-view",
-      { method: "PATCH", body: { view } },
-    );
-    revalidatePath("/dashboard/orders");
-    return { ok: true, data };
+      { method: "PATCH", body: { view } }
+    )
+    revalidatePath("/dashboard/orders")
+    return { ok: true, data }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Couldn't save your default view"),
-    };
+    }
   }
 }
 
 function humanError(err: unknown, fallback: string): string {
-  if (err instanceof ApiError) return err.message || fallback;
-  if (err instanceof Error) return err.message || fallback;
-  return fallback;
+  if (err instanceof ApiError) return err.message || fallback
+  if (err instanceof Error) return err.message || fallback
+  return fallback
 }

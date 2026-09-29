@@ -13,7 +13,7 @@ export default async function Step2Page() {
     <WizardShell
       step={2}
       eyebrow="Profile"
-      title="Quick details about your shop."
+      title="Quick details about your business."
       subtitle="You can change any of this later in Settings."
     >
       <BusinessProfileForm

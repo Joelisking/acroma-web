@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { getCurrentBusiness } from "@/lib/api/business";
 import { WizardShell } from "@/components/onboarding/wizard-shell";
 import { CatalogDoneStep } from "@/components/onboarding/catalog-done-step";
 
 export const metadata: Metadata = { title: "All set · Acroma" };
 
-export default function Step7Page() {
+export default async function Step7Page() {
+  const business = await getCurrentBusiness();
   return (
     <WizardShell
       step={7}
@@ -12,7 +14,7 @@ export default function Step7Page() {
       title="One last thing."
       subtitle="Let's open your live dashboard so you can watch Acroma work."
     >
-      <CatalogDoneStep />
+      <CatalogDoneStep realEstate={business?.businessType === "REAL_ESTATE"} />
     </WizardShell>
   );
 }

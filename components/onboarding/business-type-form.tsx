@@ -17,6 +17,7 @@ const TYPES: { value: BusinessType; label: string; emoji: string }[] = [
   { value: "BEAUTY_COSMETICS", label: "Beauty", emoji: "💄" },
   { value: "HOME_FURNITURE", label: "Home", emoji: "🛋️" },
   { value: "SERVICES", label: "Services", emoji: "🛠️" },
+  { value: "REAL_ESTATE", label: "Real estate", emoji: "🏡" },
   { value: "GENERAL_STORE", label: "General store", emoji: "🏪" },
   { value: "OTHER", label: "Other", emoji: "✏️" },
 ];

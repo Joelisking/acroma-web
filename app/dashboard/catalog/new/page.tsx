@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft } from "lucide-react";
@@ -17,6 +18,7 @@ export default async function NewProductPage() {
     getCurrentBusiness(),
     listProducts().catch(() => []),
   ]);
+  if (business?.businessType === "REAL_ESTATE") redirect("/dashboard/properties/new");
   const vocab = getVocabulary(business?.businessType);
   const categories = distinctCategories(products);
   return (

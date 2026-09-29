@@ -61,6 +61,11 @@ const STAFF_HREFS = ["/dashboard/till", "/dashboard/orders"];
  * Catalog↔Menu); routes never change. A worker sees Today and Orders only.
  */
 export function getPrimaryNav(vocab: Vocabulary, role: AuthRole): NavItem[] {
+  if (vocab.realEstate && role !== "STAFF") return [
+    { href: "/dashboard/appointments", label: "Appointments", icon: ShoppingBag },
+    { href: "/dashboard/conversations", label: "Chats", icon: MessageCircle },
+    { href: "/dashboard/properties", label: "Properties", icon: Package },
+  ];
   const items: NavItem[] = [
     { href: "/dashboard", label: "Today", icon: Home },
     { href: "/dashboard/till", label: "Till", icon: Calculator },

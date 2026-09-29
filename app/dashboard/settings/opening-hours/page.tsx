@@ -1,35 +1,38 @@
-import type { Metadata } from "next";
-import { getCurrentBusiness } from "@/lib/api/business";
-import { getBookingCapacity } from "@/lib/api/settings";
-import { listProducts } from "@/lib/api/products";
-import { SettingsCard } from "@/components/settings/settings-card";
-import { OpeningHoursForm } from "@/components/settings/opening-hours-form";
-import { BookingCapacityForm } from "@/components/settings/booking-capacity-form";
-import { redirectStaffHome } from "@/lib/api/owner-only";
+import type { Metadata } from "next"
+import { getCurrentBusiness } from "@/lib/api/business"
+import { getBookingCapacity } from "@/lib/api/settings"
+import { listProducts } from "@/lib/api/products"
+import { SettingsCard } from "@/components/settings/settings-card"
+import { OpeningHoursForm } from "@/components/settings/opening-hours-form"
+import { BookingCapacityForm } from "@/components/settings/booking-capacity-form"
+import { redirectStaffHome } from "@/lib/api/owner-only"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Hours · Settings · Acroma",
-};
+}
 
 export default async function OpeningHoursSettingsPage() {
-  await redirectStaffHome();
+  await redirectStaffHome()
 
-  const business = await getCurrentBusiness();
-  if (!business) return null;
+  const business = await getCurrentBusiness()
+  if (!business) return null
+  if (business.businessType === "REAL_ESTATE")
+    redirect("/dashboard/appointments/settings")
 
-  const isServices = business.businessType === "SERVICES";
+  const isServices = business.businessType === "SERVICES"
 
   const [capacity, products] = isServices
     ? await Promise.all([getBookingCapacity(), listProducts()])
-    : [null, []];
+    : [null, []]
 
   const categories = Array.from(
     new Set(
       products
         .map((p) => (p.category ?? "").trim())
-        .filter((c): c is string => c.length > 0),
-    ),
-  ).sort();
+        .filter((c): c is string => c.length > 0)
+    )
+  ).sort()
 
   return (
     <div className="space-y-6">
@@ -49,5 +52,5 @@ export default async function OpeningHoursSettingsPage() {
         </SettingsCard>
       ) : null}
     </div>
-  );
+  )
 }

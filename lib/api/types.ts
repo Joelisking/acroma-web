@@ -29,6 +29,7 @@ export type BusinessType =
   | "BEAUTY_COSMETICS"
   | "HOME_FURNITURE"
   | "SERVICES"
+  | "REAL_ESTATE"
   | "GENERAL_STORE"
   | "OTHER"
 

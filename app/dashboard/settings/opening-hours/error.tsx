@@ -1,8 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { StaleDeployNotice } from "@/components/stale-deploy-notice";
+import { useStaleDeployReload } from "@/hooks/use-stale-deploy-reload";
 
-export default function Error({ reset }: { error: Error; reset: () => void }) {
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+  const stale = useStaleDeployReload(error);
+  if (stale) return <StaleDeployNotice />;
+
   return (
     <div className="space-y-4 rounded-2xl border border-border/70 bg-card p-6">
       <h2 className="text-foreground text-base font-semibold">

@@ -1,24 +1,20 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { TimePicker } from "@/components/ui/time-picker";
-import { Button } from "@/components/ui/button";
+import * as React from "react"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
-} from "@/lib/api/settings-actions";
+} from "@/lib/api/settings-actions"
 import {
   isOpen,
-  isOvernight,
   nextOpenTime,
   formatNextOpen,
   toMinutes,
-} from "@/lib/business-hours";
-import type { DayHours, OpeningHours } from "@/lib/api/types";
-import { cn } from "@/lib/utils";
+} from "@/lib/business-hours"
+import type { DayHours, OpeningHours } from "@/lib/api/types"
+import { OpeningHoursDay } from "./opening-hours-day"
 
 type DayKey =
   | "monday"
@@ -27,7 +23,7 @@ type DayKey =
   | "thursday"
   | "friday"
   | "saturday"
-  | "sunday";
+  | "sunday"
 
 const DAYS: { key: DayKey; label: string }[] = [
   { key: "monday", label: "Monday" },
@@ -37,9 +33,9 @@ const DAYS: { key: DayKey; label: string }[] = [
   { key: "friday", label: "Friday" },
   { key: "saturday", label: "Saturday" },
   { key: "sunday", label: "Sunday" },
-];
+]
 
-const DEFAULT_HOURS: DayHours = { open: "09:00", close: "22:00" };
+const DEFAULT_HOURS: DayHours = { open: "09:00", close: "22:00" }
 
 const EMPTY_WEEK: OpeningHours = {
   monday: null,
@@ -49,170 +45,145 @@ const EMPTY_WEEK: OpeningHours = {
   friday: null,
   saturday: null,
   sunday: null,
-};
-
+}
 
 type Props = {
-  initial: OpeningHours | null;
-};
+  initial: OpeningHours | null
+  purpose?: "business" | "appointments"
+}
 
-export function OpeningHoursForm({ initial }: Props) {
-  const [hours, setHours] = React.useState<OpeningHours>(
-    initial ?? EMPTY_WEEK,
-  );
-  const [clearedToAlwaysOpen, setClearedToAlwaysOpen] = React.useState(false);
-  const [pending, startTransition] = React.useTransition();
+export function OpeningHoursForm({ initial, purpose = "business" }: Props) {
+  const [hours, setHours] = React.useState<OpeningHours>(initial ?? EMPTY_WEEK)
+  const [savedAlwaysOpen, setSavedAlwaysOpen] = React.useState(initial === null)
+  const [pending, startTransition] = React.useTransition()
 
   const errors = React.useMemo(() => {
-    const e: Partial<Record<DayKey, string>> = {};
+    const e: Partial<Record<DayKey, string>> = {}
     for (const { key } of DAYS) {
-      const d = hours[key];
+      const d = hours[key]
       // A close earlier than open is a valid overnight window (e.g. 6pm to
       // 1am). Only an identical open and close is invalid (zero-length).
       if (d && toMinutes(d.close) === toMinutes(d.open)) {
-        e[key] = "Open and close cannot be the same time";
+        e[key] = "Open and close cannot be the same time"
       }
     }
-    return e;
-  }, [hours]);
+    return e
+  }, [hours])
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasErrors = Object.keys(errors).length > 0
 
   const allDaysClosed = React.useMemo(
     () => DAYS.every(({ key }) => hours[key] === null),
-    [hours],
-  );
+    [hours]
+  )
 
   const statusLine = React.useMemo(() => {
-    if ((initial === null || clearedToAlwaysOpen) && allDaysClosed) {
-      return "Currently: always open. Add hours below to start auto-replying when closed.";
+    if (purpose === "appointments") {
+      return savedAlwaysOpen
+        ? "Saved availability: always open, every day. Save weekly hours below to limit availability."
+        : "Choose weekly working hours in Ghana time. Saving every day off closes the calendar to new appointments."
     }
-    const now = new Date();
+    if (savedAlwaysOpen && allDaysClosed) {
+      return "Currently: always open. Add hours below to start auto-replying when closed."
+    }
+    const now = new Date()
     if (isOpen(hours, now)) {
-      return "Currently: open.";
+      return "Currently: open."
     }
-    const friendly = formatNextOpen(now, nextOpenTime(hours, now));
-    return `Currently: closed. Opens ${friendly}.`;
-  }, [hours, initial, allDaysClosed, clearedToAlwaysOpen]);
+    const friendly = formatNextOpen(now, nextOpenTime(hours, now))
+    return `Currently: closed. Opens ${friendly}.`
+  }, [hours, purpose, allDaysClosed, savedAlwaysOpen])
 
   function setDay(key: DayKey, value: DayHours | null) {
-    setHours((prev) => ({ ...prev, [key]: value }));
+    setHours((prev) => ({ ...prev, [key]: value }))
   }
 
   function toggleDay(key: DayKey, on: boolean) {
-    setDay(key, on ? DEFAULT_HOURS : null);
-    if (on) setClearedToAlwaysOpen(false);
+    setDay(key, on ? DEFAULT_HOURS : null)
   }
 
   function setOpen(key: DayKey, open: string) {
-    const current = hours[key] ?? DEFAULT_HOURS;
-    setDay(key, { ...current, open });
+    const current = hours[key] ?? DEFAULT_HOURS
+    setDay(key, { ...current, open })
   }
 
   function setClose(key: DayKey, close: string) {
-    const current = hours[key] ?? DEFAULT_HOURS;
-    setDay(key, { ...current, close });
+    const current = hours[key] ?? DEFAULT_HOURS
+    setDay(key, { ...current, close })
   }
 
   function onSave() {
-    if (hasErrors) return;
+    if (hasErrors) return
     startTransition(async () => {
-      const result = await updateOpeningHoursAction(hours);
+      const result = await updateOpeningHoursAction(hours)
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(result.error)
       } else {
-        toast.success("Opening hours saved");
+        setSavedAlwaysOpen(false)
+        toast.success(
+          purpose === "appointments"
+            ? "Shared availability saved"
+            : "Opening hours saved"
+        )
       }
-    });
+    })
   }
 
   function onAlwaysOpen() {
     startTransition(async () => {
-      const result = await clearOpeningHoursAction();
+      const result = await clearOpeningHoursAction()
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(result.error)
       } else {
-        toast.success("Set to always open");
-        setHours(EMPTY_WEEK);
-        setClearedToAlwaysOpen(true);
+        toast.success(
+          purpose === "appointments"
+            ? "Shared availability saved: always open"
+            : "Set to always open"
+        )
+        setHours(EMPTY_WEEK)
+        setSavedAlwaysOpen(true)
       }
-    });
+    })
   }
 
   return (
     <div className="space-y-6">
-      <p className="text-muted-foreground text-sm">{statusLine}</p>
+      <p className="text-sm text-muted-foreground">{statusLine}</p>
 
       <div className="space-y-3">
-        {DAYS.map(({ key, label }) => {
-          const day = hours[key];
-          const enabled = day !== null;
-          const dayError = errors[key];
-          return (
-            <div
-              key={key}
-              className={cn(
-                "flex flex-wrap items-center gap-3 rounded-lg border border-border/70 bg-card p-3",
-                dayError && "border-destructive",
-              )}
-            >
-              <div className="flex w-32 items-center gap-3">
-                <Switch
-                  id={`day-${key}`}
-                  checked={enabled}
-                  onCheckedChange={(on) => toggleDay(key, on)}
-                  disabled={pending}
-                />
-                <Label htmlFor={`day-${key}`} className="text-sm font-medium">
-                  {label}
-                </Label>
-              </div>
-              <div className="flex flex-1 flex-wrap items-center gap-2">
-                <TimePicker
-                  label={`${label} open time`}
-                  value={day?.open ?? ""}
-                  onChange={(v) => setOpen(key, v)}
-                  disabled={!enabled || pending}
-                />
-                <span className="text-muted-foreground text-sm">to</span>
-                <TimePicker
-                  label={`${label} close time`}
-                  value={day?.close ?? ""}
-                  onChange={(v) => setClose(key, v)}
-                  disabled={!enabled || pending}
-                />
-                {day && isOvernight(day) ? (
-                  <span className="text-muted-foreground text-xs">
-                    next day
-                  </span>
-                ) : null}
-              </div>
-              {dayError ? (
-                <p className="text-destructive w-full text-xs">{dayError}</p>
-              ) : null}
-            </div>
-          );
-        })}
+        {DAYS.map(({ key, label }) => (
+          <OpeningHoursDay
+            key={key}
+            dayKey={key}
+            label={label}
+            day={hours[key]}
+            error={errors[key]}
+            pending={pending}
+            onToggle={(on) => toggleDay(key, on)}
+            onOpen={(value) => setOpen(key, value)}
+            onClose={(value) => setClose(key, value)}
+          />
+        ))}
       </div>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          disabled={pending || initial === null}
+          disabled={pending || savedAlwaysOpen}
           onClick={onAlwaysOpen}
         >
           Always open
         </Button>
-        <Button
-          type="button"
-          onClick={onSave}
-          disabled={pending || hasErrors}
-        >
-          Save
+        <Button type="button" onClick={onSave} disabled={pending || hasErrors}>
+          {pending
+            ? "Saving…"
+            : purpose === "appointments"
+              ? "Save shared availability"
+              : "Save"}
         </Button>
       </div>
     </div>
-  );
+  )
 }

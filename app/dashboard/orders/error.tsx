@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { StaleDeployNotice } from "@/components/stale-deploy-notice";
+import { useStaleDeployReload } from "@/hooks/use-stale-deploy-reload";
 
 export default function OrdersError({
   error,
@@ -10,9 +12,12 @@ export default function OrdersError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const stale = useStaleDeployReload(error);
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  if (stale) return <StaleDeployNotice />;
 
   return (
     <div className="mx-auto max-w-md py-20 text-center">
