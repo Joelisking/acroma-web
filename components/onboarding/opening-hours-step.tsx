@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { TimePicker } from "@/components/ui/time-picker";
-import { Button } from "@/components/ui/button";
+import * as React from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { TimePicker } from "@/components/ui/time-picker"
+import { Button } from "@/components/ui/button"
 import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
-} from "@/lib/api/settings-actions";
-import { isOvernight, toMinutes } from "@/lib/business-hours";
-import type { DayHours, OpeningHours } from "@/lib/api/types";
-import { cn } from "@/lib/utils";
+} from "@/lib/api/settings-actions"
+import { isOvernight, toMinutes } from "@/lib/business-hours"
+import type { DayHours, OpeningHours } from "@/lib/api/types"
+import { cn } from "@/lib/utils"
 
 type DayKey =
   | "monday"
@@ -23,7 +23,7 @@ type DayKey =
   | "thursday"
   | "friday"
   | "saturday"
-  | "sunday";
+  | "sunday"
 
 const DAYS: { key: DayKey; label: string }[] = [
   { key: "monday", label: "Monday" },
@@ -33,9 +33,9 @@ const DAYS: { key: DayKey; label: string }[] = [
   { key: "friday", label: "Friday" },
   { key: "saturday", label: "Saturday" },
   { key: "sunday", label: "Sunday" },
-];
+]
 
-const DEFAULT_HOURS: DayHours = { open: "09:00", close: "22:00" };
+const DEFAULT_HOURS: DayHours = { open: "09:00", close: "22:00" }
 
 const EMPTY_WEEK: OpeningHours = {
   monday: null,
@@ -45,86 +45,89 @@ const EMPTY_WEEK: OpeningHours = {
   friday: null,
   saturday: null,
   sunday: null,
-};
+}
 
 type Props = {
-  initial: OpeningHours | null;
-};
+  initial: OpeningHours | null
+  /** Runs before hours are saved; return false to stay on the step. Lets a
+   * vertical save its own settings with the same "Save & continue". */
+  beforeSave?: () => Promise<boolean>
+}
 
-export function OnboardingOpeningHoursStep({ initial }: Props) {
-  const router = useRouter();
-  const [hours, setHours] = React.useState<OpeningHours>(
-    initial ?? EMPTY_WEEK,
-  );
-  const [pending, startTransition] = React.useTransition();
+export function OnboardingOpeningHoursStep({ initial, beforeSave }: Props) {
+  const router = useRouter()
+  const [hours, setHours] = React.useState<OpeningHours>(initial ?? EMPTY_WEEK)
+  const [pending, startTransition] = React.useTransition()
 
   const errors = React.useMemo(() => {
-    const e: Partial<Record<DayKey, string>> = {};
+    const e: Partial<Record<DayKey, string>> = {}
     for (const { key } of DAYS) {
-      const d = hours[key];
+      const d = hours[key]
       // A close earlier than open is a valid overnight window (e.g. 6pm to
       // 1am). Only an identical open and close is invalid (zero-length).
       if (d && toMinutes(d.close) === toMinutes(d.open)) {
-        e[key] = "Open and close cannot be the same time";
+        e[key] = "Open and close cannot be the same time"
       }
     }
-    return e;
-  }, [hours]);
+    return e
+  }, [hours])
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasErrors = Object.keys(errors).length > 0
 
   function setDay(key: DayKey, value: DayHours | null) {
-    setHours((prev) => ({ ...prev, [key]: value }));
+    setHours((prev) => ({ ...prev, [key]: value }))
   }
 
   function toggleDay(key: DayKey, on: boolean) {
-    setDay(key, on ? DEFAULT_HOURS : null);
+    setDay(key, on ? DEFAULT_HOURS : null)
   }
 
   function setOpen(key: DayKey, open: string) {
-    setDay(key, { ...(hours[key] ?? DEFAULT_HOURS), open });
+    setDay(key, { ...(hours[key] ?? DEFAULT_HOURS), open })
   }
 
   function setClose(key: DayKey, close: string) {
-    setDay(key, { ...(hours[key] ?? DEFAULT_HOURS), close });
+    setDay(key, { ...(hours[key] ?? DEFAULT_HOURS), close })
   }
 
   function onSave() {
-    if (hasErrors) return;
+    if (hasErrors) return
     startTransition(async () => {
-      const result = await updateOpeningHoursAction(hours);
+      if (beforeSave && !(await beforeSave())) return
+      const result = await updateOpeningHoursAction(hours)
       if (!result.ok) {
-        toast.error(result.error);
-        return;
+        toast.error(result.error)
+        return
       }
-      router.push("/onboarding/step-6");
-    });
+      router.push("/onboarding/step-6")
+    })
   }
 
   function onAlwaysOpen() {
     startTransition(async () => {
-      const result = await clearOpeningHoursAction();
+      if (beforeSave && !(await beforeSave())) return
+      const result = await clearOpeningHoursAction()
       if (!result.ok) {
-        toast.error(result.error);
-        return;
+        toast.error(result.error)
+        return
       }
-      router.push("/onboarding/step-6");
-    });
+      router.push("/onboarding/step-6")
+    })
   }
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         {DAYS.map(({ key, label }) => {
-          const day = hours[key];
-          const enabled = day !== null;
-          const dayError = errors[key];
+          const day = hours[key]
+          const enabled = day !== null
+          const dayError = errors[key]
           return (
             <div
               key={key}
               className={cn(
-                "border-border/70 bg-card flex flex-wrap items-center gap-3 rounded-lg border p-3",
-                dayError && "border-destructive",
+                "flex flex-wrap items-center gap-3 rounded-lg border border-border/70 bg-card p-3",
+                dayError && "border-destructive"
               )}
             >
               <div className="flex w-32 items-center gap-3">
@@ -145,7 +148,7 @@ export function OnboardingOpeningHoursStep({ initial }: Props) {
                   onChange={(v) => setOpen(key, v)}
                   disabled={!enabled || pending}
                 />
-                <span className="text-muted-foreground text-sm">to</span>
+                <span className="text-sm text-muted-foreground">to</span>
                 <TimePicker
                   label={`${label} close time`}
                   value={day?.close ?? ""}
@@ -153,16 +156,16 @@ export function OnboardingOpeningHoursStep({ initial }: Props) {
                   disabled={!enabled || pending}
                 />
                 {day && isOvernight(day) ? (
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-xs text-muted-foreground">
                     next day
                   </span>
                 ) : null}
               </div>
               {dayError ? (
-                <p className="text-destructive w-full text-xs">{dayError}</p>
+                <p className="w-full text-xs text-destructive">{dayError}</p>
               ) : null}
             </div>
-          );
+          )
         })}
       </div>
 
@@ -181,7 +184,7 @@ export function OnboardingOpeningHoursStep({ initial }: Props) {
             type="button"
             onClick={() => router.push("/onboarding/step-6")}
             disabled={pending}
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors disabled:pointer-events-none"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none"
           >
             Skip for now
           </button>
@@ -190,12 +193,12 @@ export function OnboardingOpeningHoursStep({ initial }: Props) {
           type="button"
           onClick={onSave}
           disabled={pending || hasErrors}
-          className="bg-brand-orange hover:bg-brand-orange/90 h-11 gap-2 rounded-xl px-6 text-sm"
+          className="h-11 gap-2 rounded-xl bg-brand-orange px-6 text-sm hover:bg-brand-orange/90"
         >
           {pending ? <Loader2 className="size-4 animate-spin" /> : null}
           Save & continue
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -62,11 +62,21 @@ export const listingSchema = listingInput.extend({
 })
 export type Listing = z.infer<typeof listingSchema>
 export type ListingInput = z.infer<typeof listingInput>
+const appointmentFee = z
+  .number({ error: "Enter a fee, or 0 for free" })
+  .min(0, "Fee can't be negative")
+  .max(1000000, "Fee is too high")
+  .multipleOf(0.01, "Use at most 2 decimal places")
+const appointmentMinutes = z
+  .number({ error: "Enter a duration in minutes" })
+  .int("Use whole minutes")
+  .min(15, "Minimum is 15 minutes")
+  .max(480, "Maximum is 480 minutes (8 hours)")
 export const estateSettingsInput = z.object({
-  viewingFee: z.number().min(0).max(1000000).multipleOf(0.01),
-  consultationFee: z.number().min(0).max(1000000).multipleOf(0.01),
-  viewingDurationMinutes: z.number().int().min(15).max(480),
-  consultationDurationMinutes: z.number().int().min(15).max(480),
+  viewingFee: appointmentFee,
+  consultationFee: appointmentFee,
+  viewingDurationMinutes: appointmentMinutes,
+  consultationDurationMinutes: appointmentMinutes,
 })
 export const estateCalendarViewInput = z.object({
   defaultCalendarView: z.enum(["WEEK", "DAY", "MONTH"]),
