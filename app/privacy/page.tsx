@@ -3,7 +3,6 @@ import Link from "next/link"
 import { LegalPage } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
   title: "Privacy · Acroma",
-  robots: { index: false, follow: false },
 }
 export default function PrivacyPage() {
   return (
@@ -11,9 +10,9 @@ export default function PrivacyPage() {
       <section>
         <h2 className="text-lg font-semibold">Who operates Acroma</h2>
         <p>
-          Acroma is operated by Cedar Reign Technology Ventures. Acroma helps
-          merchants manage customer conversations, catalogs, orders and
-          payments. Contact us at{" "}
+          Acroma is operated by Dysruptive Technologies. Acroma helps merchants
+          manage customer conversations, catalogs, orders and payments. Contact
+          us at{" "}
           <a className="text-primary underline" href="mailto:info@asera.tech">
             info@asera.tech
           </a>

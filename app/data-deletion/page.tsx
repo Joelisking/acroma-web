@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { LegalPage } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
   title: "Data deletion · Acroma",
-  robots: { index: false, follow: false },
 }
 export default function DataDeletionPage() {
   return (
@@ -16,7 +15,7 @@ export default function DataDeletionPage() {
           info@asera.tech
         </a>{" "}
         with the subject “Acroma data deletion request”. Acroma is operated by
-        Cedar Reign Technology Ventures.
+        Dysruptive Technologies.
       </p>
       <section>
         <h2 className="text-lg font-semibold">What to include</h2>

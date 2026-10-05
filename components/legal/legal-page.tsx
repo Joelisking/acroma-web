@@ -13,7 +13,7 @@ export function LegalPage({
       </Link>
       <h1 className="mt-8 text-3xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Cedar Reign Technology Ventures · Draft for review
+        Dysruptive Technologies
       </p>
       <div className="mt-8 space-y-7 text-sm leading-7 text-foreground">
         {children}
