@@ -39,6 +39,10 @@ export function formatPhone(phone: string): string {
   // rather than at each of the ten call sites means no screen can ever print
   // "WALK_IN" at a merchant, or offer to copy it as if it were dialable.
   if (isWalkIn(phone)) return "Walk-in"
+  // A customer on a WhatsApp username who hides their number reaches us with
+  // only a business-scoped user id ("GH.1043068028692185"), which the backend
+  // stores where the phone goes. It is an address, not something to dial.
+  if (/^[A-Z]{2}\.(?:ENT\.)?[A-Za-z0-9]+$/.test(phone)) return "Number hidden"
   return phone.replace(/^(\+\d{3})(\d{2})(\d{3})(\d{4})$/, "$1 $2 $3 $4")
 }
 
