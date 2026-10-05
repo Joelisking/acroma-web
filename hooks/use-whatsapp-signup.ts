@@ -97,7 +97,7 @@ export function useWhatsappSignup() {
       if (mounted.current) setBusy(false)
     }
   }
-  const launch = () =>
+  const launch = (keepBusinessApp: boolean) =>
     launchSignup(
       window.FB,
       attempt,
@@ -109,7 +109,8 @@ export function useWhatsappSignup() {
           )
       },
       setProgress,
-      setError
+      setError,
+      keepBusinessApp
     )
   async function submitPin(pin?: string) {
     if (!attempt || busy) return

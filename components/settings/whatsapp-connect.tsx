@@ -4,10 +4,14 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { useWhatsappSignup } from "@/hooks/use-whatsapp-signup"
 export function WhatsappConnect() {
   const signup = useWhatsappSignup()
   const [pin, setPin] = useState("")
+  // Most merchants already sell from the WhatsApp Business app, so keeping
+  // the app (Meta coexistence) is the default.
+  const [keepBusinessApp, setKeepBusinessApp] = useState(true)
   const connected = signup.progress?.status === "CONNECTED"
   return (
     <section className="space-y-5" aria-label="Connect WhatsApp">
@@ -51,8 +55,29 @@ export function WhatsappConnect() {
                 : "Prepare or resume connection"}
           </Button>
           {signup.attempt && !signup.progress && (
-            <Button onClick={signup.launch}>Continue with Meta</Button>
+            <Button onClick={() => signup.launch(keepBusinessApp)}>
+              Continue with Meta
+            </Button>
           )}
+        </div>
+      )}
+      {!connected && !signup.progress && (
+        <div className="max-w-xl space-y-2 rounded-lg border p-4">
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="whatsapp-keep-business-app">
+              This number already uses the WhatsApp Business app
+            </Label>
+            <Switch
+              id="whatsapp-keep-business-app"
+              checked={keepBusinessApp}
+              onCheckedChange={setKeepBusinessApp}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {keepBusinessApp
+              ? "Keep using the app on your phone. Meta will show a QR code to scan with it. Replies you send from the app appear here and pause Acroma on that chat. Broadcast lists in the app stop working."
+              : "For a number that is not on WhatsApp yet. Meta will verify it by SMS or call."}
+          </p>
         </div>
       )}
       {signup.progress?.status === "ACTION_REQUIRED" &&

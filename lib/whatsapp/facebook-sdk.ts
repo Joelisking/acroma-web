@@ -11,7 +11,10 @@ export type FacebookSDK = {
       config_id: string
       response_type: "code"
       override_default_response_type: true
-      extras: { setup: Record<string, never> }
+      extras: {
+        setup: Record<string, never>
+        featureType?: "whatsapp_business_app_onboarding"
+      }
     }
   ): void
 }

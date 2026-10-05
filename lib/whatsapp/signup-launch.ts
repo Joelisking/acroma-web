@@ -13,7 +13,10 @@ export function launchSignup(
   },
   onCode: (code: string) => void,
   onProgress: (progress: SignupProgress) => void,
-  onError: (message: string) => void
+  onError: (message: string) => void,
+  // The number is already on the WhatsApp Business app and should stay there
+  // (Meta coexistence). Off means a fresh Cloud-only number.
+  keepBusinessApp = false
 ) {
   if (!attempt || !sdk || state.active.current) return
   if (Date.parse(attempt.expiresAt) <= Date.now())
@@ -47,7 +50,12 @@ export function launchSignup(
         config_id: attempt.configurationId,
         response_type: "code",
         override_default_response_type: true,
-        extras: { setup: {} },
+        extras: keepBusinessApp
+          ? {
+              setup: {},
+              featureType: "whatsapp_business_app_onboarding" as const,
+            }
+          : { setup: {} },
       }
     )
   } catch {

@@ -1,9 +1,18 @@
-export type SignupSelection = {
-  event: "FINISH"
-  wabaId: string
-  phoneNumberId: string
-  businessPortfolioId?: string
-}
+// Meta's finish event for a number that stays on the WhatsApp Business app
+// (coexistence). It carries the WABA only; the backend looks up the phone.
+export const COEXISTENCE_FINISH = "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING"
+export type SignupSelection =
+  | {
+      event: "FINISH"
+      wabaId: string
+      phoneNumberId: string
+      businessPortfolioId?: string
+    }
+  | {
+      event: typeof COEXISTENCE_FINISH
+      wabaId: string
+      businessPortfolioId?: string
+    }
 export type SignupEvent =
   | { kind: "selection"; selection: SignupSelection }
   | { kind: "cancel" | "unsupported" | "error" }
@@ -36,13 +45,26 @@ export function parseSignupEvent(input: {
   if (message?.type !== "WA_EMBEDDED_SIGNUP") return null
   if (message.event === "CANCEL") return { kind: "cancel" }
   if (message.event === "ERROR") return { kind: "error" }
+  const selection = record(message.data)
+  if (message.event === COEXISTENCE_FINISH) {
+    if (!selection || !identifier(selection.waba_id)) return null
+    return {
+      kind: "selection",
+      selection: {
+        event: COEXISTENCE_FINISH,
+        wabaId: selection.waba_id,
+        ...(identifier(selection.business_id)
+          ? { businessPortfolioId: selection.business_id }
+          : {}),
+      },
+    }
+  }
   if (
     typeof message.event === "string" &&
     message.event.startsWith("FINISH") &&
     message.event !== "FINISH"
   )
     return { kind: "unsupported" }
-  const selection = record(message.data)
   if (
     message.event !== "FINISH" ||
     !selection ||
