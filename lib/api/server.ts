@@ -87,7 +87,11 @@ export async function apiFetch<T>(
   }
 
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  // Nest answers a handler that returns null with a 2xx and an empty body
+  // (e.g. "no signup attempt to recover"). Parsing that as JSON throws, which
+  // used to surface as a generic failure before the real request was sent.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
 
 /**
