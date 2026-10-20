@@ -60,7 +60,7 @@ export function MenuItemRow({ product, currency }: Props) {
               regularPrice={product.basePrice}
               currency={currency}
             />
-            {product.promotionId ? (
+            {product.pricingPromotionId ? (
               <StatusPill tone="orange">Promo</StatusPill>
             ) : null}
           </span>

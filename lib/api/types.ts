@@ -391,8 +391,8 @@ export type ProductVariant = {
   isActive: boolean
   /** Price charged right now (promo price while a promotion reprices it). */
   effectivePrice?: number
-  /** The live promotion pricing this variant now, or null. */
-  promotionId?: string | null
+  /** The live promotion pricing this option now, or null. */
+  pricingPromotionId?: string | null
 }
 
 export type VariantDimension = {
@@ -463,11 +463,13 @@ export type Product = {
   variants?: ProductVariant[]
   /** Price charged right now (promo price while a promotion reprices it). */
   effectivePrice?: number
-  /**
-   * The promotion pricing this item now (a repriced item or a live promo-only
-   * item), or the promotion a promo-only item belongs to. Null otherwise.
-   */
+  /** Set only on a promo-only item: the promotion it belongs to. */
   promotionId?: string | null
+  /**
+   * The live promotion pricing this item now (it or any of its options has a
+   * promo price, or it is that promotion's promo-only item), or null.
+   */
+  pricingPromotionId?: string | null
 }
 
 // ---------------------------------------------------------------------------

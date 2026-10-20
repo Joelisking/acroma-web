@@ -49,16 +49,20 @@ export function useTillCheckout({
     // Re-price first and stop if anything moved, so staff see the new total
     // before any money is taken.
     const quote = await quoteOrderAction(toOrderLines(lines))
-    if (quote.ok) {
-      const repriced = applyQuote(lines, quote.data.lines)
-      if (repriced.changed) {
-        setBusy(false)
-        setLines(repriced.lines)
-        toast.warning(
-          `Prices changed since this screen loaded. New total: ${formatMoney(quote.data.subtotal + deliveryFee, business.currency)}. Check the cart and charge again.`
-        )
-        return
-      }
+    if (!quote.ok) {
+      // Can't confirm today's prices, so take no money on the old ones.
+      setBusy(false)
+      toast.error(`${quote.error}. Nothing was charged, try again.`)
+      return
+    }
+    const repriced = applyQuote(lines, quote.data.lines)
+    if (repriced.changed) {
+      setBusy(false)
+      setLines(repriced.lines)
+      toast.warning(
+        `Prices changed since this screen loaded. New total: ${formatMoney(quote.data.subtotal + deliveryFee, business.currency)}. Check the cart and charge again.`
+      )
+      return
     }
     const res = await createOrderAction({
       source: "TILL",

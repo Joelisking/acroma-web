@@ -120,7 +120,7 @@ export function matchesSearch(product: Product, query: string): boolean {
 
 /** A promo-only item of the live promotion, or an item it reprices. */
 export function isPromoItem(product: Product): boolean {
-  return product.promotionId != null
+  return product.promotionId != null || product.pricingPromotionId != null
 }
 
 /**
