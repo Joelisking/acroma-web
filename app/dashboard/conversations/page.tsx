@@ -31,7 +31,8 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   const [business, conversations, products] = await Promise.all([
     getCurrentBusiness(),
     listConversations(status),
-    listProducts(),
+    // Live promo-only items too, so an order can be edited with them.
+    listProducts({ forSale: true }),
   ]);
   if (!business) return null;
 

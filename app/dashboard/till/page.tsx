@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { listProducts } from "@/lib/api/products"
+import { getCurrentPromotions } from "@/lib/api/promotions"
 import { listOrders } from "@/lib/api/orders"
 import { getCurrentBusiness } from "@/lib/api/business"
 import type { ProductVariant } from "@/lib/api/types"
@@ -10,10 +11,12 @@ import { isSellable } from "@/lib/till"
 export const metadata: Metadata = { title: "Till · Acroma" }
 
 export default async function TillPage() {
-  const [business, products, orders] = await Promise.all([
+  const [business, products, orders, promotions] = await Promise.all([
     getCurrentBusiness(),
-    listProducts(),
+    // Includes the live promotion's promo-only items, with today's prices.
+    listProducts({ forSale: true }),
     listOrders({}),
+    getCurrentPromotions().catch(() => ({ live: null, scheduled: null })),
   ])
   if (!business) return null
 
@@ -67,6 +70,11 @@ export default async function TillPage() {
         variantsByProduct={variantsByProduct}
         variantsUnavailable={variantsUnavailable}
         openTickets={openTickets}
+        promotion={promotions.live}
+        priceBoundaries={[
+          promotions.live?.endsAt ?? null,
+          promotions.scheduled?.startsAt ?? null,
+        ]}
       />
     </div>
   )

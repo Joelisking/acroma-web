@@ -24,7 +24,8 @@ export default async function ConversationDetailPage({ params }: PageProps) {
     getCurrentBusiness(),
     safeGetConversation(id),
     listConversations(),
-    listProducts(),
+    // Live promo-only items too, so an order can be edited with them.
+    listProducts({ forSale: true }),
   ]);
   if (!business) return null;
   if (!conversation) notFound();

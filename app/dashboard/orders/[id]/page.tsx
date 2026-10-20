@@ -43,7 +43,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
   const [business, order, products, activity] = await Promise.all([
     getCurrentBusiness(),
     safeGetOrder(id),
-    listProducts(),
+    // Live promo-only items too, so an order can be edited with them.
+    listProducts({ forSale: true }),
     isOwner ? safeListActivity(id) : Promise.resolve<AuditEntry[]>([]),
   ])
   if (!business) return null
