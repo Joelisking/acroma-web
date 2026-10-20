@@ -39,12 +39,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <header className="flex flex-col gap-4">
+        {/* A promo-only item lives in its promotion, not the regular menu. */}
         <Link
-          href="/dashboard/catalog"
+          href={
+            product.promotionId
+              ? `/dashboard/promotions/${product.promotionId}`
+              : "/dashboard/catalog"
+          }
           className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-xs font-medium"
         >
           <ChevronLeft className="size-4" />
-          {vocab.catalog}
+          {product.promotionId ? "Promotion" : vocab.catalog}
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
