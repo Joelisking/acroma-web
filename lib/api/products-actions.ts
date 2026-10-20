@@ -25,6 +25,8 @@ export type ProductInput = {
   tags?: ProductTag[];
   /** Services vertical: estimated service duration in minutes. Omit for non-services products. */
   estimatedDurationMinutes?: number;
+  /** Set when creating a promo-only item for this promotion. */
+  promotionId?: string;
 };
 
 export async function createProductAction(

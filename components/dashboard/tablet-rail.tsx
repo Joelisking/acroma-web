@@ -129,7 +129,7 @@ export function TabletRail({
         name={name}
         email={email}
         role={role}
-        groups={getWideSecondaryNav(role)}
+        groups={getWideSecondaryNav(role, vocab)}
       />
     </>
   );

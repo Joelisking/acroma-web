@@ -1,4 +1,5 @@
 import {
+  BadgePercent,
   Home,
   MessageCircle,
   ShoppingBag,
@@ -104,7 +105,10 @@ const WIDE_PROMOTED_HREFS = new Set<string>([ANALYTICS_NAV.href]);
  * Every one of these is owner ground, so a worker gets no groups at all and
  * the "More" drawer falls back to the account block and sign-out.
  */
-export function getSecondaryNav(role: AuthRole): NavGroup[] {
+export function getSecondaryNav(
+  role: AuthRole,
+  vocab?: Pick<Vocabulary, "promotions">,
+): NavGroup[] {
   if (role === "STAFF") return [];
   return [
     {
@@ -113,6 +117,15 @@ export function getSecondaryNav(role: AuthRole): NavGroup[] {
         { href: "/dashboard/customers", label: "Customers", icon: Users },
         { href: "/dashboard/broadcasts", label: "Broadcasts", icon: Megaphone },
         { href: "/dashboard/discounts", label: "Discounts", icon: Ticket },
+        ...(vocab?.promotions
+          ? [
+              {
+                href: "/dashboard/promotions",
+                label: "Promotions",
+                icon: BadgePercent,
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -134,8 +147,11 @@ export function getSecondaryNav(role: AuthRole): NavGroup[] {
  * items already promoted into the main nav removed so they don't appear twice.
  * Empty groups are dropped.
  */
-export function getWideSecondaryNav(role: AuthRole): NavGroup[] {
-  return getSecondaryNav(role)
+export function getWideSecondaryNav(
+  role: AuthRole,
+  vocab?: Pick<Vocabulary, "promotions">,
+): NavGroup[] {
+  return getSecondaryNav(role, vocab)
     .map((group) => ({
       ...group,
       items: group.items.filter((i) => !WIDE_PROMOTED_HREFS.has(i.href)),

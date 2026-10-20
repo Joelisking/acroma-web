@@ -28,7 +28,7 @@ type SidebarNavProps = {
 export function SidebarNav({ badges, vocab, role }: SidebarNavProps) {
   const pathname = usePathname();
   const primary = getWideNav(vocab, role);
-  const groups = getWideSecondaryNav(role);
+  const groups = getWideSecondaryNav(role, vocab);
 
   return (
     <nav className="flex flex-col gap-5" aria-label="Primary">
