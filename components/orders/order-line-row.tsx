@@ -73,7 +73,7 @@ export function OrderLineRow({
                 productId: product.id,
                 productName: product.name,
                 variantId: undefined,
-                unitPrice: product.basePrice,
+                unitPrice: product.effectivePrice ?? product.basePrice,
               })
             }
           />
@@ -91,6 +91,7 @@ export function OrderLineRow({
                   // Sausage from Large (override 20) to Regular (no override)
                   // still charged 20 rather than the 15 base.
                   unitPrice:
+                    variant?.effectivePrice ??
                     variant?.priceOverride ??
                     catalogProduct?.basePrice ??
                     line.unitPrice,

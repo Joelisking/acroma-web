@@ -234,6 +234,28 @@ export async function createOrderAction(
   }
 }
 
+/**
+ * Price a cart at today's prices without creating anything. The till checks
+ * this before charging so a screen left open across a promotion boundary
+ * never charges a different total than it showed.
+ */
+export async function quoteOrderAction(
+  items: CreateOrderInput["items"],
+): Promise<ActionResult<{ lines: { unitPrice: number }[]; subtotal: number }>> {
+  try {
+    const data = await apiFetch<{
+      lines: { unitPrice: number }[];
+      subtotal: number;
+    }>("/orders/quote", { method: "POST", body: { items } });
+    return { ok: true, data };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { ok: false, error: err.message || "Couldn't check prices" };
+    }
+    return { ok: false, error: "Couldn't check prices" };
+  }
+}
+
 export async function editOrderAction(
   orderId: string,
   input: EditOrderInput,

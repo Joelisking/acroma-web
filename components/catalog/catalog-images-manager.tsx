@@ -18,6 +18,13 @@ type Props = {
   defaultUrls: string[];
   /** User-facing noun: "Catalog" or "Menu" (vertical-aware). */
   noun: string;
+  /**
+   * Saves somewhere other than the business catalog (e.g. a promotion's own
+   * menu). Defaults to the catalog settings action.
+   */
+  onSave?: (
+    urls: string[],
+  ) => Promise<{ ok: true; data: string[] } | { ok: false; error: string }>;
 };
 
 /**
@@ -25,7 +32,7 @@ type Props = {
  * them with the per-tile arrows, then save. The saved order is the order
  * Acroma sends the images to customers on WhatsApp. Caps at MAX_IMAGES.
  */
-export function CatalogImagesManager({ defaultUrls, noun }: Props) {
+export function CatalogImagesManager({ defaultUrls, noun, onSave }: Props) {
   const [urls, setUrls] = React.useState<string[]>(defaultUrls);
   // Baseline of what's persisted, so the Save button settles back to disabled
   // after a save (client state survives the server revalidation).
@@ -79,12 +86,16 @@ export function CatalogImagesManager({ defaultUrls, noun }: Props) {
 
   function handleSave() {
     startSaving(async () => {
-      const result = await updateCatalogImagesAction(urls);
+      const result = onSave
+        ? await onSave(urls)
+        : await updateCatalogImagesAction(urls).then((r) =>
+            r.ok ? { ok: true as const, data: r.data.catalogImageUrls } : r,
+          );
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      setSavedUrls(result.data.catalogImageUrls);
+      setSavedUrls(result.data);
       toast.success(`${noun} images saved`);
     });
   }

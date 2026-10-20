@@ -1,24 +1,21 @@
 "use client"
 
 import * as React from "react"
-import { TriangleAlert } from "lucide-react"
-import { toast } from "sonner"
 import type {
   Business,
   Order,
   OrderFulfillment,
   Product,
   ProductVariant,
+  Promotion,
 } from "@/lib/api/types"
 import {
   addLine,
   cartLineFromProduct,
   lineKey,
   setQuantity,
-  toOrderLines,
   type CartLine,
 } from "@/lib/till"
-import { createOrderAction } from "@/lib/api/orders-actions"
 import { TillCatalog } from "./till-catalog"
 import { TillCart } from "./till-cart"
 import { TillTickets, type Ticket } from "./till-tickets"
@@ -28,6 +25,9 @@ import { CustomLineDialog } from "./custom-line-dialog"
 import { useTillTickets } from "./use-till-tickets"
 import { TillCartBar } from "./till-cart-bar"
 import { TillFulfillment } from "./till-fulfillment"
+import { TillVariantsWarning } from "./till-variants-warning"
+import { useTillRefresh } from "./use-till-refresh"
+import { useTillCheckout } from "./use-till-checkout"
 
 type TillScreenProps = {
   business: Business
@@ -43,6 +43,9 @@ type TillScreenProps = {
   variantsUnavailable: number
   /** Today's counter orders still waiting on payment, so a reload keeps them. */
   openTickets: Ticket[]
+  /** The live promotion, and when the current or next one starts or ends. */
+  promotion?: Promotion | null
+  priceBoundaries?: (string | null)[]
 }
 
 /**
@@ -55,14 +58,16 @@ export function TillScreen({
   variantsByProduct,
   variantsUnavailable,
   openTickets,
+  promotion = null,
+  priceBoundaries = [],
 }: TillScreenProps) {
+  useTillRefresh(priceBoundaries)
   const [lines, setLines] = React.useState<CartLine[]>([])
   const [phone, setPhone] = React.useState("")
   const [fulfillment, setFulfillment] =
     React.useState<OrderFulfillment>("PICKUP")
   const [address, setAddress] = React.useState("")
   const [addressTouched, setAddressTouched] = React.useState(false)
-  const [busy, setBusy] = React.useState(false)
   const [variantFor, setVariantFor] = React.useState<Product | null>(null)
   const [customOpen, setCustomOpen] = React.useState(false)
   const [charging, setCharging] = React.useState<Order | null>(null)
@@ -109,58 +114,19 @@ export function TillScreen({
   const deliveryFee =
     fulfillment === "DELIVERY" ? (business.deliveryFee ?? 0) : 0
 
-  async function createOrder(paymentMethod: "MOMO" | "CASH_ON_DELIVERY") {
-    // You cannot deliver to nowhere. Surface it before taking any money.
-    if (fulfillment === "DELIVERY" && address.trim().length === 0) {
-      setAddressTouched(true)
-      toast.error("Add where the order is going first.")
-      return
-    }
-    setBusy(true)
-    const res = await createOrderAction({
-      source: "TILL",
-      // Blank means walk-in; the backend substitutes its marker rather than
-      // storing an empty string.
-      ...(phone.trim() ? { customerPhone: phone.trim() } : {}),
-      fulfillment,
-      ...(fulfillment === "DELIVERY"
-        ? { deliveryAddress: address.trim() }
-        : {}),
-      paymentMethod,
-      items: toOrderLines(lines),
-    })
-    setBusy(false)
-
-    if (!res.ok) {
-      toast.error(res.error)
-      return
-    }
-    const order = res.data
-
-    if (paymentMethod === "CASH_ON_DELIVERY") {
-      // Cash is already in the drawer, so the order is created paid and there
-      // is nothing to wait for.
-      toast.success("Paid in cash.")
-      resetCart()
-      return
-    }
-
-    if (!order.paystackAuthUrl) {
-      // Almost always an unconfigured Paystack subaccount. The order exists and
-      // is recoverable from the board, so say what happened rather than
-      // pretending the sale succeeded.
-      toast.error(
-        "Order created, but no payment link came back. Take cash or check your payment setup."
-      )
-      add(order)
-      resetCart()
-      return
-    }
-
-    add(order)
-    setCharging(order)
-    resetCart()
-  }
+  const { busy, createOrder } = useTillCheckout({
+    business,
+    lines,
+    setLines,
+    phone,
+    fulfillment,
+    address,
+    setAddressTouched,
+    deliveryFee,
+    add,
+    setCharging,
+    resetCart,
+  })
 
   function handleOpenTicket(ticket: Ticket) {
     setCharging(ticket.order)
@@ -202,28 +168,13 @@ export function TillScreen({
 
   return (
     <div className="flex flex-col gap-4">
-      {variantsUnavailable > 0 ? (
-        <div
-          role="status"
-          className="border-brand-orange/25 bg-brand-orange-soft text-brand-navy/80 flex items-start gap-2 rounded-2xl border p-3 text-sm"
-        >
-          <TriangleAlert
-            className="text-brand-orange mt-0.5 size-4 shrink-0"
-            strokeWidth={1.75}
-          />
-          <span>
-            {variantsUnavailable} item{variantsUnavailable === 1 ? "" : "s"}{" "}
-            {variantsUnavailable === 1 ? "has" : "have"} no options set up, so{" "}
-            {variantsUnavailable === 1 ? "it" : "they"}&apos;ll ring up at the
-            base price. Check the catalog if that&apos;s not right.
-          </span>
-        </div>
-      ) : null}
+      <TillVariantsWarning count={variantsUnavailable} />
 
       <TillTickets tickets={tickets} onOpen={handleOpenTicket} />
 
       <div className="grid gap-4 md:grid-cols-[1fr_17rem] md:items-start lg:grid-cols-[1fr_20rem]">
         <TillCatalog
+          promotion={promotion}
           products={products}
           currency={business.currency}
           onPick={handlePick}

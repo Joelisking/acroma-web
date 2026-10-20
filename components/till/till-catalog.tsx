@@ -2,18 +2,20 @@
 
 import * as React from "react"
 import { Plus, Search } from "lucide-react"
-import type { Product } from "@/lib/api/types"
-import { formatMoney } from "@/lib/format"
-import { isSoldOutToday } from "@/lib/catalog/sold-out"
-import { categoriesOf, matchesSearch } from "@/lib/till"
+import type { Product, Promotion } from "@/lib/api/types"
+import { categoriesOf, isPromoItem, matchesSearch } from "@/lib/till"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { TillProductTile } from "./till-product-tile"
 
 type TillCatalogProps = {
   products: Product[]
   currency: string
   onPick: (product: Product) => void
   onCustom: () => void
+  /** The live promotion: its items are pinned first; REPLACES hides the rest by default. */
+  promotion?: Pick<Promotion, "name" | "menuMode"> | null
 }
 
 /**
@@ -26,8 +28,12 @@ export function TillCatalog({
   currency,
   onPick,
   onCustom,
+  promotion,
 }: TillCatalogProps) {
   const [query, setQuery] = React.useState("")
+  // Staff can still ring up a regular item during a REPLACES promotion.
+  const [showFullMenu, setShowFullMenu] = React.useState(false)
+  const promoOnlyMenu = promotion?.menuMode === "REPLACES" && !showFullMenu
   const [category, setCategory] = React.useState<string | null>(null)
   const categories = React.useMemo(() => categoriesOf(products), [products])
 
@@ -36,8 +42,21 @@ export function TillCatalog({
       products
         .filter((p) => p.isActive)
         .filter((p) => !category || p.category === category)
-        .filter((p) => matchesSearch(p, query)),
-    [products, category, query]
+        .filter((p) => matchesSearch(p, query))
+        .filter((p) => !promoOnlyMenu || isPromoItem(p)),
+    [products, category, query, promoOnlyMenu]
+  )
+  const promoTiles = promotion ? visible.filter(isPromoItem) : []
+  const regularTiles = promotion
+    ? visible.filter((p) => !isPromoItem(p))
+    : visible
+  const tile = (product: Product) => (
+    <TillProductTile
+      key={product.id}
+      product={product}
+      currency={currency}
+      onPick={onPick}
+    />
   )
 
   return (
@@ -71,15 +90,31 @@ export function TillCatalog({
         </div>
       ) : null}
 
+      {promotion ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-foreground">
+            Promo · {promotion.name}
+          </p>
+          {promotion.menuMode === "REPLACES" ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFullMenu((v) => !v)}
+            >
+              {showFullMenu ? "Promo items only" : "Show full menu"}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      {promoTiles.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {promoTiles.map(tile)}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-        {visible.map((product) => (
-          <ProductTile
-            key={product.id}
-            product={product}
-            currency={currency}
-            onPick={onPick}
-          />
-        ))}
+        {regularTiles.map(tile)}
         <button
           type="button"
           onClick={onCustom}
@@ -120,43 +155,6 @@ function CategoryChip({
       )}
     >
       {label}
-    </button>
-  )
-}
-
-function ProductTile({
-  product,
-  currency,
-  onPick,
-}: {
-  product: Product
-  currency: string
-  onPick: (p: Product) => void
-}) {
-  const soldOut = isSoldOutToday(product.soldOutAt)
-  return (
-    <button
-      type="button"
-      disabled={soldOut}
-      onClick={() => onPick(product)}
-      className={cn(
-        "card-warm flex min-h-20 flex-col justify-between gap-1 p-3 text-left transition-transform",
-        soldOut
-          ? "cursor-not-allowed opacity-40"
-          : "hover:border-brand-orange active:scale-[0.98]"
-      )}
-    >
-      <span className="line-clamp-2 text-sm font-semibold text-foreground">
-        {product.name}
-      </span>
-      <span
-        className={cn(
-          "text-sm font-bold",
-          soldOut ? "text-muted-foreground" : "text-brand-orange"
-        )}
-      >
-        {soldOut ? "Sold out" : formatMoney(product.basePrice, currency)}
-      </span>
     </button>
   )
 }

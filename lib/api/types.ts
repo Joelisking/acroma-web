@@ -389,6 +389,10 @@ export type ProductVariant = {
   stock: number
   imageUrl: string | null
   isActive: boolean
+  /** Price charged right now (promo price while a promotion reprices it). */
+  effectivePrice?: number
+  /** The live promotion pricing this option now, or null. */
+  pricingPromotionId?: string | null
 }
 
 export type VariantDimension = {
@@ -457,6 +461,54 @@ export type Product = {
   createdAt: string
   updatedAt: string
   variants?: ProductVariant[]
+  /** Price charged right now (promo price while a promotion reprices it). */
+  effectivePrice?: number
+  /** Set only on a promo-only item: the promotion it belongs to. */
+  promotionId?: string | null
+  /**
+   * The live promotion pricing this item now (it or any of its options has a
+   * promo price, or it is that promotion's promo-only item), or null.
+   */
+  pricingPromotionId?: string | null
+}
+
+// ---------------------------------------------------------------------------
+// Promotions (mirror Prisma's PromotionMenuMode; status is derived server-side)
+// ---------------------------------------------------------------------------
+
+export type PromotionMenuMode = "ALONGSIDE" | "REPLACES"
+
+export type PromotionStatus = "DRAFT" | "SCHEDULED" | "LIVE" | "ENDED"
+
+export type Promotion = {
+  id: string
+  name: string
+  description: string | null
+  isActive: boolean
+  startsAt: string | null
+  endsAt: string | null
+  menuMode: PromotionMenuMode
+  menuImageUrls: string[]
+  menuPdfUrl: string | null
+  status: PromotionStatus
+  endedAt: string | null
+  createdAt: string
+}
+
+export type PromotionPrice = {
+  productId: string
+  variantId: string | null
+  price: number
+  productName: string
+  variantLabel: string | null
+  regularPrice: number
+}
+
+export type PromotionDetail = Promotion & { prices: PromotionPrice[] }
+
+export type CurrentPromotions = {
+  live: Promotion | null
+  scheduled: Promotion | null
 }
 
 // ---------------------------------------------------------------------------
@@ -896,7 +948,13 @@ export type DashboardActivity = {
 }
 
 /** Who triggered an audited event. */
-export type AuditActor = "CUSTOMER" | "AI" | "OWNER" | "ADMIN" | "STAFF" | "SYSTEM"
+export type AuditActor =
+  | "CUSTOMER"
+  | "AI"
+  | "OWNER"
+  | "ADMIN"
+  | "STAFF"
+  | "SYSTEM"
 
 /**
  * A single row from the backend audit log (`GET /audit`). Read-only;

@@ -11,7 +11,10 @@ import { redirectStaffHome } from "@/lib/api/owner-only";
 
 export const metadata: Metadata = { title: "New product · Acroma" };
 
-export default async function NewProductPage() {
+type PageProps = { searchParams: Promise<{ promotionId?: string }> };
+
+export default async function NewProductPage({ searchParams }: PageProps) {
+  const { promotionId } = await searchParams;
   await redirectStaffHome();
 
   const [business, products] = await Promise.all([
@@ -25,19 +28,20 @@ export default async function NewProductPage() {
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <header className="space-y-2">
         <Link
-          href="/dashboard/catalog"
+          href={promotionId ? `/dashboard/promotions/${promotionId}` : "/dashboard/catalog"}
           className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1 text-xs font-medium"
         >
           <ChevronLeft className="size-4" />
-          {vocab.catalog}
+          {promotionId ? "Promotion" : vocab.catalog}
         </Link>
         <h1 className="text-foreground text-3xl font-bold tracking-tight">
-          Add a {vocab.itemLower}
+          {promotionId ? "Add a promo-only item" : `Add a ${vocab.itemLower}`}
         </h1>
       </header>
       <NewProductPageClient
         businessType={business?.businessType}
         categories={categories}
+        promotionId={promotionId}
       />
     </div>
   );

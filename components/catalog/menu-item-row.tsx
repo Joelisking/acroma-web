@@ -3,7 +3,7 @@ import { Package } from "lucide-react";
 
 import type { Product } from "@/lib/api/types";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
-import { formatMoney } from "@/lib/format";
+import { PromoPrice } from "@/components/promotions/promo-price";
 import { cn } from "@/lib/utils";
 import { StatusPill } from "@/components/shared/status-pill";
 import { MenuItemToggle } from "./menu-item-toggle";
@@ -54,8 +54,15 @@ export function MenuItemRow({ product, currency }: Props) {
           >
             {product.name}
           </span>
-          <span className="text-foreground block text-sm tabular-nums">
-            {formatMoney(product.basePrice, currency)}
+          <span className="text-foreground flex items-center gap-2 text-sm">
+            <PromoPrice
+              price={product.effectivePrice ?? product.basePrice}
+              regularPrice={product.basePrice}
+              currency={currency}
+            />
+            {product.pricingPromotionId ? (
+              <StatusPill tone="orange">Promo</StatusPill>
+            ) : null}
           </span>
         </span>
       </Link>

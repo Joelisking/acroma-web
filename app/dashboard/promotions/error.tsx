@@ -1,0 +1,27 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { StaleDeployNotice } from "@/components/stale-deploy-notice"
+import { useStaleDeployReload } from "@/hooks/use-stale-deploy-reload"
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error
+  reset: () => void
+}) {
+  const stale = useStaleDeployReload(error)
+  if (stale) return <StaleDeployNotice />
+
+  return (
+    <div className="card-warm mx-auto max-w-3xl space-y-4 p-6">
+      <h2 className="text-base font-semibold text-foreground">
+        Couldn&apos;t load promotions
+      </h2>
+      <Button onClick={() => reset()} size="sm">
+        Try again
+      </Button>
+    </div>
+  )
+}

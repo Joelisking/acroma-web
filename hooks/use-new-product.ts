@@ -12,7 +12,8 @@ import { EMPTY_FORM_VALUES, parsedToFormValues } from "@/lib/catalog/product-for
 
 export type NewProductMode = "describe" | "manual";
 
-export function useNewProduct() {
+/** `promotionId` creates a promo-only item for that promotion and returns there. */
+export function useNewProduct(promotionId?: string) {
   const router = useRouter();
 
   const [mode, setMode] = React.useState<NewProductMode>("manual");
@@ -96,6 +97,7 @@ export function useNewProduct() {
         imageUrl: formValues.imageUrl.trim() || undefined,
         isActive: formValues.isActive,
         tags: formValues.tags,
+        ...(promotionId ? { promotionId } : {}),
       });
       if (!create.ok) {
         toast.error(create.error);
@@ -129,7 +131,9 @@ export function useNewProduct() {
         return;
       }
 
-      router.replace("/dashboard/catalog");
+      router.replace(
+        promotionId ? `/dashboard/promotions/${promotionId}` : "/dashboard/catalog",
+      );
       router.refresh();
     });
   }

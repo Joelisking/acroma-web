@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { Product, ProductVariant } from "@/lib/api/types"
-import { formatMoney } from "@/lib/format"
+import { PromoPrice } from "@/components/promotions/promo-price"
 import {
   Dialog,
   DialogContent,
@@ -53,12 +53,16 @@ export function VariantDialog({
                 <span className="text-sm font-medium text-foreground">
                   {Object.values(variant.attributes).join(", ")}
                 </span>
-                <span className="text-sm font-bold text-brand-orange">
-                  {formatMoney(
-                    variant.priceOverride ?? product.basePrice,
-                    currency
-                  )}
-                </span>
+                <PromoPrice
+                  price={
+                    variant.effectivePrice ??
+                    variant.priceOverride ??
+                    product.basePrice
+                  }
+                  regularPrice={variant.priceOverride ?? product.basePrice}
+                  currency={currency}
+                  className="text-sm font-bold text-brand-orange"
+                />
               </button>
             ))}
           </div>

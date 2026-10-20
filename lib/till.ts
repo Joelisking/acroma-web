@@ -71,7 +71,12 @@ export function cartLineFromProduct(
   variant?: ProductVariant
 ): CartLine {
   const variantId = variant?.id ?? null
-  const unitPrice = variant?.priceOverride ?? product.basePrice
+  // The server prices catalog lines itself; this is the preview, at today's
+  // (promo) price when the API supplied one.
+  const unitPrice =
+    (variant ? variant.effectivePrice : product.effectivePrice) ??
+    variant?.priceOverride ??
+    product.basePrice
   const name = variant
     ? `${product.name} (${Object.values(variant.attributes).join(", ")})`
     : product.name
@@ -111,4 +116,28 @@ export function matchesSearch(product: Product, query: string): boolean {
     product.name.toLowerCase().includes(q) ||
     (product.category?.toLowerCase().includes(q) ?? false)
   )
+}
+
+/** A promo-only item of the live promotion, or an item it reprices. */
+export function isPromoItem(product: Product): boolean {
+  return product.promotionId != null || product.pricingPromotionId != null
+}
+
+/**
+ * Re-price the cart from a server quote (same order as the cart). Returns the
+ * updated lines and whether anything changed, so the till can stop and show
+ * the new total before charging.
+ */
+export function applyQuote(
+  lines: CartLine[],
+  quoted: { unitPrice: number }[]
+): { lines: CartLine[]; changed: boolean } {
+  let changed = false
+  const next = lines.map((l, i) => {
+    const unitPrice = quoted[i]?.unitPrice
+    if (unitPrice === undefined || unitPrice === l.unitPrice) return l
+    changed = true
+    return { ...l, unitPrice }
+  })
+  return { lines: next, changed }
 }

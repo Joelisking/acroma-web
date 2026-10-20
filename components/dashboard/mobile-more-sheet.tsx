@@ -7,6 +7,7 @@ import { ChevronRight, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useVocab } from "@/components/vocabulary-provider";
 import { getSecondaryNav, isNavActive, type NavGroup } from "./nav-items";
 import { getInitials } from "./account-menu";
 import { logoutAction } from "@/lib/api/auth";
@@ -37,7 +38,8 @@ export function MobileMoreSheet({
   groups?: NavGroup[];
 }) {
   const pathname = usePathname();
-  const navGroups = groups ?? getSecondaryNav(role);
+  const vocab = useVocab();
+  const navGroups = groups ?? getSecondaryNav(role, vocab);
   const [pending, startTransition] = React.useTransition();
 
   return (

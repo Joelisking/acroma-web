@@ -50,6 +50,8 @@ export type Vocabulary = {
    * them. This is the one behavioral flag here; every other field is copy.
    */
   tracksStock: boolean;
+  /** Whether the Promotions feature is offered (food merchants for now). */
+  promotions?: boolean;
 };
 
 const FOOD: Vocabulary = {
@@ -69,6 +71,7 @@ const FOOD: Vocabulary = {
   order: "Order",
   ordersLower: "orders",
   tracksStock: false,
+  promotions: true,
 };
 
 const GENERAL: Vocabulary = {
