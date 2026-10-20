@@ -20,14 +20,17 @@ import type { BusinessType } from "@/lib/api/types";
 type Props = {
   businessType?: BusinessType | null;
   categories?: string[];
+  /** Creating a promo-only item for this promotion. */
+  promotionId?: string;
 };
 
 export function NewProductPageClient({
   businessType,
   categories = [],
+  promotionId,
 }: Props = {}) {
   const router = useRouter();
-  const np = useNewProduct();
+  const np = useNewProduct(promotionId);
   const vocab = useVocab();
   const isFood = businessType === "FOOD_BEVERAGES";
 

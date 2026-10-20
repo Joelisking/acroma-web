@@ -15,6 +15,13 @@ type Props = {
   defaultUrl: string | null;
   /** User-facing noun: "Catalog" or "Menu" (vertical-aware). */
   noun: string;
+  /**
+   * Saves somewhere other than the business catalog (e.g. a promotion's own
+   * menu). Defaults to the catalog settings action.
+   */
+  onSave?: (
+    url: string | null,
+  ) => Promise<{ ok: true; data: string | null } | { ok: false; error: string }>;
 };
 
 /**
@@ -22,7 +29,13 @@ type Props = {
  * immediately; removing clears it. When a PDF is set, Acroma sends it instead
  * of the catalog images when customers ask what you have.
  */
-export function CatalogPdfManager({ defaultUrl, noun }: Props) {
+export function CatalogPdfManager({ defaultUrl, noun, onSave }: Props) {
+  const save = (next: string | null) =>
+    onSave
+      ? onSave(next)
+      : updateCatalogPdfAction(next).then((r) =>
+          r.ok ? { ok: true as const, data: r.data.catalogPdfUrl } : r,
+        );
   const [url, setUrl] = React.useState<string | null>(defaultUrl);
   const [busy, setBusy] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -31,12 +44,12 @@ export function CatalogPdfManager({ defaultUrl, noun }: Props) {
     setBusy(true);
     try {
       const uploaded = await uploadPdf(file);
-      const result = await updateCatalogPdfAction(uploaded);
+      const result = await save(uploaded);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      setUrl(result.data.catalogPdfUrl);
+      setUrl(result.data);
       toast.success(`${noun} PDF saved`);
     } catch (err) {
       toast.error(
@@ -52,12 +65,12 @@ export function CatalogPdfManager({ defaultUrl, noun }: Props) {
   async function handleRemove() {
     setBusy(true);
     try {
-      const result = await updateCatalogPdfAction(null);
+      const result = await save(null);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      setUrl(result.data.catalogPdfUrl);
+      setUrl(result.data);
       toast.success(`${noun} PDF removed`);
     } finally {
       setBusy(false);
