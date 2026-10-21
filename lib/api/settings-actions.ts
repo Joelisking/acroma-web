@@ -316,3 +316,21 @@ function humanError(err: unknown, fallback: string): string {
   if (err instanceof Error) return err.message || fallback
   return fallback
 }
+
+export async function disconnectWhatsappAction(): Promise<
+  ActionResult<{ disconnected: true }>
+> {
+  try {
+    const data = await apiFetch<{ disconnected: true }>("/settings/whatsapp", {
+      method: "DELETE",
+    })
+    revalidatePath("/dashboard/settings/whatsapp")
+    revalidatePath("/whatsapp/connect")
+    return { ok: true, data }
+  } catch {
+    return {
+      ok: false,
+      error: "Could not disconnect WhatsApp. Please try again.",
+    }
+  }
+}

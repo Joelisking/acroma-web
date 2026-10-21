@@ -6,6 +6,7 @@ import { getWhatsappSettings } from "@/lib/api/settings"
 import { listTemplates } from "@/lib/api/templates"
 import { findTillPaymentTemplate } from "@/lib/till-template"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { WhatsappDisconnect } from "@/components/settings/whatsapp-disconnect"
 import { WhatsappStatus } from "@/components/settings/whatsapp-status"
 import { WhatsappForm } from "@/components/settings/whatsapp-form"
 import { WhatsappTestButton } from "@/components/settings/whatsapp-test-button"
@@ -19,6 +20,9 @@ export default async function WhatsappSettingsPage() {
   await redirectStaffHome()
 
   const settings = await getWhatsappSettings()
+  const connected =
+    !!settings.whatsappPhoneNumberId ||
+    settings.connection?.status === "CONNECTED"
   // A merchant who has not connected WhatsApp has no WABA to hold a template,
   // and the backend refuses the sync, so don't ask for one.
   const templates = settings.whatsappBusinessAccountId
@@ -29,15 +33,19 @@ export default async function WhatsappSettingsPage() {
   return (
     <div className="space-y-6">
       <SettingsCard
-        title="Connect with Meta"
+        title={connected ? "WhatsApp connected" : "Connect with Meta"}
         description="Connect a merchant-owned WhatsApp account without copying access tokens."
       >
-        <Link
-          href="/whatsapp/connect"
-          className="text-sm font-medium text-primary"
-        >
-          Connect WhatsApp
-        </Link>
+        {connected ? (
+          <WhatsappDisconnect />
+        ) : (
+          <Link
+            href="/whatsapp/connect"
+            className="text-sm font-medium text-primary"
+          >
+            Connect WhatsApp
+          </Link>
+        )}
       </SettingsCard>
       {!settings.connection && (
         <Link
@@ -131,7 +139,7 @@ export default async function WhatsappSettingsPage() {
             {settings.connection.status}
           </p>
           <p className="text-sm text-muted-foreground">
-            Contact support to reconnect or change this sender.
+            To change this number, disconnect it above and connect another.
           </p>
         </SettingsCard>
       )}
