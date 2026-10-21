@@ -1,18 +1,18 @@
-"use server";
+"use server"
 
-import { redirect } from "next/navigation";
-import { apiFetch, ApiError } from "./server";
+import { redirect } from "next/navigation"
+import { apiFetch, ApiError } from "./server"
 import {
   setAuthCookies,
   clearAuthCookies,
   readAccessToken,
   readRefreshToken,
-} from "./cookies";
-import type { AuthResponse, AuthRole, Business, LoginResponse } from "./types";
+} from "./cookies"
+import type { AuthResponse, AuthRole, Business, LoginResponse } from "./types"
 
 type ActionResult<T = void> =
   | { ok: true; data: T }
-  | { ok: false; error: string };
+  | { ok: false; error: string }
 
 /**
  * What the login screen needs to route and greet, for either kind of user.
@@ -20,24 +20,24 @@ type ActionResult<T = void> =
  * rather than leaving the caller to reach into a field that may not exist.
  */
 export type LoginResult = {
-  role: AuthRole;
+  role: AuthRole
   /** Business name for an owner, the worker's own name for staff. */
-  displayName: string;
+  displayName: string
   /** True only for a worker still on their temporary password. */
-  mustChangePassword: boolean;
-};
+  mustChangePassword: boolean
+}
 
 export async function loginAction(input: {
   /** An email for an owner, a username for a worker. */
-  identifier: string;
-  password: string;
+  identifier: string
+  password: string
 }): Promise<ActionResult<LoginResult>> {
   try {
     const data = await apiFetch<LoginResponse>("/auth/login", {
       method: "POST",
       body: input,
       auth: false,
-    });
+    })
     await setAuthCookies({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
@@ -52,7 +52,7 @@ export async function loginAction(input: {
           : data.role === "OWNER"
             ? data.business.email
             : undefined,
-    });
+    })
     return {
       ok: true,
       data:
@@ -67,23 +67,25 @@ export async function loginAction(input: {
               displayName: data.business.name,
               mustChangePassword: false,
             },
-    };
+    }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Login failed") };
+    return { ok: false, error: humanError(err, "Login failed") }
   }
 }
 
 export async function registerAction(input: {
-  name: string;
-  email: string;
-  password: string;
+  name: string
+  email: string
+  password: string
+  acceptedLegal: boolean
+  legalPolicyVersion: string
 }): Promise<ActionResult<{ business: Business }>> {
   try {
     const data = await apiFetch<AuthResponse>("/auth/register", {
       method: "POST",
       body: input,
       auth: false,
-    });
+    })
     // Registration always creates an owner — /auth/register has no staff path.
     await setAuthCookies({
       accessToken: data.accessToken,
@@ -91,26 +93,26 @@ export async function registerAction(input: {
       role: "OWNER",
       mustChangePassword: false,
       email: data.business.email,
-    });
-    return { ok: true, data: { business: data.business } };
+    })
+    return { ok: true, data: { business: data.business } }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Could not create account") };
+    return { ok: false, error: humanError(err, "Could not create account") }
   }
 }
 
 export async function logoutAction(): Promise<void> {
   try {
-    await apiFetch<void>("/auth/logout", { method: "POST" });
+    await apiFetch<void>("/auth/logout", { method: "POST" })
   } catch {
     // Logout is best-effort; clear local cookies regardless.
   }
-  await clearAuthCookies();
-  redirect("/login");
+  await clearAuthCookies()
+  redirect("/login")
 }
 
 export async function isAuthenticated(): Promise<boolean> {
-  if ((await readAccessToken()) !== null) return true;
-  return (await readRefreshToken()) !== null;
+  if ((await readAccessToken()) !== null) return true
+  return (await readRefreshToken()) !== null
 }
 
 /**
@@ -121,66 +123,66 @@ export async function isAuthenticated(): Promise<boolean> {
  * every case.
  */
 export async function forgotPasswordAction(input: {
-  email: string;
+  email: string
 }): Promise<ActionResult> {
   try {
     await apiFetch<{ ok: true }>("/auth/forgot-password", {
       method: "POST",
       body: input,
       auth: false,
-    });
+    })
   } catch {
     // Intentionally swallowed — see the docblock above.
   }
-  return { ok: true, data: undefined };
+  return { ok: true, data: undefined }
 }
 
 export async function resetPasswordAction(input: {
-  email: string;
-  token: string;
-  password: string;
+  email: string
+  token: string
+  password: string
 }): Promise<ActionResult> {
   try {
     await apiFetch<{ ok: true }>("/auth/reset-password", {
       method: "POST",
       body: input,
       auth: false,
-    });
+    })
     // Reset invalidates every existing session on the backend; clear local
     // cookies too in case this tab somehow had a stale session.
-    await clearAuthCookies();
-    return { ok: true, data: undefined };
+    await clearAuthCookies()
+    return { ok: true, data: undefined }
   } catch (err) {
     return {
       ok: false,
       error: humanError(err, "Reset link is invalid or has expired"),
-    };
+    }
   }
 }
 
 export async function changePasswordAction(input: {
-  currentPassword: string;
-  newPassword: string;
+  currentPassword: string
+  newPassword: string
 }): Promise<ActionResult> {
   try {
     const data = await apiFetch<AuthResponse>("/auth/change-password", {
       method: "POST",
       body: input,
-    });
+    })
     // Backend rotates the refresh token — adopt the new pair so this device
     // stays signed in while every other session is invalidated.
     await setAuthCookies({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-    });
-    return { ok: true, data: undefined };
+    })
+    return { ok: true, data: undefined }
   } catch (err) {
-    return { ok: false, error: humanError(err, "Could not update password") };
+    return { ok: false, error: humanError(err, "Could not update password") }
   }
 }
 
 function humanError(err: unknown, fallback: string): string {
-  if (err instanceof ApiError) return err.message || fallback;
-  if (err instanceof Error) return err.message || fallback;
-  return fallback;
+  if (err instanceof ApiError) return err.message || fallback
+  if (err instanceof Error) return err.message || fallback
+  return fallback
 }

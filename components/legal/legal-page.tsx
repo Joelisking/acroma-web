@@ -20,9 +20,10 @@ export function LegalPage({
       </div>
       <nav
         aria-label="Legal information"
-        className="mt-12 flex gap-6 border-t pt-6 text-sm text-primary"
+        className="mt-12 flex flex-wrap gap-6 border-t pt-6 text-sm text-primary"
       >
         <Link href="/privacy">Privacy</Link>
+        <Link href="/terms">Terms of Use</Link>
         <Link href="/data-deletion">Data deletion</Link>
       </nav>
     </main>

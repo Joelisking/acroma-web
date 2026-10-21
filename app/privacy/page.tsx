@@ -1,3 +1,4 @@
+import { LEGAL_POLICY_VERSION } from "@/lib/legal-policy"
 import { SupportLinks } from "@/components/support/support-links"
 import type { Metadata } from "next"
 import Link from "next/link"
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
 }
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy notice">
+    <LegalPage title="Privacy Policy">
+      <p>Effective date and policy version: {LEGAL_POLICY_VERSION}</p>
       <section>
         <h2 className="text-lg font-semibold">Who operates Acroma</h2>
         <p>
@@ -48,6 +50,35 @@ export default function PrivacyPage() {
         </p>
       </section>
       <section>
+        <h2 className="text-lg font-semibold">
+          Ongoing improvement and possible future model training
+        </h2>
+        <p>
+          We use chats, attachments, feedback and related service records on an
+          ongoing basis to investigate errors, assess response quality and
+          improve Acroma’s reliability, workflows and customer experience,
+          within the purposes permitted for that data. This can include review
+          by authorized personnel and evaluation of system behavior.
+        </p>
+        <p>
+          We may in the future use eligible chat data to develop, train,
+          fine-tune or evaluate models supporting Acroma. This notice describes
+          that possibility; it does not mean every chat is currently used for
+          training. Before introducing such use, we will determine the
+          applicable legal basis, respect customer rights and platform
+          restrictions, apply appropriate data safeguards, and provide any
+          additional notice or obtain any consent required.
+        </p>
+        <p>
+          Accepting the signup policies does not authorize uses prohibited by
+          WhatsApp, Meta or another provider, and does not substitute for
+          customer consent where required. Restrictions can also apply to
+          anonymized, aggregated or derived data. Where permitted and
+          appropriate, we will minimize personal information and remove
+          identifiers before model-development use.
+        </p>
+      </section>
+      <section>
         <h2 className="text-lg font-semibold">Services involved</h2>
         <p>
           WhatsApp messaging uses Meta services. Payment collection uses
@@ -74,8 +105,10 @@ export default function PrivacyPage() {
         <h2 className="text-lg font-semibold">Requests and questions</h2>
         <p>
           Contact info@asera.tech to ask about access, correction or deletion.
-          We may request information to verify your identity and authority.
-          Customers can also contact the merchant they messaged. See our{" "}
+          We may request information to verify your identity and authority. You
+          may also ask about or object to improvement-related processing, and
+          withdraw consent where processing relies on it, subject to applicable
+          law. Customers can also contact the merchant they messaged. See our{" "}
           <Link className="text-primary underline" href="/data-deletion">
             data deletion instructions
           </Link>
