@@ -1,3 +1,4 @@
+import { SupportLinks } from "@/components/support/support-links"
 import Link from "next/link"
 
 import { Logo } from "@/components/brand/logo"
@@ -65,6 +66,9 @@ export function SiteFooter() {
                 >
                   get in touch
                 </a>
+              </li>
+              <li>
+                Contact support: <SupportLinks />
               </li>
             </ul>
           </div>

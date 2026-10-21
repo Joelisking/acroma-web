@@ -1,3 +1,4 @@
+import { SupportLinks } from "@/components/support/support-links"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { apiFetch } from "@/lib/api/server"
@@ -22,14 +23,14 @@ export default async function ConnectWhatsappPage() {
       {availability.hasExistingSender ? (
         <p>
           Your sender is already connected. Contact support before moving it to
-          a different Meta account.
+          a different Meta account. <SupportLinks />
         </p>
       ) : availability.enabled ? (
         <WhatsappConnect />
       ) : (
         <p>
           Self-service WhatsApp setup is being prepared for your account.
-          Contact info@asera.tech for help connecting.
+          Contact support for help connecting. <SupportLinks />
         </p>
       )}
     </main>

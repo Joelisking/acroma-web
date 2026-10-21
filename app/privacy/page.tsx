@@ -1,3 +1,4 @@
+import { SupportLinks } from "@/components/support/support-links"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { LegalPage } from "@/components/legal/legal-page"
@@ -81,6 +82,9 @@ export default function PrivacyPage() {
           .
         </p>
       </section>
+      <p>
+        Contact support on <SupportLinks />
+      </p>
     </LegalPage>
   )
 }

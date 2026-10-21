@@ -1,4 +1,5 @@
 "use client"
+import { SupportLinks } from "@/components/support/support-links"
 import { useState } from "react"
 import { toast } from "sonner"
 import { estateMoney, estateTime, type Appointment } from "@/lib/real-estate"
@@ -108,13 +109,7 @@ export function AppointmentRefund({
           </Button>
         )}
         {(needsSupport || (!r && a.paymentStatus === "REFUNDED")) && (
-          <Button size="sm" variant="outline" asChild>
-            <a
-              href={`mailto:info@asera.tech?subject=${encodeURIComponent(`Acroma refund help: ${r?.id ?? a.id}`)}`}
-            >
-              Contact Acroma support
-            </a>
-          </Button>
+          <SupportLinks message={`Acroma refund help: ${r?.id ?? a.id}`} />
         )}
       </div>
       {r?.status === "NEEDS_ATTENTION" && (

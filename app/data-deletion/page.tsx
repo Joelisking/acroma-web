@@ -1,3 +1,4 @@
+import { SupportLinks } from "@/components/support/support-links"
 import type { Metadata } from "next"
 import { LegalPage } from "@/components/legal/legal-page"
 export const metadata: Metadata = {
@@ -56,6 +57,9 @@ export default function DataDeletionPage() {
           recipient’s device. Contact those parties separately where needed.
         </p>
       </section>
+      <p>
+        Contact support on <SupportLinks />
+      </p>
     </LegalPage>
   )
 }

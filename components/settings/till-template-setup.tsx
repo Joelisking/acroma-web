@@ -1,5 +1,7 @@
 "use client"
 
+import { SupportLinks } from "@/components/support/support-links"
+
 import * as React from "react"
 import {
   Check,
@@ -90,7 +92,7 @@ export function TillTemplateSetup({ status, connected }: Props) {
       {status === "REJECTED" || status === "DISABLED" ? (
         <Note tone="red" icon={<TriangleAlert className="size-4" />}>
           WhatsApp turned this template down. Contact support before trying
-          again, so the same wording is not resubmitted.
+          again, so the same wording is not resubmitted. <SupportLinks />
         </Note>
       ) : (
         <p className="text-sm leading-relaxed text-muted-foreground">

@@ -1,4 +1,5 @@
 "use client"
+import { SupportLinks } from "@/components/support/support-links"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -21,7 +22,15 @@ export function WhatsappConnect() {
       </p>
       {signup.progress && (
         <p role="status" className="text-sm">
-          {signup.progress.message}
+          {signup.progress.message.split(" WhatsApp only:")[0]}
+          {signup.progress.message
+            .toLowerCase()
+            .includes("contact support") && (
+            <>
+              {" "}
+              <SupportLinks />
+            </>
+          )}
         </p>
       )}
       {signup.error && (
