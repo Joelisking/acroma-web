@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentBusiness } from "@/lib/api/business";
 import { getOnboardingStatus } from "@/lib/api/onboarding";
 import { getConversationBadgeCounts } from "@/lib/api/conversations";
+import { getReconnectNotice } from "@/lib/api/whatsapp-health";
 import {
   readActorEmail,
   readMustChangePassword,
@@ -10,6 +11,7 @@ import {
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { TabletRail } from "@/components/dashboard/tablet-rail";
 import { TopBar } from "@/components/dashboard/top-bar";
+import { WhatsappReconnectBanner } from "@/components/dashboard/whatsapp-reconnect-banner";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import { LiveRefresh } from "@/components/conversations/live-refresh";
 import { InstallTutorial } from "@/components/pwa/install-tutorial";
@@ -27,13 +29,14 @@ export default async function DashboardLayout({
   // forced screen doesn't wait on data it will never render.
   if (await readMustChangePassword()) redirect("/change-password");
 
-  const [business, onboarding, badgeCounts, role, actorEmail] =
+  const [business, onboarding, badgeCounts, role, actorEmail, reconnect] =
     await Promise.all([
       getCurrentBusiness(),
       safeStatus(),
       getConversationBadgeCounts(),
       readRole(),
       readActorEmail(),
+      getReconnectNotice(),
     ]);
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
@@ -79,6 +82,7 @@ export default async function DashboardLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar whatsappActive={business.whatsappWebhookActive} />
+        {reconnect && <WhatsappReconnectBanner reason={reconnect.reason} />}
 
         {/* main is the single scroll container; the shell itself never scrolls,
             so full-height pages (e.g. a conversation) can keep their own inner
