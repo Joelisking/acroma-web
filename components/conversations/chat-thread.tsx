@@ -51,11 +51,10 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
       new_message: (payload: unknown) => {
         const data = payload as NewMessagePayload | null;
         if (!data || data.conversationId !== conversationIdRef.current) return;
-        setMessages((prev) =>
-          prev.some((m) => m.id === data.message.id)
-            ? prev
-            : [...prev, data.message],
-        );
+        // Merge by send time, not arrival: a message WhatsApp delivers late
+        // (e.g. a phone reply synced after the phone was offline) belongs
+        // where it was sent, not at the bottom.
+        setMessages((prev) => mergeById(prev, [data.message]));
       },
     }),
     [],
