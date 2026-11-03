@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { logoutAction } from "@/lib/admin/auth-actions";
 import { formatTokens, formatUsd } from "@/lib/admin/format";
 
 const ChartSkeleton = () => (
@@ -110,7 +110,6 @@ function orderedKinds(map: Record<string, number>): string[] {
 }
 
 export function UsageReport() {
-  const router = useRouter();
   const [days, setDays] = useState(30);
   const [data, setData] = useState<UsageReportData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -151,12 +150,6 @@ export function UsageReport() {
     };
   }, [days, load]);
 
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
-  }
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -172,9 +165,11 @@ export function UsageReport() {
             </Button>
           ))}
         </div>
-        <Button variant="ghost" size="sm" onClick={logout}>
-          Log out
-        </Button>
+        <form action={logoutAction}>
+          <Button type="submit" variant="ghost" size="sm">
+            Log out
+          </Button>
+        </form>
       </div>
 
       {loading ? (
