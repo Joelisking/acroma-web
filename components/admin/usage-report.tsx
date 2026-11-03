@@ -26,7 +26,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { logoutAction } from "@/lib/admin/auth-actions";
 import { formatTokens, formatUsd } from "@/lib/admin/format";
 
 const ChartSkeleton = () => (
@@ -124,6 +123,10 @@ export function UsageReport() {
       const res = await fetch(`/api/admin/usage?${qs.toString()}`, {
         cache: "no-store",
       });
+      if (res.status === 401) {
+        window.location.assign("/admin/login");
+        return;
+      }
       if (!res.ok) {
         setError(`Couldn't load the report (${res.status}).`);
         setData(null);
@@ -165,11 +168,6 @@ export function UsageReport() {
             </Button>
           ))}
         </div>
-        <form action={logoutAction}>
-          <Button type="submit" variant="ghost" size="sm">
-            Log out
-          </Button>
-        </form>
       </div>
 
       {loading ? (

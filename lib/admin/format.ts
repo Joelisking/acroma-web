@@ -25,3 +25,36 @@ const tokenFormatter = new Intl.NumberFormat("en-US");
 export function formatTokens(n: number): string {
   return tokenFormatter.format(n);
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: "UTC",
+});
+
+/** "5 Jun, 14:02" in UTC (Ghana time), for admin tables. */
+export function formatDateTime(iso: string | null): string {
+  return iso ? `${dateTimeFormatter.format(new Date(iso))} UTC` : "Never";
+}
+
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatDate(iso: string): string {
+  return dateFormatter.format(new Date(iso));
+}
+
+const RANGE_HOURS: Record<string, number> = { "24h": 24, "7d": 168, "30d": 720 };
+
+/** Maps a `?range=` value to an ISO `from`, or undefined for "all time". */
+export function rangeToFrom(range: string | undefined): string | undefined {
+  const hours = range ? RANGE_HOURS[range] : undefined;
+  return hours ? new Date(Date.now() - hours * 3_600_000).toISOString() : undefined;
+}
