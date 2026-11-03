@@ -71,13 +71,15 @@ export function parseImpersonation(
 }
 
 /**
- * The impersonation in progress, or null. Display only: the access token is
- * what the backend trusts. An expired cookie is ended by proxy.ts before any
- * dashboard page renders.
+ * The live impersonation, or null. Display only: the access token is what the
+ * backend trusts. Past `expiresAt` it reads as null even though the cookie
+ * lingers for the grace window (proxy.ts uses that window to clean up).
  */
 export async function readImpersonation(): Promise<Impersonation | null> {
   const store = await cookies()
-  return parseImpersonation(store.get(IMPERSONATION_COOKIE)?.value)
+  const current = parseImpersonation(store.get(IMPERSONATION_COOKIE)?.value)
+  if (!current || !(Date.parse(current.expiresAt) > Date.now())) return null
+  return current
 }
 
 /** True whenever the cookie exists at all, even malformed. Blocks refresh. */
@@ -91,6 +93,11 @@ export async function hasImpersonationCookie(): Promise<boolean> {
  * The merchant refresh token is deleted so nothing can silently swap back to
  * (or into) another account mid-session. Route handlers only.
  */
+// The impersonation cookie outlives the access token by this much, so that at
+// natural expiry proxy.ts still sees it (access gone, impersonation present)
+// and sends the admin back to the merchant's admin page, not merchant /login.
+const EXPIRY_GRACE_SECONDS = 5 * 60
+
 export async function writeImpersonationCookies(start: ImpersonationStart) {
   const seconds = Math.floor((Date.parse(start.expiresAt) - Date.now()) / 1000)
   const maxAge = Math.max(seconds, 1)
@@ -110,7 +117,7 @@ export async function writeImpersonationCookies(start: ImpersonationStart) {
   store.set(ROLE_COOKIE, "OWNER", { ...cookieOptions, maxAge })
   store.set(IMPERSONATION_COOKIE, JSON.stringify(value), {
     ...cookieOptions,
-    maxAge,
+    maxAge: maxAge + EXPIRY_GRACE_SECONDS,
   })
 }
 
@@ -120,7 +127,9 @@ export async function writeImpersonationCookies(start: ImpersonationStart) {
  * merchant cookie. Returns where the admin should land.
  */
 export async function endImpersonation(): Promise<string> {
-  const current = await readImpersonation()
+  // Parsed without the expiry check: an expired cookie still says where to go.
+  const store = await cookies()
+  const current = parseImpersonation(store.get(IMPERSONATION_COOKIE)?.value)
   if (current) {
     try {
       await adminFetch<void>(
