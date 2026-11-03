@@ -19,6 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { RefundAccountForm } from "./refund-account-form"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 
 export function AppointmentRefund({
   appointment: a,
@@ -26,6 +27,7 @@ export function AppointmentRefund({
   appointment: Appointment
 }) {
   const [pending, setPending] = useState(false)
+  const confirm = useConfirmedAction()
   const r = a.refund
   const needsSupport =
     r &&
@@ -55,8 +57,18 @@ export function AppointmentRefund({
       }[r.status]
   async function run(action: "request" | "refresh") {
     setPending(true)
-    const result = await manageEstateRefund(a.id, action)
+    const spec =
+      action === "request"
+        ? {
+            title: `Refund ${estateMoney(a.fee, a.currency)} on ${a.customerName ?? "appointment"} booking`,
+            description: "The full appointment fee is requested back to the customer.",
+            risk: "high" as const,
+            confirmLabel: "Request refund",
+          }
+        : { title: "Check refund status" }
+    const result = await confirm(spec, () => manageEstateRefund(a.id, action))
     setPending(false)
+    if (!result) return
     if (!result.ok) toast.error(result.error)
     else toast.info(refundLabel(result.value))
   }

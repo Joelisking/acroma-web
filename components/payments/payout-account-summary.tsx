@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PayoutAccountForm } from "./payout-account-form";
 import { removePayoutAccountAction } from "@/lib/api/payments-actions";
 import type { BankSummary, PayoutAccount } from "@/lib/api/types";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 export function PayoutAccountSummary({
   account,
@@ -19,6 +20,7 @@ export function PayoutAccountSummary({
 }) {
   const [editing, setEditing] = React.useState(false);
   const [removing, setRemoving] = React.useState(false);
+  const confirm = useConfirmedAction();
 
   if (editing) {
     return (
@@ -43,8 +45,17 @@ export function PayoutAccountSummary({
 
   async function remove() {
     setRemoving(true);
-    const result = await removePayoutAccountAction();
+    const result = await confirm(
+      {
+        title: `Remove payout account ${account.payoutAccountName ?? ""}`.trim(),
+        description: `${account.payoutBankName} · ${account.payoutAccountNumber}. Payments will stop paying out until a new account is added.`,
+        risk: "high",
+        confirmLabel: "Remove payout account",
+      },
+      () => removePayoutAccountAction(),
+    );
     setRemoving(false);
+    if (!result) return;
     if (!result.ok) {
       toast.error(result.error);
       return;

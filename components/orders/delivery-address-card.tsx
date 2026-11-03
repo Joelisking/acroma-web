@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { shortId } from "@/lib/format";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -136,6 +138,7 @@ function EditForm({
 }) {
   const [value, setValue] = React.useState(currentAddress);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const trimmed = value.trim();
   const disabled =
@@ -143,7 +146,11 @@ function EditForm({
 
   function onSave() {
     startTransition(async () => {
-      const result = await updateDeliveryAddressAction(orderId, trimmed);
+      const result = await confirm(
+        { title: `Update delivery address on order #${shortId(orderId)}` },
+        () => updateDeliveryAddressAction(orderId, trimmed),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

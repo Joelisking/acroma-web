@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { shortId } from "@/lib/format";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,13 +106,18 @@ function EditForm({
 }) {
   const [value, setValue] = React.useState(currentNotes);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   // Empty is allowed (clears the note); only block a no-op save.
   const disabled = pending || value.trim() === currentNotes.trim();
 
   function onSave() {
     startTransition(async () => {
-      const result = await updateOrderNotesAction(orderId, value.trim());
+      const result = await confirm(
+        { title: `Save note on order #${shortId(orderId)}` },
+        () => updateOrderNotesAction(orderId, value.trim()),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

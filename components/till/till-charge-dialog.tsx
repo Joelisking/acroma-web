@@ -18,6 +18,8 @@ import {
 import { QrCode } from "./qr-code"
 import { isPaid } from "./till-tickets"
 import { isWalkIn } from "@/lib/walk-in"
+import { shortId } from "@/lib/format"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 
 // WhatsApp will not carry a free-form message to a customer who has not
 // written to the business in the last 24 hours, which is most people standing
@@ -52,6 +54,7 @@ export function TillChargeDialog({
   onCancelled,
 }: TillChargeDialogProps) {
   const [busy, setBusy] = React.useState(false)
+  const confirm = useConfirmedAction()
   if (!order) return null
 
   const paid = isPaid(order)
@@ -60,8 +63,16 @@ export function TillChargeDialog({
   async function handleSend() {
     if (!order) return
     setBusy(true)
-    const res = await sendPaymentLinkAction(order.id)
+    const res = await confirm(
+      {
+        title: `Send payment link for order #${shortId(order.id)}`,
+        description: `Sends a WhatsApp message to ${formatPhone(order.customerPhone)}.`,
+        confirmLabel: "Send link",
+      },
+      () => sendPaymentLinkAction(order.id)
+    )
     setBusy(false)
+    if (!res) return
     if (!res.ok) {
       toast.error(res.error)
       return
@@ -83,8 +94,16 @@ export function TillChargeDialog({
   async function handleCancel() {
     if (!order) return
     setBusy(true)
-    const res = await updateOrderStatusAction(order.id, "CANCELLED")
+    const res = await confirm(
+      {
+        title: `Cancel order #${shortId(order.id)}`,
+        description: `${formatMoney(order.totalAmount + (order.serviceCharge ?? 0), order.currency)} order will be cancelled.`,
+        confirmLabel: "Cancel order",
+      },
+      () => updateOrderStatusAction(order.id, "CANCELLED")
+    )
     setBusy(false)
+    if (!res) return
     if (!res.ok) {
       toast.error(res.error)
       return

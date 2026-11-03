@@ -1,22 +1,32 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, shortId } from "@/lib/format";
 import { approveTopUpAction, rejectTopUpAction } from "@/lib/api/orders-actions";
 import type { Order } from "@/lib/api/types";
 
 export function PendingTopUpCard({ order }: { order: Order }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const topUp = order.pendingTopUp;
   if (!topUp) return null;
   const topUpId = topUp.id;
 
   function approve() {
     startTransition(async () => {
-      const result = await approveTopUpAction(order.id, topUpId);
+      const result = await confirm(
+        {
+          title: `Approve change on order #${shortId(order.id)}`,
+          description: "A payment link for the difference is sent to the customer on WhatsApp.",
+          confirmLabel: "Approve and send link",
+        },
+        () => approveTopUpAction(order.id, topUpId),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Payment link sent to the customer on WhatsApp");
     });
@@ -24,7 +34,11 @@ export function PendingTopUpCard({ order }: { order: Order }) {
 
   function reject() {
     startTransition(async () => {
-      const result = await rejectTopUpAction(order.id, topUpId);
+      const result = await confirm(
+        { title: `Dismiss change request on order #${shortId(order.id)}` },
+        () => rejectTopUpAction(order.id, topUpId),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Change request dismissed");
     });

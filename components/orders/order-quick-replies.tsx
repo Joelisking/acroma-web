@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { shortId } from "@/lib/format";
 import { toast } from "sonner";
 import { Clock, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ type Props = {
 
 export function OrderQuickReplies({ orderId, status }: Props) {
   const [pendingDelay, startDelay] = React.useTransition();
+  const confirm = useConfirmedAction();
   const [pendingSoldOut, startSoldOut] = React.useTransition();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
@@ -38,7 +41,14 @@ export function OrderQuickReplies({ orderId, status }: Props) {
 
   function fireDelay() {
     startDelay(async () => {
-      const result = await delayOrderAction(orderId);
+      const result = await confirm(
+        {
+          title: `Tell customer order #${shortId(orderId)} is delayed`,
+          description: "Sends a delay message on WhatsApp.",
+        },
+        () => delayOrderAction(orderId),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
       } else {
@@ -50,7 +60,14 @@ export function OrderQuickReplies({ orderId, status }: Props) {
   function fireSoldOut() {
     setConfirmOpen(false);
     startSoldOut(async () => {
-      const result = await markOrderSoldOutAction(orderId);
+      const result = await confirm(
+        {
+          title: `Mark order #${shortId(orderId)} sold out`,
+          description: "Cancels the order and notifies the customer on WhatsApp.",
+        },
+        () => markOrderSoldOutAction(orderId),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
       } else {

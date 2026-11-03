@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { shortId } from "@/lib/format";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { RotateCcw, Trash2 } from "lucide-react";
@@ -36,10 +38,15 @@ type Props = {
 export function OrderRemoveButton({ orderId, archived }: Props) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function restore() {
     startTransition(async () => {
-      const result = await unarchiveOrderAction(orderId);
+      const result = await confirm(
+        { title: `Restore order #${shortId(orderId)}` },
+        () => unarchiveOrderAction(orderId),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else {
         toast.success("Order restored");
@@ -50,7 +57,16 @@ export function OrderRemoveButton({ orderId, archived }: Props) {
 
   function remove() {
     startTransition(async () => {
-      const result = await archiveOrderAction(orderId);
+      const result = await confirm(
+        {
+          title: `Remove order #${shortId(orderId)}`,
+          description: "The order is cancelled and any held stock is restored.",
+          risk: "high",
+          confirmLabel: "Remove order",
+        },
+        () => archiveOrderAction(orderId),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else {
         toast.success("Order removed");

@@ -10,6 +10,7 @@ import {
   estateRefundAccount,
   estateRefundBanks,
 } from "@/lib/api/estate-refund-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -29,6 +30,7 @@ export function RefundAccountForm({
   const [banks, setBanks] = useState<RefundBank[] | null>(null)
   const [name, setName] = useState("")
   const [pending, setPending] = useState(false)
+  const confirm = useConfirmedAction()
   const form = useForm<z.infer<typeof refundAccountInput>>({
     resolver: zodResolver(refundAccountInput),
     defaultValues: { bankId: "", accountNumber: "" },
@@ -54,7 +56,11 @@ export function RefundAccountForm({
       className="space-y-3 rounded-lg border p-3"
       onSubmit={form.handleSubmit(async (values) => {
         setName("")
-        const result = await estateRefundAccount(appointmentId, values)
+        const result = await confirm(
+          { title: "Check customer bank account for refund" },
+          () => estateRefundAccount(appointmentId, values)
+        )
+        if (!result) return
         if (result.ok) setName(result.value.accountName)
         else toast.error(result.error)
       })}
@@ -121,11 +127,22 @@ export function RefundAccountForm({
             disabled={pending}
             onClick={async () => {
               setPending(true)
-              const result = await confirmEstateRefundAccount(appointmentId, {
-                ...form.getValues(),
-                expectedAccountName: name,
-              })
+              const result = await confirm(
+                {
+                  title: `Submit refund bank details for ${name}`,
+                  description:
+                    "The refund will be sent to this customer bank account.",
+                  risk: "high",
+                  confirmLabel: "Submit bank details",
+                },
+                () =>
+                  confirmEstateRefundAccount(appointmentId, {
+                    ...form.getValues(),
+                    expectedAccountName: name,
+                  })
+              )
               setPending(false)
+              if (!result) return
               if (!result.ok) toast.error(result.error)
               else
                 toast.info(

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { formatMoney, shortId } from "@/lib/format";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MarkPaidDialog } from "@/components/orders/mark-paid-dialog";
@@ -47,6 +49,7 @@ export function OrderStatusControl({
   currency: string;
 }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const [payOpen, setPayOpen] = React.useState(false);
 
   const { primary, secondary } = splitOrderActions(
@@ -60,7 +63,11 @@ export function OrderStatusControl({
       return;
     }
     startTransition(async () => {
-      const result = await updateOrderStatusAction(orderId, action.status);
+      const result = await confirm(
+        { title: `${action.label} on order #${shortId(orderId)}` },
+        () => updateOrderStatusAction(orderId, action.status),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success(`${action.label} ✓`);
     });
@@ -68,7 +75,14 @@ export function OrderStatusControl({
 
   function runPaid(amount: number) {
     startTransition(async () => {
-      const result = await markOrdersPaidAction([orderId], amount);
+      const result = await confirm(
+        {
+          title: `Mark order #${shortId(orderId)} as paid`,
+          description: `Records ${formatMoney(amount, currency)} as received.`,
+        },
+        () => markOrdersPaidAction([orderId], amount),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else {
         toast.success("Marked as paid ✓");

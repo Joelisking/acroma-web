@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InfoSheet } from "@/components/shared/info-sheet";
-import { formatMoney, formatPhone } from "@/lib/format";
+import { formatMoney, formatPhone, shortId } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
   correctOrderAction,
@@ -69,6 +70,7 @@ export function OrderEditor(props: OrderEditorProps) {
   );
   const [note, setNote] = React.useState("");
   const [pending, setPending] = React.useState(false);
+  const confirm = useConfirmedAction();
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -124,32 +126,43 @@ export function OrderEditor(props: OrderEditorProps) {
     setError(null);
     const items = lineInputs.filter((l): l is OrderLineInput => l !== null);
 
-    let result;
-    if (props.mode === "correct") {
-      result = await correctOrderAction(props.order.id, {
-        items,
-        note: note.trim() || undefined,
-      });
-    } else if (props.mode === "edit") {
-      result = await editOrderAction(props.order.id, {
-        items,
-        fulfillment,
-        deliveryAddress:
-          fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
-      });
-    } else {
-      result = await createOrderAction({
-        customerPhone: props.customerPhone,
-        customerName: props.customerName ?? undefined,
-        fulfillment,
-        deliveryAddress:
-          fulfillment === "PICKUP" ? undefined : deliveryAddress.trim(),
-        paymentMethod,
-        items,
-      });
-    }
+    const address = fulfillment === "PICKUP" ? undefined : deliveryAddress.trim();
+    const result = await confirm(
+      props.mode === "create"
+        ? {
+            title: `Create order for ${props.customerName || formatPhone(props.customerPhone)}`,
+            description: `Order total ${formatMoney(subtotal, business.currency)}.`,
+          }
+        : props.mode === "correct"
+          ? { title: `Correct order #${shortId(props.order.id)}` }
+          : { title: `Save changes to order #${shortId(props.order.id)}` },
+      () => {
+        if (props.mode === "correct") {
+          return correctOrderAction(props.order.id, {
+            items,
+            note: note.trim() || undefined,
+          });
+        }
+        if (props.mode === "edit") {
+          return editOrderAction(props.order.id, {
+            items,
+            fulfillment,
+            deliveryAddress: address,
+          });
+        }
+        return createOrderAction({
+          customerPhone: props.customerPhone,
+          customerName: props.customerName ?? undefined,
+          fulfillment,
+          deliveryAddress: address,
+          paymentMethod,
+          items,
+        });
+      },
+    );
 
     setPending(false);
+    if (!result) return;
     if (!result.ok) {
       setError(result.error);
       return;

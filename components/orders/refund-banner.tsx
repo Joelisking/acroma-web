@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CopyButton } from "@/components/ui/copy-button"
-import { formatMoney, formatPhone } from "@/lib/format"
+import { formatMoney, formatPhone, shortId } from "@/lib/format"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { isWalkIn } from "@/lib/walk-in"
 import { recordRefundAction } from "@/lib/api/orders-actions"
 import type { Order } from "@/lib/api/types"
@@ -26,6 +27,7 @@ export function RefundBanner({ order }: Props) {
   )
   const [momoName, setMomoName] = React.useState(order.refundMomoName ?? "")
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   if (order.refundedAt) {
     return (
@@ -48,11 +50,28 @@ export function RefundBanner({ order }: Props) {
 
   function save(markRefunded: boolean) {
     startTransition(async () => {
-      const result = await recordRefundAction(order.id, {
-        momoNumber: momoNumber.trim(),
-        momoName: momoName.trim(),
-        ...(markRefunded ? { markAs: "refunded" as const } : {}),
-      })
+      const result = await confirm(
+        markRefunded
+          ? {
+              title: `Mark refund of ${formatMoney(order.refundDueAmount, order.currency)} as sent on order #${shortId(order.id)}`,
+              description: "The customer will be recorded as refunded.",
+              risk: "high",
+              confirmLabel: "Mark refunded",
+            }
+          : {
+              title: `Save refund details on order #${shortId(order.id)}`,
+              description: `Refund due: ${formatMoney(order.refundDueAmount, order.currency)}.`,
+              risk: "high",
+              confirmLabel: "Save details",
+            },
+        () =>
+          recordRefundAction(order.id, {
+            momoNumber: momoNumber.trim(),
+            momoName: momoName.trim(),
+            ...(markRefunded ? { markAs: "refunded" as const } : {}),
+          })
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

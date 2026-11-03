@@ -36,6 +36,7 @@ import {
   savePayoutAccountAction,
 } from "@/lib/api/payments-actions";
 import type { BankSummary } from "@/lib/api/types";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Stage = "type" | "details" | "confirm";
 
@@ -71,6 +72,7 @@ export function PayoutAccountForm({
   const [verifying, setVerifying] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
 
+  const confirm = useConfirmedAction();
   const banks = accountType === "BANK" ? banksBank : banksMomo;
 
   const form = useForm<DetailsValues>({
@@ -87,11 +89,16 @@ export function PayoutAccountForm({
   async function verify(values: DetailsValues) {
     setVerifying(true);
     const bank = banks.find((b) => b.code === values.bankCode);
-    const result = await resolveAccountAction({
-      accountNumber: values.accountNumber,
-      bankCode: values.bankCode,
-    });
+    const result = await confirm(
+      { title: "Verify payout account details" },
+      () =>
+        resolveAccountAction({
+          accountNumber: values.accountNumber,
+          bankCode: values.bankCode,
+        }),
+    );
     setVerifying(false);
+    if (!result) return;
     if (!result.ok) {
       toast.error(result.error);
       return;
@@ -108,14 +115,24 @@ export function PayoutAccountForm({
   async function save() {
     if (!resolved || !accountType) return;
     setSaving(true);
-    const result = await savePayoutAccountAction({
-      accountType,
-      bankCode: resolved.bankCode,
-      bankName: resolved.bankName,
-      accountNumber: resolved.accountNumber,
-      accountName: resolved.accountName,
-    });
+    const result = await confirm(
+      {
+        title: `Set payout account to ${resolved.accountName}`,
+        description: `${resolved.bankName} · ${resolved.accountNumber}. Customer payments will be paid out to this account.`,
+        risk: "high",
+        confirmLabel: "Save payout account",
+      },
+      () =>
+        savePayoutAccountAction({
+          accountType,
+          bankCode: resolved.bankCode,
+          bankName: resolved.bankName,
+          accountNumber: resolved.accountNumber,
+          accountName: resolved.accountName,
+        }),
+    );
     setSaving(false);
+    if (!result) return;
     if (!result.ok) {
       toast.error(result.error);
       return;

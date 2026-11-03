@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { markOrdersPaidAction } from "@/lib/api/orders-actions";
@@ -13,12 +14,19 @@ export function OrdersBulkBar({
   onClear: () => void;
 }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   if (selectedIds.length === 0) return null;
 
   function markPaid() {
     startTransition(async () => {
-      const result = await markOrdersPaidAction(selectedIds);
+      const result = await confirm(
+        {
+          title: `Mark ${selectedIds.length} ${selectedIds.length === 1 ? "order" : "orders"} as paid`,
+        },
+        () => markOrdersPaidAction(selectedIds),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
       } else {

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
+import { shortId } from "@/lib/format";
 import { toast } from "sonner";
 import { Copy, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,7 @@ const REGENERATABLE: Order["status"][] = ["PAYMENT_PENDING", "PAYMENT_FAILED"];
 
 export function PaymentLinkPanel({ order }: { order: Order }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   if (order.paymentMethod !== "MOMO") return null;
   if (!REGENERATABLE.includes(order.status)) return null;
@@ -30,7 +33,14 @@ export function PaymentLinkPanel({ order }: { order: Order }) {
 
   function regenerate() {
     startTransition(async () => {
-      const result = await regeneratePaymentLinkAction(order.id);
+      const result = await confirm(
+        {
+          title: `Send new payment link for order #${shortId(order.id)}`,
+          description: "The customer gets the new link on WhatsApp.",
+        },
+        () => regeneratePaymentLinkAction(order.id),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else
         toast.success(

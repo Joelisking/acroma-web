@@ -73,7 +73,12 @@ export async function apiFetch<T>(
   // unconfirmed screen fails with 428 instead of changing data). It is not a
   // security boundary: anyone holding the token can set the header.
   const method = (rest.method ?? "GET").toUpperCase();
-  if (method !== "GET" && method !== "HEAD" && (await hasConfirmCookie())) {
+  if (
+    method !== "GET" &&
+    method !== "HEAD" &&
+    (await hasConfirmCookie()) &&
+    (await hasImpersonationCookie())
+  ) {
     finalHeaders.set(CONFIRM_HEADER, "1");
   }
 
