@@ -18,6 +18,7 @@ export function OptOutToggle({
   const confirm = useConfirmedAction();
 
   function onChange(next: boolean) {
+    setValue(next);
     startTransition(async () => {
       const result = await confirm(
         {
@@ -27,8 +28,11 @@ export function OptOutToggle({
         },
         () => updateCustomerAction(id, { optedOut: next }),
       );
-      if (!result) return;
-      setValue(next);
+      if (!result) {
+        // Admin cancelled (only possible while impersonating): revert.
+        setValue(!next);
+        return;
+      }
       if (!result.ok) {
         toast.error(result.error);
         setValue(!next);
