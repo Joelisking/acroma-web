@@ -23,7 +23,13 @@ function describe(a: ActivityEntry): { label: string; text: string } {
   return { label: a.action, text: a.summary };
 }
 
-export function ActivityTable({ items }: { items: ActivityEntry[] }) {
+type Props = {
+  items: ActivityEntry[];
+  /** Link that narrows the list to one admin or one merchant. */
+  filterHref: (key: "superAdminId" | "businessId", value: string) => string;
+};
+
+export function ActivityTable({ items, filterHref }: Props) {
   if (items.length === 0) {
     return <p className="py-8 text-center text-sm text-muted-foreground">No admin activity yet.</p>;
   }
@@ -45,19 +51,35 @@ export function ActivityTable({ items }: { items: ActivityEntry[] }) {
           return (
             <TableRow key={a.id}>
               <TableCell className="whitespace-nowrap">{formatDateTime(a.createdAt)}</TableCell>
-              <TableCell>{a.adminName}</TableCell>
+              <TableCell>
+                <Link
+                  href={filterHref("superAdminId", a.superAdminId)}
+                  className="text-brand-blue hover:underline"
+                  title="Show only this admin's activity"
+                >
+                  {a.adminName}
+                </Link>
+              </TableCell>
               <TableCell>
                 <Badge variant="outline">{d.label}</Badge>
               </TableCell>
-              <TableCell className="whitespace-normal break-words">{d.text}</TableCell>
+              <TableCell className="break-words whitespace-normal">{d.text}</TableCell>
               <TableCell>
                 {a.businessId ? (
-                  <Link
-                    href={`/admin/businesses/${a.businessId}`}
-                    className="text-brand-blue hover:underline"
-                  >
-                    {a.businessName ?? "Unknown"}
-                  </Link>
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/admin/businesses/${a.businessId}`}
+                      className="text-brand-blue hover:underline"
+                    >
+                      {a.businessName ?? "Unknown"}
+                    </Link>
+                    <Link
+                      href={filterHref("businessId", a.businessId)}
+                      className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      Only this merchant
+                    </Link>
+                  </span>
                 ) : (
                   "-"
                 )}

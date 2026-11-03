@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -10,11 +12,25 @@ import {
 import { formatDateTime } from "@/lib/admin/format";
 import type { AuditEntry } from "@/lib/admin/types";
 
-function Actor({ entry }: { entry: AuditEntry }) {
-  if (entry.impersonatorName) {
+type AdminHref = (impersonatorId: string) => string;
+
+function Actor({ entry, adminHref }: { entry: AuditEntry; adminHref?: AdminHref }) {
+  if (entry.impersonatorName && entry.impersonatorId) {
+    const name = <em>{entry.impersonatorName}</em>;
     return (
       <span>
-        Owner, via <em>{entry.impersonatorName}</em>
+        Owner, via{" "}
+        {adminHref ? (
+          <Link
+            href={adminHref(entry.impersonatorId)}
+            className="text-brand-blue hover:underline"
+            title="Show only this admin's changes"
+          >
+            {name}
+          </Link>
+        ) : (
+          name
+        )}
       </span>
     );
   }
@@ -33,9 +49,17 @@ function Actor({ entry }: { entry: AuditEntry }) {
   );
 }
 
-export function AuditTable({ items }: { items: AuditEntry[] }) {
+type Props = {
+  items: AuditEntry[];
+  /** Link target for an admin's name, e.g. this page filtered to that admin. */
+  adminHref?: AdminHref;
+};
+
+export function AuditTable({ items, adminHref }: Props) {
   if (items.length === 0) {
-    return <p className="py-8 text-center text-sm text-muted-foreground">No audit entries found.</p>;
+    return (
+      <p className="py-8 text-center text-sm text-muted-foreground">No audit entries found.</p>
+    );
   }
 
   return (
@@ -53,12 +77,12 @@ export function AuditTable({ items }: { items: AuditEntry[] }) {
           <TableRow key={e.id}>
             <TableCell className="whitespace-nowrap">{formatDateTime(e.createdAt)}</TableCell>
             <TableCell>
-              <Actor entry={e} />
+              <Actor entry={e} adminHref={adminHref} />
             </TableCell>
             <TableCell>
               <Badge variant="outline">{e.eventType}</Badge>
             </TableCell>
-            <TableCell className="whitespace-normal break-words">{e.summary}</TableCell>
+            <TableCell className="break-words whitespace-normal">{e.summary}</TableCell>
           </TableRow>
         ))}
       </TableBody>

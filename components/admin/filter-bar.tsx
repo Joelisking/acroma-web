@@ -17,6 +17,13 @@ type Props = {
   allTime?: boolean;
   /** Quick links for a `level` param. */
   levels?: boolean;
+  /** Extra chip rows: links that set `name` to each option's value. */
+  chips?: ChipGroup[];
+};
+
+export type ChipGroup = {
+  name: string;
+  options: { value: string | undefined; label: string }[];
 };
 
 const RANGES = [
@@ -33,7 +40,11 @@ const LEVELS = [
 
 function hrefWith(basePath: string, params: Props["params"], key: string, value?: string) {
   const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries({ ...params, cursor: undefined, [key]: value })) {
+  for (const [k, v] of Object.entries({
+    ...params,
+    cursor: undefined,
+    [key]: value,
+  })) {
     if (v) qs.set(k, v);
   }
   const s = qs.toString();
@@ -68,7 +79,15 @@ function Chips(props: {
   );
 }
 
-export function FilterBar({ basePath, params, fields = [], ranges, levels, allTime = true }: Props) {
+export function FilterBar({
+  basePath,
+  params,
+  fields = [],
+  ranges,
+  levels,
+  chips = [],
+  allTime = true,
+}: Props) {
   const carried = Object.entries(params).filter(
     ([k, v]) => v && k !== "cursor" && !fields.some((f) => f.name === k),
   );
@@ -96,8 +115,18 @@ export function FilterBar({ basePath, params, fields = [], ranges, levels, allTi
           </Button>
         </form>
       ) : null}
+      {chips.map((g) => (
+        <Chips key={g.name} basePath={basePath} params={params} name={g.name} options={g.options} />
+      ))}
       {levels ? <Chips basePath={basePath} params={params} name="level" options={LEVELS} /> : null}
-      {ranges ? <Chips basePath={basePath} params={params} name="range" options={allTime ? RANGES : RANGES.slice(1)} /> : null}
+      {ranges ? (
+        <Chips
+          basePath={basePath}
+          params={params}
+          name="range"
+          options={allTime ? RANGES : RANGES.slice(1)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,12 +1,21 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
 import { MerchantTabs } from "@/components/admin/merchant/merchant-tabs";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { getMerchant } from "@/lib/admin/queries";
 
 type Props = {
   children: React.ReactNode;
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({ params }: Omit<Props, "children">): Promise<Metadata> {
+  const { id } = await params;
+  const merchant = await getMerchant(id);
+  return { title: `${merchant.name} · Admin · Acroma` };
+}
 
 export default async function MerchantLayout({ children, params }: Props) {
   const { id } = await params;
@@ -22,10 +31,18 @@ export default async function MerchantLayout({ children, params }: Props) {
             <Badge variant="outline">{merchant.businessType}</Badge>
           </p>
         </div>
-        <form method="post" action="/api/admin/impersonate">
-          <input type="hidden" name="businessId" value={merchant.id} />
-          <Button type="submit">Log in as</Button>
-        </form>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/admin/activity?businessId=${merchant.id}`}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Admin activity
+          </Link>
+          <form method="post" action="/api/admin/impersonate">
+            <input type="hidden" name="businessId" value={merchant.id} />
+            <Button type="submit">Log in as</Button>
+          </form>
+        </div>
       </header>
       <MerchantTabs id={merchant.id} />
       {children}

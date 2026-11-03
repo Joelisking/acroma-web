@@ -58,3 +58,15 @@ export function rangeToFrom(range: string | undefined): string | undefined {
   const hours = range ? RANGE_HOURS[range] : undefined;
   return hours ? new Date(Date.now() - hours * 3_600_000).toISOString() : undefined;
 }
+
+/** Only the levels the backend stores; anything else means "all levels". */
+export function pickLevel(level: string | undefined): "warn" | "error" | undefined {
+  return level === "warn" || level === "error" ? level : undefined;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** A uuid search param, or undefined (so a bad value can't 400 the page). */
+export function pickUuid(v: string | undefined): string | undefined {
+  return v && UUID.test(v) ? v : undefined;
+}
