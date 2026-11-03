@@ -6,6 +6,7 @@ import {
   unsubscribeWebPushAction,
   type WebPushSubscriptionInput,
 } from "@/lib/api/web-push-actions";
+import { useImpersonation } from "@/components/impersonation/impersonation-provider";
 import { useClientValue } from "./use-client-value";
 
 const VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -66,7 +67,10 @@ export function useWebPush(): WebPushState {
   // Browser-derived values: read via useSyncExternalStore (SSR-safe, and
   // avoids setState-in-effect). `subscribed`/`busy` re-render on change, which
   // re-reads `permission` so a fresh grant/denial is reflected.
-  const supported = useClientValue(detectSupport, false);
+  // Push is off while a super admin acts as the merchant (no re-subscribe).
+  const impersonating = useImpersonation() !== null;
+  const browserSupported = useClientValue(detectSupport, false);
+  const supported = browserSupported && !impersonating;
   const permission = useClientValue<NotificationPermission>(
     readPermission,
     "default",

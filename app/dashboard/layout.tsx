@@ -1,45 +1,49 @@
-import { redirect } from "next/navigation";
-import { getCurrentBusiness } from "@/lib/api/business";
-import { getOnboardingStatus } from "@/lib/api/onboarding";
-import { getConversationBadgeCounts } from "@/lib/api/conversations";
+import { redirect } from "next/navigation"
+import { getCurrentBusiness } from "@/lib/api/business"
+import { getOnboardingStatus } from "@/lib/api/onboarding"
+import { getConversationBadgeCounts } from "@/lib/api/conversations"
 import {
   readActorEmail,
   readMustChangePassword,
   readRole,
-} from "@/lib/api/cookies";
-import { Sidebar } from "@/components/dashboard/sidebar";
-import { TabletRail } from "@/components/dashboard/tablet-rail";
-import { TopBar } from "@/components/dashboard/top-bar";
-import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
-import { LiveRefresh } from "@/components/conversations/live-refresh";
-import { InstallTutorial } from "@/components/pwa/install-tutorial";
-import { PullToRefresh } from "@/components/pwa/pull-to-refresh";
-import { getVocabulary } from "@/lib/vocabulary";
-import { VocabularyProvider } from "@/components/vocabulary-provider";
+} from "@/lib/api/cookies"
+import { Sidebar } from "@/components/dashboard/sidebar"
+import { TabletRail } from "@/components/dashboard/tablet-rail"
+import { TopBar } from "@/components/dashboard/top-bar"
+import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav"
+import { LiveRefresh } from "@/components/conversations/live-refresh"
+import { InstallTutorial } from "@/components/pwa/install-tutorial"
+import { PullToRefresh } from "@/components/pwa/pull-to-refresh"
+import { getVocabulary } from "@/lib/vocabulary"
+import { VocabularyProvider } from "@/components/vocabulary-provider"
+import { readImpersonation } from "@/lib/api/impersonation"
+import { ImpersonationBanner } from "@/components/impersonation/impersonation-banner"
+import { ImpersonationProvider } from "@/components/impersonation/impersonation-provider"
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   // A worker still on the temporary password they were handed gets the
   // change-password screen and nothing else. Checked before any fetch so the
   // forced screen doesn't wait on data it will never render.
-  if (await readMustChangePassword()) redirect("/change-password");
+  if (await readMustChangePassword()) redirect("/change-password")
 
-  const [business, onboarding, badgeCounts, role, actorEmail] =
+  const [business, onboarding, badgeCounts, role, actorEmail, impersonation] =
     await Promise.all([
       getCurrentBusiness(),
       safeStatus(),
       getConversationBadgeCounts(),
       readRole(),
       readActorEmail(),
-    ]);
+      readImpersonation(),
+    ])
   // Route through /api/auth/expired so the route handler can actually clear
   // the stale cookies — Server Components can't. Otherwise proxy.ts sees the
   // cookies still in the browser, sends us back to /dashboard, and we loop.
-  if (!business) redirect("/api/auth/expired");
-  if (onboarding && !onboarding.onboardingCompleted) redirect("/onboarding");
+  if (!business) redirect("/api/auth/expired")
+  if (onboarding && !onboarding.onboardingCompleted) redirect("/onboarding")
 
   // Chat tab badge prefers the urgent "you still owe a reply" count over the
   // "unopened messages" count when one is set. Both numbers travel together
@@ -51,76 +55,83 @@ export default async function DashboardLayout({
         | "waiting"
         | "unread",
     },
-  };
+  }
 
   // Per-merchant vocabulary (e.g. "Catalog" → "Menu" for food merchants).
   // Resolved once here and threaded down to the nav components, which are
   // client-side and would otherwise need a separate round trip to learn it.
-  const vocab = getVocabulary(business.businessType);
+  const vocab = getVocabulary(business.businessType)
 
   return (
-    <VocabularyProvider businessType={business.businessType}>
-    <div className="theme-warm bg-paper text-foreground flex h-dvh overflow-hidden">
-      <Sidebar
-        businessName={business.name}
-        email={actorEmail ?? business.email}
-        badges={badges}
-        vocab={vocab}
-        role={role}
-      />
+    <ImpersonationProvider value={impersonation}>
+      <VocabularyProvider businessType={business.businessType}>
+        <div className="theme-warm flex h-dvh flex-col overflow-hidden bg-paper text-foreground">
+          {impersonation && (
+            <ImpersonationBanner impersonation={impersonation} />
+          )}
+          <div className="flex min-h-0 flex-1 overflow-hidden">
+            <Sidebar
+              businessName={business.name}
+              email={actorEmail ?? business.email}
+              badges={badges}
+              vocab={vocab}
+              role={role}
+            />
 
-      <TabletRail
-        badges={badges}
-        vocab={vocab}
-        name={business.name}
-        email={actorEmail ?? business.email}
-        role={role}
-      />
+            <TabletRail
+              badges={badges}
+              vocab={vocab}
+              name={business.name}
+              email={actorEmail ?? business.email}
+              role={role}
+            />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar whatsappActive={business.whatsappWebhookActive} />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <TopBar whatsappActive={business.whatsappWebhookActive} />
 
-        {/* main is the single scroll container; the shell itself never scrolls,
+              {/* main is the single scroll container; the shell itself never scrolls,
             so full-height pages (e.g. a conversation) can keep their own inner
             scroll without a second page-level scrollbar. */}
-        <main
-          id="dashboard-scroll"
-          className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 md:pb-10 lg:px-10"
-          // pb-24 reserves space for the fixed bottom nav (mobile only; the
-          // tablet rail and desktop sidebar are in-flow, so md+ drops it)
-        >
-          {children}
-        </main>
+              <main
+                id="dashboard-scroll"
+                className="min-h-0 flex-1 overflow-y-auto px-4 pt-6 pb-24 sm:px-6 md:pb-10 lg:px-10"
+                // pb-24 reserves space for the fixed bottom nav (mobile only; the
+                // tablet rail and desktop sidebar are in-flow, so md+ drops it)
+              >
+                {children}
+              </main>
 
-        <MobileBottomNav
-          badges={badges}
-          vocab={vocab}
-          name={business.name}
-          email={actorEmail ?? business.email}
-          role={role}
-        />
-      </div>
+              <MobileBottomNav
+                badges={badges}
+                vocab={vocab}
+                name={business.name}
+                email={actorEmail ?? business.email}
+                role={role}
+              />
+            </div>
+          </div>
 
-      {/* Refresh layout (re-fetching urgent count) on relevant events. */}
-      <LiveRefresh
-        businessId={business.id}
-        events={["conversation_updated", "new_message", "order_updated"]}
-      />
+          {/* Refresh layout (re-fetching urgent count) on relevant events. */}
+          <LiveRefresh
+            businessId={business.id}
+            events={["conversation_updated", "new_message", "order_updated"]}
+          />
 
-      {/* Pull-to-refresh for the installed PWA (no-op outside standalone mode). */}
-      <PullToRefresh targetId="dashboard-scroll" />
+          {/* Pull-to-refresh for the installed PWA (no-op outside standalone mode). */}
+          <PullToRefresh targetId="dashboard-scroll" />
 
-      {/* Nudge to install the PWA + enable push (self-decides whether to show). */}
-      <InstallTutorial />
-    </div>
-    </VocabularyProvider>
-  );
+          {/* Nudge to install the PWA + enable push (self-decides whether to show). */}
+          <InstallTutorial />
+        </div>
+      </VocabularyProvider>
+    </ImpersonationProvider>
+  )
 }
 
 async function safeStatus() {
   try {
-    return await getOnboardingStatus();
+    return await getOnboardingStatus()
   } catch {
-    return null;
+    return null
   }
 }

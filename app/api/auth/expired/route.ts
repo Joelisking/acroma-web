@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookies";
+import { NextResponse } from "next/server"
+import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookies"
+import {
+  endImpersonation,
+  hasImpersonationCookie,
+} from "@/lib/api/impersonation"
 
 /**
  * Route handler that clears stale auth cookies and bounces to /login.
@@ -11,11 +15,19 @@ import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookies";
  *
  * This handler runs at the network boundary, deletes both cookies, and lets
  * the browser land on /login fresh.
+ *
+ * An impersonation that died (expired, ended elsewhere, admin signed out)
+ * never lands on merchant /login: it is ended and sent back to the admin
+ * merchant page, which itself bounces to /admin/login if the admin is gone.
  */
 export async function GET(request: Request) {
-  const url = new URL("/login", request.url);
-  const response = NextResponse.redirect(url);
-  response.cookies.delete(ACCESS_COOKIE);
-  response.cookies.delete(REFRESH_COOKIE);
-  return response;
+  if (await hasImpersonationCookie()) {
+    const destination = await endImpersonation()
+    return NextResponse.redirect(new URL(destination, request.url))
+  }
+  const url = new URL("/login", request.url)
+  const response = NextResponse.redirect(url)
+  response.cookies.delete(ACCESS_COOKIE)
+  response.cookies.delete(REFRESH_COOKIE)
+  return response
 }

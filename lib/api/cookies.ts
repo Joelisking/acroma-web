@@ -13,6 +13,11 @@ export const MUST_CHANGE_PASSWORD_COOKIE = "acroma_must_change_password";
 // only, never a boundary. Goes away in phase 2 when identity has a real
 // endpoint.
 export const EMAIL_COOKIE = "acroma_email";
+// Set only while a super admin is acting as this merchant ("Log in as").
+// Display data for the banner, never a boundary: the backend decides what the
+// access token may do. proxy.ts keeps its own copy of the name (edge runtime
+// can't import this server-only module). See lib/api/impersonation.ts.
+export const IMPERSONATION_COOKIE = "acroma_impersonating";
 
 const ACCESS_TTL_SECONDS = 60 * 15; // 15 min — matches backend access expiry
 const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
@@ -20,7 +25,7 @@ const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const isSecure = process.env.COOKIE_SECURE === "true";
 
 /** Shared flags. Everything session-scoped is written the same way. */
-const cookieOptions = {
+export const cookieOptions = {
   httpOnly: true,
   secure: isSecure,
   sameSite: "lax",
@@ -71,6 +76,9 @@ export async function setAuthCookies({
         ...cookieOptions,
         maxAge: REFRESH_TTL_SECONDS,
       });
+      // A real merchant login (refresh never runs while impersonating) ends
+      // any "Log in as" display, so the banner can't name the wrong merchant.
+      store.delete(IMPERSONATION_COOKIE);
     }
 
     if (role) {
@@ -108,6 +116,7 @@ export async function clearAuthCookies() {
     store.delete(ROLE_COOKIE);
     store.delete(MUST_CHANGE_PASSWORD_COOKIE);
     store.delete(EMAIL_COOKIE);
+    store.delete(IMPERSONATION_COOKIE);
   } catch {
     // Read-only cookie store (Server Component) — ignore.
   }

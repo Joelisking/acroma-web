@@ -6,6 +6,7 @@ import {
   setAuthCookies,
   clearAuthCookies,
 } from "./cookies";
+import { hasImpersonationCookie } from "./impersonation";
 import type { ApiErrorBody, RefreshResponse } from "./types";
 
 const API_URL = process.env.ACROMA_API_URL;
@@ -104,6 +105,9 @@ export async function apiFetch<T>(
  * writes silently no-op there.
  */
 export async function tryRefresh(): Promise<string | null> {
+  // An impersonation token is never refreshed: a merchant refresh token left
+  // in the browser must not switch accounts mid-session.
+  if (await hasImpersonationCookie()) return null;
   const refreshToken = await readRefreshToken();
   if (!refreshToken) return null;
 

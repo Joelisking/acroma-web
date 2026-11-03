@@ -8,6 +8,7 @@ import {
   readAccessToken,
   readRefreshToken,
 } from "./cookies"
+import { endImpersonation, hasImpersonationCookie } from "./impersonation"
 import type { AuthResponse, AuthRole, Business, LoginResponse } from "./types"
 
 type ActionResult<T = void> =
@@ -101,6 +102,9 @@ export async function registerAction(input: {
 }
 
 export async function logoutAction(): Promise<void> {
+  // Signing out while acting as a merchant ends the impersonation instead,
+  // so the backend session row goes too and the admin lands back in /admin.
+  if (await hasImpersonationCookie()) redirect(await endImpersonation())
   try {
     await apiFetch<void>("/auth/logout", { method: "POST" })
   } catch {
