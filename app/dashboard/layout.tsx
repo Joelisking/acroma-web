@@ -19,6 +19,7 @@ import { VocabularyProvider } from "@/components/vocabulary-provider"
 import { readImpersonation } from "@/lib/api/impersonation"
 import { ImpersonationBanner } from "@/components/impersonation/impersonation-banner"
 import { ImpersonationProvider } from "@/components/impersonation/impersonation-provider"
+import { ConfirmProvider } from "@/components/impersonation/confirm-provider"
 
 export default async function DashboardLayout({
   children,
@@ -64,6 +65,7 @@ export default async function DashboardLayout({
 
   return (
     <ImpersonationProvider value={impersonation}>
+      <ConfirmProvider>
       <VocabularyProvider businessType={business.businessType}>
         <div className="theme-warm flex h-dvh flex-col overflow-hidden bg-paper text-foreground">
           {impersonation && (
@@ -124,6 +126,7 @@ export default async function DashboardLayout({
           <InstallTutorial />
         </div>
       </VocabularyProvider>
+      </ConfirmProvider>
     </ImpersonationProvider>
   )
 }

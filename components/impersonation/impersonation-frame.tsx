@@ -1,5 +1,6 @@
 import { readImpersonation } from "@/lib/api/impersonation"
 
+import { ConfirmProvider } from "./confirm-provider"
 import { ImpersonationBanner } from "./impersonation-banner"
 import { ImpersonationProvider } from "./impersonation-provider"
 
@@ -18,7 +19,7 @@ export async function ImpersonationFrame({ children }: Props) {
   return (
     <ImpersonationProvider value={impersonation}>
       {impersonation && <ImpersonationBanner impersonation={impersonation} />}
-      {children}
+      <ConfirmProvider>{children}</ConfirmProvider>
     </ImpersonationProvider>
   )
 }

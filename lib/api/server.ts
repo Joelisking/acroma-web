@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+
 import {
   readAccessToken,
   readRefreshToken,
@@ -7,6 +9,7 @@ import {
   clearAuthCookies,
 } from "./cookies";
 import { hasImpersonationCookie } from "./impersonation";
+import { CONFIRM_COOKIE, CONFIRM_HEADER } from "@/lib/impersonation-confirm";
 import type { ApiErrorBody, RefreshResponse } from "./types";
 
 const API_URL = process.env.ACROMA_API_URL;
@@ -62,6 +65,16 @@ export async function apiFetch<T>(
   if (auth !== false) {
     const token = _accessOverride ?? (await readAccessToken());
     if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
+  }
+
+  // While a super admin is logged in as a merchant, the confirm dialog sets a
+  // short-lived `acroma_confirm` cookie; forward it as the marker header the
+  // backend requires on non-GET requests. This guards against mistakes (an
+  // unconfirmed screen fails with 428 instead of changing data). It is not a
+  // security boundary: anyone holding the token can set the header.
+  const method = (rest.method ?? "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD" && (await hasConfirmCookie())) {
+    finalHeaders.set(CONFIRM_HEADER, "1");
   }
 
   const res = await fetch(`${API_URL}${path}`, {
@@ -126,6 +139,15 @@ export async function tryRefresh(): Promise<string | null> {
   const { accessToken } = (await res.json()) as RefreshResponse;
   await setAuthCookies({ accessToken });
   return accessToken;
+}
+
+async function hasConfirmCookie(): Promise<boolean> {
+  try {
+    return (await cookies()).has(CONFIRM_COOKIE);
+  } catch {
+    // No request scope (e.g. build-time or background work): no marker.
+    return false;
+  }
 }
 
 async function safeJson(res: Response): Promise<ApiErrorBody | null> {
