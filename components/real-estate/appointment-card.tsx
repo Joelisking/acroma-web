@@ -5,6 +5,7 @@ import {
   estateAppointmentAction,
   retryEstatePayment,
 } from "@/lib/api/real-estate-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { estateMoney, estateTime, type Appointment } from "@/lib/real-estate"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,10 +36,23 @@ export function AppointmentCard({
     return () => clearInterval(timer)
   }, [])
   const [pending, setPending] = useState(false)
+  const confirm = useConfirmedAction()
+  const who = a.customerName
   async function act(action: string) {
     setPending(true)
-    const result = await estateAppointmentAction(a.id, action)
+    const cancelling = action === "cancel"
+    const result = await confirm(
+      cancelling
+        ? {
+            title: `Cancel appointment for ${who}`,
+            risk: "high",
+            confirmLabel: "Yes, cancel appointment",
+          }
+        : { title: `Mark appointment for ${who} as completed` },
+      () => estateAppointmentAction(a.id, action)
+    )
     setPending(false)
+    if (!result) return
     if (!result.ok) toast.error(result.error)
     else toast.success("Appointment updated")
   }
@@ -85,8 +99,12 @@ export function AppointmentCard({
             disabled={pending}
             onClick={async () => {
               setPending(true)
-              const result = await retryEstatePayment(a.id)
+              const result = await confirm(
+                { title: `Create a new payment link for ${who}` },
+                () => retryEstatePayment(a.id)
+              )
               setPending(false)
+              if (!result) return
               if (!result.ok) toast.error(result.error)
               else
                 toast.success(

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import { suggestVariantsAction } from "@/lib/api/variants-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { VariantDimension } from "@/lib/api/types";
 
 type SuggestButtonProps = {
@@ -20,10 +21,15 @@ export function SuggestButton({
   onSuggestions,
 }: SuggestButtonProps) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function run() {
     startTransition(async () => {
-      const result = await suggestVariantsAction(productId, productName);
+      const result = await confirm(
+        { title: "Suggest item variants with AI" },
+        () => suggestVariantsAction(productId, productName),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

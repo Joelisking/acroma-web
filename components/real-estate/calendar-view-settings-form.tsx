@@ -5,6 +5,7 @@ import { z } from "zod"
 import { toast } from "sonner"
 import { estateCalendarViewInput, type EstateSettings } from "@/lib/real-estate"
 import { saveEstateCalendarView } from "@/lib/api/real-estate-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -21,6 +22,7 @@ export function CalendarViewSettingsForm({
 }: {
   defaultView: EstateSettings["defaultCalendarView"]
 }) {
+  const confirm = useConfirmedAction()
   const form = useForm<z.infer<typeof estateCalendarViewInput>>({
     resolver: zodResolver(estateCalendarViewInput),
     defaultValues: { defaultCalendarView: defaultView },
@@ -29,7 +31,11 @@ export function CalendarViewSettingsForm({
     <form
       className="space-y-4"
       onSubmit={form.handleSubmit(async (values) => {
-        const result = await saveEstateCalendarView(values)
+        const result = await confirm(
+          { title: "Save default calendar view" },
+          () => saveEstateCalendarView(values)
+        )
+        if (!result) return
         if (!result.ok) toast.error(result.error)
         else {
           form.reset(values)

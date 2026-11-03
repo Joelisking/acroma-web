@@ -9,6 +9,7 @@ import {
   ImageUploadError,
   PDF_ACCEPT,
 } from "@/lib/cloudinary-upload";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { updateCatalogPdfAction } from "@/lib/api/settings-actions";
 
 type Props = {
@@ -30,12 +31,23 @@ type Props = {
  * of the catalog images when customers ask what you have.
  */
 export function CatalogPdfManager({ defaultUrl, noun, onSave }: Props) {
+  const confirm = useConfirmedAction();
   const save = (next: string | null) =>
-    onSave
-      ? onSave(next)
-      : updateCatalogPdfAction(next).then((r) =>
-          r.ok ? { ok: true as const, data: r.data.catalogPdfUrl } : r,
-        );
+    confirm(
+      next === null
+        ? {
+            title: `Remove ${noun.toLowerCase()} PDF`,
+            risk: "high",
+            confirmLabel: "Yes, remove PDF",
+          }
+        : { title: `Save ${noun.toLowerCase()} PDF` },
+      () =>
+        onSave
+          ? onSave(next)
+          : updateCatalogPdfAction(next).then((r) =>
+              r.ok ? { ok: true as const, data: r.data.catalogPdfUrl } : r,
+            ),
+    );
   const [url, setUrl] = React.useState<string | null>(defaultUrl);
   const [busy, setBusy] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -45,6 +57,7 @@ export function CatalogPdfManager({ defaultUrl, noun, onSave }: Props) {
     try {
       const uploaded = await uploadPdf(file);
       const result = await save(uploaded);
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -66,6 +79,7 @@ export function CatalogPdfManager({ defaultUrl, noun, onSave }: Props) {
     setBusy(true);
     try {
       const result = await save(null);
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

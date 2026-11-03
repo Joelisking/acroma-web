@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { bulkUpdateFaqAction } from "@/lib/api/faq-actions";
 import type { FaqEntry } from "@/lib/api/faq";
 import { FAQ_CATEGORY_META } from "@/components/settings/knowledge-base/categories";
@@ -32,6 +33,7 @@ export function FaqReviewStep({ entries }: Props) {
     })),
   );
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function setAnswer(id: string, answer: string) {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, answer } : r)));
@@ -52,7 +54,11 @@ export function FaqReviewStep({ entries }: Props) {
     }
 
     startTransition(async () => {
-      const result = await bulkUpdateFaqAction(toSave);
+      const result = await confirm(
+        { title: `Save and turn on ${toSave.length} FAQ answers` },
+        () => bulkUpdateFaqAction(toSave),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

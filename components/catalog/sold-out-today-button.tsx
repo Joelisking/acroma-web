@@ -7,6 +7,7 @@ import {
   clearSoldOutTodayAction,
   markSoldOutTodayAction,
 } from "@/lib/api/products-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
 
 type Props = {
@@ -22,6 +23,7 @@ type Props = {
 export function SoldOutTodayButton({ productId, soldOutAt }: Props) {
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
+  const confirm = useConfirmedAction();
   // Compute on first render so the UI matches the SSR'd state; the action
   // result will revalidate the page and refresh the underlying timestamp.
   const isSoldOut = isSoldOutToday(soldOutAt);
@@ -32,7 +34,15 @@ export function SoldOutTodayButton({ productId, soldOutAt }: Props) {
       const action = isSoldOut
         ? clearSoldOutTodayAction
         : markSoldOutTodayAction;
-      const res = await action(productId);
+      const res = await confirm(
+        {
+          title: isSoldOut
+            ? "Bring item back on the menu"
+            : "Mark item as sold out for today",
+        },
+        () => action(productId),
+      );
+      if (!res) return;
       if (!res.ok) setError(res.error);
     });
   }

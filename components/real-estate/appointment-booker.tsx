@@ -1,5 +1,6 @@
 "use client"
 import { useRef, useState } from "react"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -45,6 +46,7 @@ export function AppointmentBooker({
   onCreated?: (appointment: Appointment) => void
 }) {
   const slotRequest = useRef(0)
+  const confirm = useConfirmedAction()
   const [day, setDay] = useState(initialDay)
   const [availability, setAvailability] = useState<Availability | null>(null)
   const [loading, setLoading] = useState(false)
@@ -96,13 +98,20 @@ export function AppointmentBooker({
     const key =
       lastRequest?.body === body ? lastRequest.key : crypto.randomUUID()
     setLastRequest({ body, key })
-    const result = await bookEstateAppointment({
-      ...values,
-      expectedFee: availability?.fee,
-      expectedCurrency: availability?.currency,
-      expectedDurationMinutes: availability?.durationMinutes,
-      requestKey: key,
-    })
+    const result = await confirm(
+      {
+        title: `Book ${values.kind === "VIEWING" ? "viewing" : "consultation"} for ${values.customerName}`,
+      },
+      () =>
+        bookEstateAppointment({
+          ...values,
+          expectedFee: availability?.fee,
+          expectedCurrency: availability?.currency,
+          expectedDurationMinutes: availability?.durationMinutes,
+          requestKey: key,
+        })
+    )
+    if (!result) return
     if (!result.ok) {
       toast.error(result.error)
       if (result.alternatives.length && availability) {

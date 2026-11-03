@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { createFaqAction } from "@/lib/api/faq-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { FaqCategory, FaqEntry } from "@/lib/api/faq";
 import { CATEGORY_ORDER, FAQ_CATEGORY_META } from "./categories";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export function AddFaqForm({ onAdd }: AddFaqFormProps) {
   const [question, setQuestion] = React.useState("");
   const [answer, setAnswer] = React.useState("");
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,12 +27,17 @@ export function AddFaqForm({ onAdd }: AddFaqFormProps) {
       return;
     }
     startTransition(async () => {
-      const result = await createFaqAction({
-        category,
-        question: question.trim(),
-        answer: answer.trim(),
-        active: true,
-      });
+      const result = await confirm(
+        { title: `Add FAQ "${question.trim()}"` },
+        () =>
+          createFaqAction({
+            category,
+            question: question.trim(),
+            answer: answer.trim(),
+            active: true,
+          }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

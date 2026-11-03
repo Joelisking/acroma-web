@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { updateProductAction } from "@/lib/api/products-actions";
 import { autofillProductAction } from "@/lib/api/products-ai-actions";
 import { ImageUploader } from "@/components/shared/image-uploader";
@@ -80,6 +81,7 @@ export function EditProductForm({
   const tracksStock = vocab.tracksStock;
   const [pending, startTransition] = React.useTransition();
   const [autofilling, startAutofill] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -103,7 +105,11 @@ export function EditProductForm({
       return;
     }
     startAutofill(async () => {
-      const result = await autofillProductAction(name);
+      const result = await confirm(
+        { title: `Generate ${vocab.itemLower} description with AI` },
+        () => autofillProductAction(name),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -119,7 +125,7 @@ export function EditProductForm({
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
-      const result = await updateProductAction(productId, {
+      const payload = {
         name: values.name,
         description: values.description || undefined,
         basePrice: values.basePrice,
@@ -133,7 +139,12 @@ export function EditProductForm({
         // server-side handler treats an explicit empty array as "clear",
         // which is what the merchant means by deselecting all chips.
         tags: values.tags ?? [],
-      });
+      };
+      const result = await confirm(
+        { title: `Save ${vocab.itemLower} changes` },
+        () => updateProductAction(productId, payload),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

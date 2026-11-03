@@ -6,6 +6,7 @@ import {
   parseProductAction,
 } from "@/lib/api/products-ai-actions";
 import { createProductAction } from "@/lib/api/products-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { saveVariantsAction } from "@/lib/api/variants-actions";
 import type { ParsedProduct, ProductFormValues } from "@/lib/api/types";
 import { EMPTY_FORM_VALUES, parsedToFormValues } from "@/lib/catalog/product-form-utils";
@@ -15,6 +16,7 @@ export type NewProductMode = "describe" | "manual";
 /** `promotionId` creates a promo-only item for that promotion and returns there. */
 export function useNewProduct(promotionId?: string) {
   const router = useRouter();
+  const confirm = useConfirmedAction();
 
   const [mode, setMode] = React.useState<NewProductMode>("manual");
   const [formValues, setFormValues] = React.useState<ProductFormValues>(EMPTY_FORM_VALUES);
@@ -31,7 +33,11 @@ export function useNewProduct(promotionId?: string) {
   function parse(description: string) {
     if (!description) return;
     startParse(async () => {
-      const result = await parseProductAction({ description });
+      const result = await confirm(
+        { title: "Generate item details from description with AI" },
+        () => parseProductAction({ description }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -45,11 +51,16 @@ export function useNewProduct(promotionId?: string) {
   function refine(followUp: string) {
     if (!followUp || !parsedPreview) return;
     startRefine(async () => {
-      const result = await parseProductAction({
-        description: originalDescription,
-        followUp,
-        current: parsedPreview as unknown as Record<string, unknown>,
-      });
+      const result = await confirm(
+        { title: "Refine item details with AI" },
+        () =>
+          parseProductAction({
+            description: originalDescription,
+            followUp,
+            current: parsedPreview as unknown as Record<string, unknown>,
+          }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -79,46 +90,54 @@ export function useNewProduct(promotionId?: string) {
   function commit(itemNoun = "Product") {
     if (!canSave) return;
     startSave(async () => {
-      const create = await createProductAction({
-        name: formValues.name.trim(),
-        description: formValues.description.trim() || undefined,
-        basePrice: Number(formValues.basePrice),
-        stock: formValues.hasVariants
-          ? 0
-          : Number.isFinite(Number(formValues.stock))
-            ? Number(formValues.stock)
-            : 0,
-        estimatedDurationMinutes:
-          formValues.estimatedDurationMinutes.trim() !== "" &&
-          Number.isFinite(Number(formValues.estimatedDurationMinutes))
-            ? Number(formValues.estimatedDurationMinutes)
-            : undefined,
-        category: formValues.category.trim() || undefined,
-        imageUrl: formValues.imageUrl.trim() || undefined,
-        isActive: formValues.isActive,
-        tags: formValues.tags,
-        ...(promotionId ? { promotionId } : {}),
-      });
-      if (!create.ok) {
-        toast.error(create.error);
-        return;
-      }
+      const created = await confirm(
+        { title: `Add ${itemNoun.toLowerCase()} "${formValues.name.trim()}"` },
+        async () => {
+          const create = await createProductAction({
+            name: formValues.name.trim(),
+            description: formValues.description.trim() || undefined,
+            basePrice: Number(formValues.basePrice),
+            stock: formValues.hasVariants
+              ? 0
+              : Number.isFinite(Number(formValues.stock))
+                ? Number(formValues.stock)
+                : 0,
+            estimatedDurationMinutes:
+              formValues.estimatedDurationMinutes.trim() !== "" &&
+              Number.isFinite(Number(formValues.estimatedDurationMinutes))
+                ? Number(formValues.estimatedDurationMinutes)
+                : undefined,
+            category: formValues.category.trim() || undefined,
+            imageUrl: formValues.imageUrl.trim() || undefined,
+            isActive: formValues.isActive,
+            tags: formValues.tags,
+            ...(promotionId ? { promotionId } : {}),
+          });
+          if (!create.ok) {
+            toast.error(create.error);
+            return false;
+          }
 
-      if (formValues.hasVariants && formValues.variantDimensions.length > 0) {
-        const variantsResult = await saveVariantsAction(create.data.id, {
-          dimensions: formValues.variantDimensions,
-          variants: formValues.variants.map((v) => ({
-            attributes: v.attributes,
-            stock: v.stock,
-            priceOverride: v.priceOverride,
-            isActive: v.isActive,
-          })),
-        });
-        if (!variantsResult.ok) {
-          toast.error(variantsResult.error);
-          return;
-        }
-      }
+          if (formValues.hasVariants && formValues.variantDimensions.length > 0) {
+            const variantsResult = await saveVariantsAction(create.data.id, {
+              dimensions: formValues.variantDimensions,
+              variants: formValues.variants.map((v) => ({
+                attributes: v.attributes,
+                stock: v.stock,
+                priceOverride: v.priceOverride,
+                isActive: v.isActive,
+              })),
+            });
+            if (!variantsResult.ok) {
+              toast.error(variantsResult.error);
+              return false;
+            }
+          }
+
+          return true;
+        },
+      );
+      if (!created) return;
 
       toast.success(`${itemNoun} added`);
 

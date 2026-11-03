@@ -12,6 +12,7 @@ import {
   createPromotionAction,
   updatePromotionAction,
 } from "@/lib/api/promotions-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { Promotion, PromotionMenuMode } from "@/lib/api/types"
 import { fromPickerValue, toPickerValue } from "@/lib/promotions"
 import { MenuModePicker } from "./menu-mode-picker"
@@ -22,6 +23,7 @@ type Props = { existing?: Promotion }
 export function PromotionForm({ existing }: Props) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
   const [name, setName] = React.useState(existing?.name ?? "")
   const [description, setDescription] = React.useState(
     existing?.description ?? ""
@@ -50,9 +52,18 @@ export function PromotionForm({ existing }: Props) {
       endsAt: fromPickerValue(endsAt),
     }
     startTransition(async () => {
-      const result = existing
-        ? await updatePromotionAction(existing.id, payload)
-        : await createPromotionAction(payload)
+      const result = await confirm(
+        {
+          title: existing
+            ? `Save changes to promotion "${existing.name}"`
+            : `Create promotion "${payload.name}"`,
+        },
+        () =>
+          existing
+            ? updatePromotionAction(existing.id, payload)
+            : createPromotionAction(payload)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

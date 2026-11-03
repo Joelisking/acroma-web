@@ -3,11 +3,19 @@
 import * as React from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { deleteProductAction } from "@/lib/api/products-actions";
 
-export function DeleteProductButton({ productId }: { productId: string }) {
+export function DeleteProductButton({
+  productId,
+  productName,
+}: {
+  productId: string;
+  productName?: string;
+}) {
   const [pending, startTransition] = React.useTransition();
   const [confirming, setConfirming] = React.useState(false);
+  const confirm = useConfirmedAction();
 
   React.useEffect(() => {
     if (!confirming) return;
@@ -21,7 +29,20 @@ export function DeleteProductButton({ productId }: { productId: string }) {
       return;
     }
     startTransition(() => {
-      void deleteProductAction(productId);
+      void confirm(
+        {
+          title: productName
+            ? `Permanently delete item "${productName}"`
+            : "Permanently delete this item",
+          description: "The item and its variants are removed from the catalog.",
+          risk: "high",
+          confirmLabel: "Yes, delete item",
+        },
+        async () => {
+          await deleteProductAction(productId);
+          return true;
+        },
+      );
     });
   }
 

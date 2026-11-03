@@ -6,10 +6,12 @@ import { toast } from "sonner"
 import { z } from "zod"
 import { estateSettingsInput, type EstateSettings } from "@/lib/real-estate"
 import { saveEstateSettings } from "@/lib/api/real-estate-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { Button } from "@/components/ui/button"
 import { AppointmentTypeFields } from "./appointment-type-fields"
 
 export function EstateSettingsForm({ settings }: { settings: EstateSettings }) {
+  const confirm = useConfirmedAction()
   const form = useForm<z.infer<typeof estateSettingsInput>>({
     resolver: zodResolver(estateSettingsInput),
     defaultValues: settings,
@@ -17,7 +19,11 @@ export function EstateSettingsForm({ settings }: { settings: EstateSettings }) {
   return (
     <form
       onSubmit={form.handleSubmit(async (values) => {
-        const result = await saveEstateSettings(values)
+        const result = await confirm(
+          { title: "Save appointment fees and durations" },
+          () => saveEstateSettings(values)
+        )
+        if (!result) return
         if (!result.ok) toast.error(result.error)
         else toast.success("Appointment fees and durations saved")
       })}

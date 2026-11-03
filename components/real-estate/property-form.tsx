@@ -9,6 +9,7 @@ import {
   type ListingInput,
 } from "@/lib/real-estate"
 import { saveProperty } from "@/lib/api/real-estate-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,6 +31,7 @@ export function PropertyForm({
   currency: string
 }) {
   const router = useRouter()
+  const confirm = useConfirmedAction()
   const form = useForm<ListingInput>({
     resolver: zodResolver(listingInput),
     defaultValues: property
@@ -50,7 +52,15 @@ export function PropertyForm({
         },
   })
   async function submit(values: ListingInput) {
-    const result = await saveProperty(values, property?.id)
+    const result = await confirm(
+      {
+        title: property
+          ? `Save changes to property "${property.title}"`
+          : `Add property "${values.title}"`,
+      },
+      () => saveProperty(values, property?.id)
+    )
+    if (!result) return
     if (!result.ok) return toast.error(result.error)
     toast.success("Property saved")
     router.push("/dashboard/properties")

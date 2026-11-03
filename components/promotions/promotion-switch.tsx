@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { updatePromotionAction } from "@/lib/api/promotions-actions"
 import type { Promotion } from "@/lib/api/types"
 
@@ -26,10 +27,19 @@ export function PromotionSwitch({ promotion }: { promotion: Promotion }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
   const [confirming, setConfirming] = React.useState(false)
+  const confirm = useConfirmedAction()
 
   function set(isActive: boolean) {
     startTransition(async () => {
-      const result = await updatePromotionAction(promotion.id, { isActive })
+      const result = await confirm(
+        {
+          title: isActive
+            ? `Switch on promotion "${promotion.name}"`
+            : `End promotion "${promotion.name}"`,
+        },
+        () => updatePromotionAction(promotion.id, { isActive })
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { estateSettingsInput, type EstateSettings } from "@/lib/real-estate"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { saveEstateSettings } from "@/lib/api/real-estate-actions"
 import type { OpeningHours } from "@/lib/api/types"
 import {
@@ -23,6 +24,7 @@ type Props = {
  * types share. One "Save & continue" saves the fees first, then the hours.
  */
 export function EstateAppointmentsStep({ settings, hours }: Props) {
+  const confirm = useConfirmedAction()
   const form = useForm<AppointmentTypeValues>({
     resolver: zodResolver(estateSettingsInput),
     defaultValues: {
@@ -35,7 +37,12 @@ export function EstateAppointmentsStep({ settings, hours }: Props) {
 
   async function saveTypes() {
     if (!(await form.trigger(undefined, { shouldFocus: true }))) return false
-    const result = await saveEstateSettings(form.getValues())
+    const values = form.getValues()
+    const result = await confirm(
+      { title: "Save appointment fees and durations" },
+      () => saveEstateSettings(values)
+    )
+    if (!result) return false
     if (!result.ok) toast.error(result.error)
     return result.ok
   }

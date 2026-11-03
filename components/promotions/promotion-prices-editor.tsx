@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { setPromotionPricesAction } from "@/lib/api/promotions-actions"
 import type { Product, PromotionPrice } from "@/lib/api/types"
 import { PromotionPriceRow, type PriceRowState } from "./promotion-price-row"
@@ -28,6 +29,7 @@ export function PromotionPricesEditor({
 }: Props) {
   const router = useRouter()
   const [saving, startSaving] = React.useTransition()
+  const confirm = useConfirmedAction()
   const [rows, setRows] = React.useState<PriceRowState[]>(() =>
     initial.map((p) => ({
       key: newKey(),
@@ -51,14 +53,17 @@ export function PromotionPricesEditor({
       return
     }
     startSaving(async () => {
-      const result = await setPromotionPricesAction(
-        promotionId,
-        filled.map((r) => ({
-          productId: r.productId,
-          variantId: r.variantId,
-          price: Number(r.price),
-        }))
+      const result = await confirm({ title: "Save promo prices" }, () =>
+        setPromotionPricesAction(
+          promotionId,
+          filled.map((r) => ({
+            productId: r.productId,
+            variantId: r.variantId,
+            price: Number(r.price),
+          }))
+        )
       )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

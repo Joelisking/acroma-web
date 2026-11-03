@@ -10,6 +10,7 @@ import {
   ImageUploadError,
   IMAGE_ACCEPT,
 } from "@/lib/cloudinary-upload";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { updateCatalogImagesAction } from "@/lib/api/settings-actions";
 
 const MAX_IMAGES = 8;
@@ -40,6 +41,7 @@ export function CatalogImagesManager({ defaultUrls, noun, onSave }: Props) {
   const [pendingCount, setPendingCount] = React.useState(0);
   const [saving, startSaving] = React.useTransition();
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const confirm = useConfirmedAction();
 
   const remaining = MAX_IMAGES - urls.length - pendingCount;
   const dirty = !sameOrder(urls, savedUrls);
@@ -86,11 +88,18 @@ export function CatalogImagesManager({ defaultUrls, noun, onSave }: Props) {
 
   function handleSave() {
     startSaving(async () => {
-      const result = onSave
-        ? await onSave(urls)
-        : await updateCatalogImagesAction(urls).then((r) =>
-            r.ok ? { ok: true as const, data: r.data.catalogImageUrls } : r,
-          );
+      const result = await confirm(
+        { title: `Save ${noun.toLowerCase()} images` },
+        () =>
+          onSave
+            ? onSave(urls)
+            : updateCatalogImagesAction(urls).then((r) =>
+                r.ok
+                  ? { ok: true as const, data: r.data.catalogImageUrls }
+                  : r,
+              ),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

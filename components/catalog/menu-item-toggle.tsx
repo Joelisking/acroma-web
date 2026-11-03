@@ -8,6 +8,7 @@ import {
   clearSoldOutTodayAction,
   markSoldOutTodayAction,
 } from "@/lib/api/products-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { isSoldOutToday } from "@/lib/catalog/sold-out";
 
 type Props = {
@@ -24,13 +25,22 @@ type Props = {
 export function MenuItemToggle({ productId, soldOutAt }: Props) {
   const [pending, startTransition] = React.useTransition();
   const available = !isSoldOutToday(soldOutAt);
+  const confirm = useConfirmedAction();
 
   function onCheckedChange(nextAvailable: boolean) {
     startTransition(async () => {
       const action = nextAvailable
         ? clearSoldOutTodayAction
         : markSoldOutTodayAction;
-      const res = await action(productId);
+      const res = await confirm(
+        {
+          title: nextAvailable
+            ? "Bring item back on the menu"
+            : "Mark item as sold out for today",
+        },
+        () => action(productId),
+      );
+      if (!res) return;
       if (!res.ok) {
         toast.error(res.error);
         return;

@@ -8,6 +8,7 @@ import {
   deleteFaqAction,
   updateFaqAction,
 } from "@/lib/api/faq-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -21,12 +22,17 @@ export function FaqRow({ entry, onChange, onRemove }: FaqRowProps) {
   const [answer, setAnswer] = React.useState(entry.answer);
   const [active, setActive] = React.useState(entry.active);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const dirty = answer !== entry.answer || active !== entry.active;
 
   function save() {
     startTransition(async () => {
-      const result = await updateFaqAction(entry.id, { answer, active });
+      const result = await confirm(
+        { title: `Save FAQ "${entry.question}"` },
+        () => updateFaqAction(entry.id, { answer, active }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -38,7 +44,15 @@ export function FaqRow({ entry, onChange, onRemove }: FaqRowProps) {
 
   function remove() {
     startTransition(async () => {
-      const result = await deleteFaqAction(entry.id);
+      const result = await confirm(
+        {
+          title: `Delete FAQ "${entry.question}"`,
+          risk: "high",
+          confirmLabel: "Yes, delete FAQ",
+        },
+        () => deleteFaqAction(entry.id),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -53,7 +67,19 @@ export function FaqRow({ entry, onChange, onRemove }: FaqRowProps) {
     // Toggle persists immediately — toggling without saving the answer below
     // would be confusing ("did I turn it on or not?").
     startTransition(async () => {
-      const result = await updateFaqAction(entry.id, { active: next });
+      const result = await confirm(
+        {
+          title: next
+            ? `Turn on FAQ "${entry.question}"`
+            : `Turn off FAQ "${entry.question}"`,
+        },
+        () => updateFaqAction(entry.id, { active: next }),
+      );
+      if (!result) {
+        // Admin cancelled (only possible while impersonating): revert.
+        setActive(!next);
+        return;
+      }
       if (!result.ok) {
         toast.error(result.error);
         setActive(!next);

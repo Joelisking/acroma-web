@@ -10,6 +10,7 @@ import {
   type Appointment,
   type Availability,
 } from "@/lib/real-estate"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
@@ -34,6 +35,7 @@ export function AppointmentReschedule({
   const [availability, setAvailability] = useState<Availability | null>(null)
   const [selected, setSelected] = useState("")
   const [pending, setPending] = useState(false)
+  const confirm = useConfirmedAction()
   return (
     <section
       className="space-y-4 rounded-xl border p-4"
@@ -100,12 +102,19 @@ export function AppointmentReschedule({
             disabled={!selected || pending}
             onClick={async () => {
               setPending(true)
-              const result = await rescheduleEstateAppointment(
-                appointment.id,
-                selected,
-                appointment.startsAt
+              const result = await confirm(
+                {
+                  title: `Reschedule appointment for ${appointment.customerName} to ${estateTime(selected)}`,
+                },
+                () =>
+                  rescheduleEstateAppointment(
+                    appointment.id,
+                    selected,
+                    appointment.startsAt
+                  )
               )
               setPending(false)
+              if (!result) return
               if (!result.ok) {
                 toast.error(result.error)
                 setSelected("")

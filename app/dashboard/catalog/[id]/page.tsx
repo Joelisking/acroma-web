@@ -73,7 +73,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   Edit
                 </Link>
               </Button>
-              <DeleteProductButton productId={product.id} />
+              <DeleteProductButton
+                productId={product.id}
+                productName={product.name}
+              />
             </div>
             {isFood ? (
               <SoldOutTodayButton

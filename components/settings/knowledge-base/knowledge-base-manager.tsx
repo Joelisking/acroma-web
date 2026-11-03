@@ -5,6 +5,7 @@ import { Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import type { FaqCategory, FaqEntry } from "@/lib/api/faq";
 import { resetFaqToTemplateAction } from "@/lib/api/faq-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -30,6 +31,7 @@ export function KnowledgeBaseManager({
 }: KnowledgeBaseManagerProps) {
   const [entries, setEntries] = React.useState(initialEntries);
   const [resetting, startReset] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function upsert(entry: FaqEntry) {
     setEntries((prev) => {
@@ -51,7 +53,17 @@ export function KnowledgeBaseManager({
 
   function reset() {
     startReset(async () => {
-      const result = await resetFaqToTemplateAction();
+      const result = await confirm(
+        {
+          title: "Reset all FAQs to the starter template",
+          description:
+            "Deletes every FAQ added or edited and restores the defaults.",
+          risk: "high",
+          confirmLabel: "Yes, reset FAQs",
+        },
+        () => resetFaqToTemplateAction(),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

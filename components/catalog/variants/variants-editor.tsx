@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import type { Product, VariantDimension } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { saveVariantsAction } from "@/lib/api/variants-actions";
 import { cartesianAttributes, attributesKey } from "@/lib/cartesian";
 import { DimensionEditor } from "./dimension-editor";
@@ -23,6 +24,7 @@ export function VariantsEditor({ product }: VariantsEditorProps) {
   const router = useRouter();
   const vocab = useVocab();
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const [dimensions, setDimensions] = React.useState<VariantDimension[]>(
     product.variantDimensions ?? [],
@@ -82,10 +84,15 @@ export function VariantsEditor({ product }: VariantsEditorProps) {
     }
 
     startTransition(async () => {
-      const result = await saveVariantsAction(product.id, {
-        dimensions,
-        variants: rows,
-      });
+      const result = await confirm(
+        { title: `Save variants for ${product.name}` },
+        () =>
+          saveVariantsAction(product.id, {
+            dimensions,
+            variants: rows,
+          }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

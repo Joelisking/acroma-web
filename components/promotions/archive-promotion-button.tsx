@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { archivePromotionAction } from "@/lib/api/promotions-actions"
 
 export function ArchivePromotionButton({
@@ -26,6 +27,7 @@ export function ArchivePromotionButton({
 }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -46,7 +48,15 @@ export function ArchivePromotionButton({
           <AlertDialogAction
             onClick={() =>
               startTransition(async () => {
-                const r = await archivePromotionAction(id)
+                const r = await confirm(
+                  {
+                    title: `Archive promotion "${name}"`,
+                    risk: "high",
+                    confirmLabel: "Yes, archive promotion",
+                  },
+                  () => archivePromotionAction(id)
+                )
+                if (!r) return
                 if (!r.ok) {
                   toast.error(r.error)
                   return

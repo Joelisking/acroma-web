@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import {
   createDiscountAction,
   updateDiscountAction,
@@ -32,6 +33,7 @@ type Props = {
 export function DiscountForm({ mode, existing }: Props) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const usageLocked = (existing?.usageCount ?? 0) > 0;
 
   const [code, setCode] = React.useState(existing?.code ?? "");
@@ -70,7 +72,11 @@ export function DiscountForm({ mode, existing }: Props) {
 
     startTransition(async () => {
       if (mode === "create") {
-        const result = await createDiscountAction(payload);
+        const result = await confirm(
+          { title: `Create discount code ${payload.code}` },
+          () => createDiscountAction(payload),
+        );
+        if (!result) return;
         if (!result.ok) {
           toast.error(result.error);
           return;
@@ -78,16 +84,25 @@ export function DiscountForm({ mode, existing }: Props) {
         toast.success("Discount created");
         router.push("/dashboard/discounts");
       } else if (existing) {
-        const result = await updateDiscountAction(existing.id, {
-          ...(usageLocked
-            ? {}
-            : { code: payload.code, type: payload.type, value: payload.value }),
-          validFrom: payload.validFrom ?? undefined,
-          validUntil: payload.validUntil ?? undefined,
-          totalUsageLimit: payload.totalUsageLimit,
-          perCustomerLimit: payload.perCustomerLimit ?? undefined,
-          isActive,
-        });
+        const result = await confirm(
+          { title: `Save changes to discount code ${existing.code}` },
+          () =>
+            updateDiscountAction(existing.id, {
+              ...(usageLocked
+                ? {}
+                : {
+                    code: payload.code,
+                    type: payload.type,
+                    value: payload.value,
+                  }),
+              validFrom: payload.validFrom ?? undefined,
+              validUntil: payload.validUntil ?? undefined,
+              totalUsageLimit: payload.totalUsageLimit,
+              perCustomerLimit: payload.perCustomerLimit ?? undefined,
+              isActive,
+            }),
+        );
+        if (!result) return;
         if (!result.ok) {
           toast.error(result.error);
           return;
