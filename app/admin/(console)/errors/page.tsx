@@ -12,7 +12,8 @@ type Props = { searchParams: Promise<{ range?: string }> };
 export default async function AdminErrorsPage({ searchParams }: Props) {
   const { range } = await searchParams;
   // The backend defaults to the last 24h; "All time" is not offered here.
-  const groups = await listLogGroups({ from: rangeToFrom(range ?? "24h") });
+  const active = range ?? "24h";
+  const groups = await listLogGroups({ from: rangeToFrom(active) });
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,7 +24,7 @@ export default async function AdminErrorsPage({ searchParams }: Props) {
           {range ? "" : " Showing the last 24 hours."}
         </p>
       </header>
-      <FilterBar basePath="/admin/errors" params={{ range }} ranges />
+      <FilterBar basePath="/admin/errors" params={{ range: active }} ranges allTime={false} />
       <ErrorGroups groups={groups} />
     </div>
   );

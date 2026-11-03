@@ -13,6 +13,8 @@ type Props = {
   fields?: Field[];
   /** Quick links for a `range` param (24h, 7d, 30d). */
   ranges?: boolean;
+  /** Include the "All time" range chip (default true). */
+  allTime?: boolean;
   /** Quick links for a `level` param. */
   levels?: boolean;
 };
@@ -66,7 +68,7 @@ function Chips(props: {
   );
 }
 
-export function FilterBar({ basePath, params, fields = [], ranges, levels }: Props) {
+export function FilterBar({ basePath, params, fields = [], ranges, levels, allTime = true }: Props) {
   const carried = Object.entries(params).filter(
     ([k, v]) => v && k !== "cursor" && !fields.some((f) => f.name === k),
   );
@@ -95,7 +97,7 @@ export function FilterBar({ basePath, params, fields = [], ranges, levels }: Pro
         </form>
       ) : null}
       {levels ? <Chips basePath={basePath} params={params} name="level" options={LEVELS} /> : null}
-      {ranges ? <Chips basePath={basePath} params={params} name="range" options={RANGES} /> : null}
+      {ranges ? <Chips basePath={basePath} params={params} name="range" options={allTime ? RANGES : RANGES.slice(1)} /> : null}
     </div>
   );
 }
