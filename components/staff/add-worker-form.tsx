@@ -66,7 +66,12 @@ export function AddWorkerForm({ businessName, onCreated, onCancel }: Props) {
   function onSubmit(values: AddWorkerInput) {
     startTransition(async () => {
       const result = await confirm(
-        { title: `Add staff member ${values.name}` },
+        {
+          title: `Create a staff login for ${values.name}`,
+          description: `Username ${values.username}. A temporary password is generated.`,
+          risk: "high",
+          confirmLabel: "Create staff login",
+        },
         () => createStaffAction(values)
       )
       if (!result) return

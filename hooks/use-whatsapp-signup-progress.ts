@@ -55,6 +55,9 @@ export function useWhatsappSignupProgress(
   }, [attempt, active, receivedCode, apply, setError, confirm])
   useEffect(() => {
     if (!attempt || !progress || signupStopped(progress.status)) return
+    // Impersonating: VALIDATING needs a confirmed "Check result" click, so
+    // stop polling instead of looping on a read that cannot advance it.
+    if (impersonating && progress.status === "VALIDATING") return
     return startSignupPolling({
       read: () => getSignupProgress(attempt.attemptId),
       // Automatic background write: while an admin is logged in as the

@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useWhatsappSignup } from "@/hooks/use-whatsapp-signup"
+import { useImpersonation } from "@/components/impersonation/impersonation-provider"
 export function WhatsappConnect() {
   const signup = useWhatsappSignup()
+  const impersonating = useImpersonation() !== null
   const [pin, setPin] = useState("")
   // Most merchants already sell from the WhatsApp Business app, so keeping
   // the app (Meta coexistence) is the default.
@@ -98,6 +100,14 @@ export function WhatsappConnect() {
             Resume existing setup
           </Button>
         )}
+      {impersonating && signup.progress?.status === "VALIDATING" && (
+        <Button
+          disabled={signup.busy}
+          onClick={() => void signup.submitPin()}
+        >
+          Check result
+        </Button>
+      )}
       {signup.progress?.needsPin && (
         <form
           className="max-w-sm space-y-3"

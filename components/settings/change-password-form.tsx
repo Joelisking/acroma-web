@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 import { changePasswordAction } from "@/lib/api/auth";
+import { useImpersonation } from "@/components/impersonation/impersonation-provider";
 import {
   changePasswordSchema,
   type ChangePasswordInput,
@@ -25,6 +26,7 @@ import { PasswordChecklist } from "@/components/auth/password-checklist";
 
 export function ChangePasswordForm() {
   const [pending, startTransition] = React.useTransition();
+  const impersonating = useImpersonation() !== null;
 
   const form = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
@@ -54,6 +56,15 @@ export function ChangePasswordForm() {
       );
       form.reset();
     });
+  }
+
+  if (impersonating) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Password changes aren&apos;t available while you&apos;re logged in as
+        this merchant.
+      </p>
+    );
   }
 
   return (

@@ -37,9 +37,11 @@ export function CreateInviteDialog() {
     startTransition(async () => {
       const result = await confirm(
         {
-          title: "Create a team invite link",
+          title: "Create a team invite link with full owner access",
           description:
-            "Whoever opens the link joins this business with full access.",
+            "Whoever opens the link creates a login and joins this business with the same access as the owner.",
+          risk: "high",
+          confirmLabel: "Create invite link",
         },
         () => createInviteAction()
       )
