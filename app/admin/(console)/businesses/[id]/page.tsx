@@ -7,7 +7,8 @@ export default async function MerchantOverviewPage({ params }: Props) {
   const { id } = await params;
   const [merchant, logs] = await Promise.all([
     getMerchant(id),
-    listMerchantLogs(id, { take: "5" }),
+    // Errors only, to match the card's "errors in the last 24h" count.
+    listMerchantLogs(id, { level: "error", take: "5" }),
   ]);
 
   return <MerchantOverview merchant={merchant} errors={logs.items} />;

@@ -1,7 +1,7 @@
 import { FilterBar } from "@/components/admin/filter-bar";
 import { LoadMore } from "@/components/admin/merchant/load-more";
 import { LogsTable } from "@/components/admin/merchant/logs-table";
-import { rangeToFrom } from "@/lib/admin/format";
+import { pickLevel, rangeToFrom } from "@/lib/admin/format";
 import { listMerchantLogs } from "@/lib/admin/queries";
 
 type Props = {
@@ -11,19 +11,21 @@ type Props = {
 
 export default async function MerchantLogsPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const { level, range, cursor } = await searchParams;
-  const page = await listMerchantLogs(id, { level, from: rangeToFrom(range), cursor });
+  const sp = await searchParams;
+  const { range, cursor } = sp;
+  const level = pickLevel(sp.level);
+  const page = await listMerchantLogs(id, {
+    level,
+    from: rangeToFrom(range),
+    cursor,
+  });
   const base = `/admin/businesses/${id}/logs`;
 
   return (
     <div className="flex flex-col gap-4">
       <FilterBar basePath={base} params={{ level, range }} levels ranges />
       <LogsTable items={page.items} />
-      <LoadMore
-        basePath={base}
-        params={{ level, range, cursor }}
-        nextCursor={page.nextCursor}
-      />
+      <LoadMore basePath={base} params={{ level, range, cursor }} nextCursor={page.nextCursor} />
     </div>
   );
 }
