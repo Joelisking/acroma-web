@@ -11,6 +11,7 @@ import {
   cancelBroadcastAction,
   enqueueBroadcastAction,
 } from "@/lib/api/broadcasts-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { Broadcast } from "@/lib/api/types";
 
 const BUCKET_LABELS: Record<Broadcast["audienceBucket"], string> = {
@@ -23,6 +24,7 @@ const BUCKET_LABELS: Record<Broadcast["audienceBucket"], string> = {
 export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const canSend = broadcast.status === "DRAFT";
   const canCancel =
@@ -30,7 +32,15 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
 
   function onSend() {
     startTransition(async () => {
-      const result = await enqueueBroadcastAction(broadcast.id);
+      const result = await confirm(
+        {
+          title: `Send broadcast "${broadcast.name}" to ${broadcast.totalRecipients} recipients`,
+          risk: "high",
+          confirmLabel: "Yes, send broadcast",
+        },
+        () => enqueueBroadcastAction(broadcast.id),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Broadcast queued");
       router.refresh();
@@ -39,7 +49,14 @@ export function BroadcastDetail({ broadcast }: { broadcast: Broadcast }) {
 
   function onCancel() {
     startTransition(async () => {
-      const result = await cancelBroadcastAction(broadcast.id);
+      const result = await confirm(
+        {
+          title: `Stop broadcast "${broadcast.name}"`,
+          confirmLabel: "Yes, stop broadcast",
+        },
+        () => cancelBroadcastAction(broadcast.id),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Broadcast cancelled");
       router.refresh();

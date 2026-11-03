@@ -15,6 +15,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { createTillPaymentTemplateAction } from "@/lib/api/templates-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { WhatsappTemplateStatus } from "@/lib/api/types"
 
 type Props = {
@@ -34,10 +35,20 @@ type Props = {
  */
 export function TillTemplateSetup({ status, connected }: Props) {
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   function setUp() {
     startTransition(async () => {
-      const result = await createTillPaymentTemplateAction()
+      const result = await confirm(
+        {
+          title:
+            status === "PENDING"
+              ? "Check counter payment link approval"
+              : "Turn on counter payment links",
+        },
+        () => createTillPaymentTemplateAction()
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

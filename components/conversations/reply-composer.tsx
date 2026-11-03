@@ -5,6 +5,7 @@ import { Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { replyAction } from "@/lib/api/conversations-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { Button } from "@/components/ui/button";
 import { TakeOverBar } from "./take-over-bar";
 import type { ConversationStatus, Message } from "@/lib/api/types";
@@ -18,6 +19,7 @@ type OptimisticHandlers = {
 type ReplyComposerProps = {
   conversationId: string;
   status: ConversationStatus;
+  customerName: string;
 } & OptimisticHandlers;
 
 const MAX_LENGTH = 4000;
@@ -29,23 +31,32 @@ const MAX_HEIGHT_PX = 160; // matches max-h-40 on the textarea
 export function ReplyComposer({
   conversationId,
   status,
+  customerName,
   ...optimistic
 }: ReplyComposerProps) {
   if (status === "WITH_OWNER" || status === "WAITING_FOR_OWNER") {
-    return <ActiveComposer conversationId={conversationId} {...optimistic} />;
+    return (
+      <ActiveComposer
+        conversationId={conversationId}
+        customerName={customerName}
+        {...optimistic}
+      />
+    );
   }
   return <TakeOverBar conversationId={conversationId} status={status} />;
 }
 
 function ActiveComposer({
   conversationId,
+  customerName,
   onOptimisticAppend,
   onOptimisticReconcile,
   onOptimisticRollback,
-}: { conversationId: string } & OptimisticHandlers) {
+}: { conversationId: string; customerName: string } & OptimisticHandlers) {
   const [value, setValue] = React.useState("");
   const [pending, startTransition] = React.useTransition();
   const taRef = React.useRef<HTMLTextAreaElement>(null);
+  const confirm = useConfirmedAction();
 
   React.useLayoutEffect(() => {
     const ta = taRef.current;
@@ -58,31 +69,38 @@ function ActiveComposer({
     const trimmed = value.trim();
     if (!trimmed || pending) return;
 
-    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const tempMessage: Message = {
-      id: tempId,
-      conversationId,
-      sender: "OWNER",
-      content: trimmed,
-      whatsappMsgId: null,
-      mediaType: null,
-      mediaUrl: null,
-      mediaFilename: null,
-      createdAt: new Date().toISOString(),
-    };
-    onOptimisticAppend?.(tempMessage);
-    setValue("");
-    requestAnimationFrame(() => taRef.current?.focus());
-
     startTransition(async () => {
-      const result = await replyAction(conversationId, trimmed);
-      if (!result.ok) {
-        onOptimisticRollback?.(tempId);
-        setValue(trimmed);
-        toast.error(result.error);
-        return;
-      }
-      onOptimisticReconcile?.(tempId, result.data);
+      const sent = await confirm(
+        { title: `Send reply to ${customerName}`, confirmLabel: "Yes, send" },
+        async () => {
+          const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          const tempMessage: Message = {
+            id: tempId,
+            conversationId,
+            sender: "OWNER",
+            content: trimmed,
+            whatsappMsgId: null,
+            mediaType: null,
+            mediaUrl: null,
+            mediaFilename: null,
+            createdAt: new Date().toISOString(),
+          };
+          onOptimisticAppend?.(tempMessage);
+          setValue("");
+          requestAnimationFrame(() => taRef.current?.focus());
+          const result = await replyAction(conversationId, trimmed);
+          if (!result.ok) {
+            onOptimisticRollback?.(tempId);
+            setValue(trimmed);
+            toast.error(result.error);
+            return result;
+          }
+          onOptimisticReconcile?.(tempId, result.data);
+          return result;
+        },
+      );
+      // undefined: the admin cancelled; the draft stays in the box untouched.
+      void sent;
     });
   }
 

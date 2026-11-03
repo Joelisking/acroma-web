@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { markConversationResolvedAction } from "@/lib/api/conversations-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type MarkResolvedButtonProps = {
   conversationId: string;
@@ -30,10 +31,15 @@ type MarkResolvedButtonProps = {
 export function MarkResolvedButton({ conversationId }: MarkResolvedButtonProps) {
   const [open, setOpen] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function run() {
     startTransition(async () => {
-      const result = await markConversationResolvedAction(conversationId);
+      const result = await confirm(
+        { title: "Mark conversation as resolved", confirmLabel: "Yes, mark resolved" },
+        () => markConversationResolvedAction(conversationId),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

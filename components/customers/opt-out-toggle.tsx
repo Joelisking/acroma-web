@@ -4,6 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { updateCustomerAction } from "@/lib/api/customers-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 export function OptOutToggle({
   id,
@@ -14,11 +15,20 @@ export function OptOutToggle({
 }) {
   const [pending, startTransition] = React.useTransition();
   const [value, setValue] = React.useState(optedOut);
+  const confirm = useConfirmedAction();
 
   function onChange(next: boolean) {
-    setValue(next);
     startTransition(async () => {
-      const result = await updateCustomerAction(id, { optedOut: next });
+      const result = await confirm(
+        {
+          title: next
+            ? "Opt customer out of broadcasts"
+            : "Opt customer back in to broadcasts",
+        },
+        () => updateCustomerAction(id, { optedOut: next }),
+      );
+      if (!result) return;
+      setValue(next);
       if (!result.ok) {
         toast.error(result.error);
         setValue(!next);

@@ -5,6 +5,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { handoffAction } from "@/lib/api/conversations-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -34,6 +35,7 @@ export function SlideToTakeOver({
   const progressRef = React.useRef(0);
   const [dragging, setDragging] = React.useState(false);
   const [pending, setPending] = React.useState(false);
+  const confirm = useConfirmedAction();
 
   function travelPx(): number {
     const track = trackRef.current;
@@ -45,9 +47,11 @@ export function SlideToTakeOver({
     if (pending) return;
     setPending(true);
     setLeftPx((travelPx() + PAD)); // snap to end
-    void handoffAction(conversationId, "TAKE_OVER").then((result) => {
-      if (!result.ok) {
-        toast.error(result.error);
+    void confirm({ title: "Take over conversation" }, () =>
+      handoffAction(conversationId, "TAKE_OVER"),
+    ).then((result) => {
+      if (!result || !result.ok) {
+        if (result && !result.ok) toast.error(result.error);
         setPending(false);
         setLeftPx(PAD);
         progressRef.current = 0;

@@ -6,6 +6,7 @@ import { Bot, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { handoffAction } from "@/lib/api/conversations-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Props = { conversationId: string };
 
@@ -16,11 +17,16 @@ type Props = { conversationId: string };
  */
 export function LetAiHandleButton({ conversationId }: Props) {
   const router = useRouter();
+  const confirm = useConfirmedAction();
   const [pending, startTransition] = React.useTransition();
 
   function run() {
     startTransition(async () => {
-      const result = await handoffAction(conversationId, "RESUME_AI");
+      const result = await confirm(
+        { title: "Hand conversation back to Acroma" },
+        () => handoffAction(conversationId, "RESUME_AI"),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

@@ -5,6 +5,7 @@ import * as React from "react";
 import type { ConversationWithMessages, Message } from "@/lib/api/types";
 import { useAcromaSocket } from "@/hooks/use-acroma-socket";
 import { MessageBubble } from "./message-bubble";
+import { formatPhone } from "@/lib/format";
 import { ReplyComposer } from "./reply-composer";
 
 type ChatThreadProps = {
@@ -113,6 +114,9 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
       <ReplyComposer
         conversationId={conversation.id}
         status={conversation.status}
+        customerName={
+          conversation.customerName?.trim() || formatPhone(conversation.customerPhone)
+        }
         onOptimisticAppend={appendOptimistic}
         onOptimisticReconcile={reconcileOptimistic}
         onOptimisticRollback={rollbackOptimistic}

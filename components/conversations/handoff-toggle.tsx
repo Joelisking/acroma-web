@@ -4,6 +4,7 @@ import * as React from "react";
 import { Bot } from "lucide-react";
 import { toast } from "sonner";
 import { handoffAction } from "@/lib/api/conversations-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { Button } from "@/components/ui/button";
 import type { ConversationStatus, HandoffAction } from "@/lib/api/types";
 
@@ -31,12 +32,17 @@ function actionFor(status: ConversationStatus): HandoffAction {
 export function HandoffToggle({ conversationId, status }: HandoffToggleProps) {
   const [pending, startTransition] = React.useTransition();
   const action = actionFor(status);
+  const confirm = useConfirmedAction();
 
   if (action === "TAKE_OVER") return null;
 
   function run() {
     startTransition(async () => {
-      const result = await handoffAction(conversationId, action);
+      const result = await confirm(
+        { title: "Hand conversation back to AI" },
+        () => handoffAction(conversationId, action),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

@@ -20,6 +20,7 @@ import {
   previewRecipientCountAction,
 } from "@/lib/api/broadcasts-actions";
 import { syncTemplatesAction } from "@/lib/api/templates-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type {
   BroadcastAudienceBucket,
   Discount,
@@ -54,6 +55,7 @@ export function BroadcastComposer({ templates, discounts }: Props) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
   const [syncing, startSync] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const [name, setName] = React.useState("");
   const [bucket, setBucket] = React.useState<BroadcastAudienceBucket>(
@@ -91,7 +93,11 @@ export function BroadcastComposer({ templates, discounts }: Props) {
 
   function onSync() {
     startSync(async () => {
-      const result = await syncTemplatesAction();
+      const result = await confirm(
+        { title: "Refresh WhatsApp templates" },
+        () => syncTemplatesAction(),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Templates synced");
       router.refresh();
@@ -104,29 +110,41 @@ export function BroadcastComposer({ templates, discounts }: Props) {
       return;
     }
     startTransition(async () => {
-      const created = await createBroadcastAction({
-        name,
-        audienceBucket: bucket,
-        bodyTemplate,
-        templateId: templateId === "none" ? null : templateId,
-        templateLanguage: selectedTemplate?.language ?? null,
-        discountId: discountId === "none" ? null : discountId,
-      });
-      if (!created.ok) {
-        toast.error(created.error);
+      // One confirm covers create + enqueue so "Save & send" asks once.
+      const outcome = await confirm(
+        sendImmediately
+          ? {
+              title: `Send broadcast "${name}" to ${recipientCount ?? "your"} recipients`,
+              risk: "high",
+              confirmLabel: "Yes, send broadcast",
+            }
+          : { title: `Save broadcast draft "${name}"` },
+        async () => {
+          const created = await createBroadcastAction({
+            name,
+            audienceBucket: bucket,
+            bodyTemplate,
+            templateId: templateId === "none" ? null : templateId,
+            templateLanguage: selectedTemplate?.language ?? null,
+            discountId: discountId === "none" ? null : discountId,
+          });
+          if (!created.ok) return { ok: false as const, error: created.error };
+          if (sendImmediately) {
+            const sent = await enqueueBroadcastAction(created.data.id);
+            if (!sent.ok) return { ok: false as const, error: sent.error };
+          }
+          return { ok: true as const, id: created.data.id };
+        },
+      );
+      if (!outcome) return;
+      if (!outcome.ok) {
+        toast.error(outcome.error);
         return;
       }
-      if (sendImmediately) {
-        const sent = await enqueueBroadcastAction(created.data.id);
-        if (!sent.ok) {
-          toast.error(sent.error);
-          return;
-        }
-        toast.success("Broadcast queued for sending");
-      } else {
-        toast.success("Draft saved");
-      }
-      router.push(`/dashboard/broadcasts/${created.data.id}`);
+      toast.success(
+        sendImmediately ? "Broadcast queued for sending" : "Draft saved",
+      );
+      router.push(`/dashboard/broadcasts/${outcome.id}`);
     });
   }
 
