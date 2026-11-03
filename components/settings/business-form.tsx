@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CURRENCIES, COUNTRIES } from "@/lib/locale";
 import { updateBusinessAction } from "@/lib/api/business-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import { ImageUploader } from "@/components/shared/image-uploader";
 
 const schema = z.object({
@@ -33,6 +34,7 @@ type Defaults = z.infer<typeof schema>;
 
 export function BusinessForm({ defaults }: { defaults: Defaults }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const form = useForm<Defaults>({
     resolver: zodResolver(schema),
@@ -41,10 +43,13 @@ export function BusinessForm({ defaults }: { defaults: Defaults }) {
 
   function onSubmit(values: Defaults) {
     startTransition(async () => {
-      const result = await updateBusinessAction({
-        ...values,
-        logoUrl: values.logoUrl || undefined,
-      });
+      const result = await confirm({ title: "Save business profile" }, () =>
+        updateBusinessAction({
+          ...values,
+          logoUrl: values.logoUrl || undefined,
+        }),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success("Business profile updated");
     });

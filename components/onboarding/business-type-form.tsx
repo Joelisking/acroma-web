@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { setBusinessTypeAction } from "@/lib/api/onboarding-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { BusinessType } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ export function BusinessTypeForm() {
   const [selected, setSelected] = React.useState<BusinessType | null>(null);
   const [description, setDescription] = React.useState("");
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const needsDescription = selected === "OTHER";
   const canSubmit =
@@ -35,10 +37,13 @@ export function BusinessTypeForm() {
   function onContinue() {
     if (!canSubmit) return;
     startTransition(async () => {
-      const result = await setBusinessTypeAction({
-        businessType: selected!,
-        businessDescription: description.trim() || undefined,
-      });
+      const result = await confirm({ title: "Save business type" }, () =>
+        setBusinessTypeAction({
+          businessType: selected!,
+          businessDescription: description.trim() || undefined,
+        }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

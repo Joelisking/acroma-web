@@ -10,10 +10,13 @@ import type {
   SignupProgress,
   SignupStart,
 } from "@/lib/api/whatsapp-onboarding"
+import { useImpersonation } from "@/components/impersonation/impersonation-provider"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import {
   startSignupPolling,
   signupStopped,
 } from "@/lib/whatsapp/signup-polling"
+import { SIGNUP_CONFIRM } from "@/lib/whatsapp/signup-confirm"
 import { parseSignupEvent } from "@/lib/whatsapp/signup-events"
 export function useWhatsappSignupProgress(
   attempt: SignupStart | undefined,
@@ -23,6 +26,8 @@ export function useWhatsappSignupProgress(
   apply: (result: SignupAction<SignupProgress>) => void,
   setError: (message: string) => void
 ) {
+  const confirm = useConfirmedAction()
+  const impersonating = useImpersonation() !== null
   useEffect(() => {
     if (!attempt) return
     const listener = (event: MessageEvent<unknown>) => {
@@ -30,11 +35,11 @@ export function useWhatsappSignupProgress(
       const parsed = parseSignupEvent(event)
       if (!parsed) return
       if (parsed.kind === "selection") {
-        void sendSignupSelection(
-          attempt.attemptId,
-          attempt.nonce,
-          parsed.selection
-        ).then(apply)
+        void confirm(SIGNUP_CONFIRM.selection, () =>
+          sendSignupSelection(attempt.attemptId, attempt.nonce, parsed.selection)
+        ).then((result) => {
+          if (result) apply(result)
+        })
       } else if (parsed.kind === "unsupported") {
         setError(
           "This account needs a different setup flow. Your current sender has not been changed."
@@ -47,15 +52,21 @@ export function useWhatsappSignupProgress(
     }
     window.addEventListener("message", listener)
     return () => window.removeEventListener("message", listener)
-  }, [attempt, active, receivedCode, apply, setError])
+  }, [attempt, active, receivedCode, apply, setError, confirm])
   useEffect(() => {
     if (!attempt || !progress || signupStopped(progress.status)) return
     return startSignupPolling({
       read: () => getSignupProgress(attempt.attemptId),
-      resume: () => resumeWhatsappSignup(attempt.attemptId, attempt.nonce),
+      // Automatic background write: while an admin is logged in as the
+      // merchant it is skipped (read only) so no change goes out unconfirmed.
+      // The explicit resume / PIN buttons are confirmed in useWhatsappSignup.
+      resume: () =>
+        impersonating
+          ? getSignupProgress(attempt.attemptId)
+          : resumeWhatsappSignup(attempt.attemptId, attempt.nonce),
       apply,
       schedule: (fn, delay) => window.setTimeout(fn, delay),
       cancel: (timer) => window.clearTimeout(timer),
     })
-  }, [attempt, progress, apply])
+  }, [attempt, progress, apply, impersonating])
 }

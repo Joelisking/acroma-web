@@ -5,6 +5,7 @@ import { Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { updateBusinessAction } from "@/lib/api/business-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { Business } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -17,14 +18,25 @@ const TRIGGERS = [
 export function EmailNotificationsCard({ business }: { business: Business }) {
   const [enabled, setEnabled] = React.useState(business.emailNotificationsEnabled);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function toggle() {
     const next = !enabled;
     setEnabled(next); // optimistic
     startTransition(async () => {
-      const result = await updateBusinessAction({
-        emailNotificationsEnabled: next,
-      });
+      const result = await confirm(
+        {
+          title: next
+            ? "Turn email notifications on"
+            : "Turn email notifications off",
+        },
+        () => updateBusinessAction({ emailNotificationsEnabled: next }),
+      );
+      if (!result) {
+        // Admin cancelled (only possible while impersonating): revert.
+        setEnabled(!next);
+        return;
+      }
       if (!result.ok) {
         setEnabled(!next);
         toast.error(result.error);

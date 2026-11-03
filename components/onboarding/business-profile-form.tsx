@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { CURRENCIES, COUNTRIES } from "@/lib/locale";
 import { updateBusinessAction } from "@/lib/api/business-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 const schema = z.object({
   name: z.string().min(2, "Too short").max(80),
@@ -39,6 +40,7 @@ type Defaults = z.infer<typeof schema>;
 export function BusinessProfileForm({ defaults }: { defaults: Defaults }) {
   const router = useRouter();
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const form = useForm<Defaults>({
     resolver: zodResolver(schema),
@@ -47,7 +49,10 @@ export function BusinessProfileForm({ defaults }: { defaults: Defaults }) {
 
   function onSubmit(values: Defaults) {
     startTransition(async () => {
-      const result = await updateBusinessAction(values);
+      const result = await confirm({ title: "Save business profile" }, () =>
+        updateBusinessAction(values),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

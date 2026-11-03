@@ -16,14 +16,27 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { disconnectWhatsappAction } from "@/lib/api/settings-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 
 export function WhatsappDisconnect() {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const router = useRouter()
+  const confirm = useConfirmedAction()
   function disconnect() {
     startTransition(async () => {
-      const result = await disconnectWhatsappAction()
+      const result = await confirm(
+        {
+          title: "Disconnect this business's WhatsApp number",
+          description:
+            "Acroma will stop receiving and sending messages for this number.",
+          risk: "high",
+          confirmLabel: "Disconnect WhatsApp",
+        },
+        () => disconnectWhatsappAction()
+      )
+      // Admin cancelled (only possible while impersonating): keep the dialog.
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

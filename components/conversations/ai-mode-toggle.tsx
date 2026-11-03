@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { cn } from "@/lib/utils";
 import { updateAiEnabledAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Props = {
   initialEnabled: boolean;
@@ -13,12 +14,21 @@ type Props = {
 export function AiModeToggle({ initialEnabled }: Props) {
   const [enabled, setEnabled] = React.useState(initialEnabled);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function toggle() {
     const next = !enabled;
     setEnabled(next);
     startTransition(async () => {
-      const result = await updateAiEnabledAction(next);
+      const result = await confirm(
+        { title: next ? "Turn AI replies on" : "Turn AI replies off" },
+        () => updateAiEnabledAction(next),
+      );
+      if (!result) {
+        // Admin cancelled (only possible while impersonating): revert.
+        setEnabled(!next);
+        return;
+      }
       if (!result.ok) {
         setEnabled(!next);
         toast.error(result.error);

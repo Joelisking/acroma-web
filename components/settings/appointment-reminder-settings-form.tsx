@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateReminderSettingsAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { ReminderSettings } from "@/lib/api/types";
 
 const schema = z.object({
@@ -43,6 +44,7 @@ export function AppointmentReminderSettingsForm({
   initial,
 }: AppointmentReminderSettingsFormProps) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const [serverValues, setServerValues] = React.useState({
     appointmentReminderHours: initial.appointmentReminderHours,
     appointmentReminderTemplateName:
@@ -70,11 +72,16 @@ export function AppointmentReminderSettingsForm({
 
   function onSubmit(submitted: FormValues) {
     startTransition(async () => {
-      const result = await updateReminderSettingsAction({
-        appointmentReminderHours: submitted.appointmentReminderHours,
-        appointmentReminderTemplateName:
-          submitted.appointmentReminderTemplateName.trim(),
-      });
+      const result = await confirm(
+        { title: "Save appointment reminder settings" },
+        () =>
+          updateReminderSettingsAction({
+            appointmentReminderHours: submitted.appointmentReminderHours,
+            appointmentReminderTemplateName:
+              submitted.appointmentReminderTemplateName.trim(),
+          }),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

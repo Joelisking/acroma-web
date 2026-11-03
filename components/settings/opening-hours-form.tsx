@@ -7,6 +7,7 @@ import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
 } from "@/lib/api/settings-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import {
   isOpen,
   nextOpenTime,
@@ -56,6 +57,7 @@ export function OpeningHoursForm({ initial, purpose = "business" }: Props) {
   const [hours, setHours] = React.useState<OpeningHours>(initial ?? EMPTY_WEEK)
   const [savedAlwaysOpen, setSavedAlwaysOpen] = React.useState(initial === null)
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   const errors = React.useMemo(() => {
     const e: Partial<Record<DayKey, string>> = {}
@@ -115,7 +117,16 @@ export function OpeningHoursForm({ initial, purpose = "business" }: Props) {
   function onSave() {
     if (hasErrors) return
     startTransition(async () => {
-      const result = await updateOpeningHoursAction(hours)
+      const result = await confirm(
+        {
+          title:
+            purpose === "appointments"
+              ? "Save shared availability"
+              : "Save opening hours",
+        },
+        () => updateOpeningHoursAction(hours)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
       } else {
@@ -131,7 +142,16 @@ export function OpeningHoursForm({ initial, purpose = "business" }: Props) {
 
   function onAlwaysOpen() {
     startTransition(async () => {
-      const result = await clearOpeningHoursAction()
+      const result = await confirm(
+        {
+          title:
+            purpose === "appointments"
+              ? "Make shared availability always open"
+              : "Set opening hours to always open",
+        },
+        () => clearOpeningHoursAction()
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
       } else {

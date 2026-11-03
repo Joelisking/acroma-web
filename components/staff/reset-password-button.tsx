@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { resetStaffPasswordAction } from "@/lib/api/staff-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { Staff } from "@/lib/api/types"
 
 import { TemporaryPasswordPanel } from "./temporary-password-panel"
@@ -40,10 +41,21 @@ export function ResetPasswordButton({ staff }: { staff: Staff }) {
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [password, setPassword] = React.useState<string | null>(null)
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   function reset() {
     startTransition(async () => {
-      const result = await resetStaffPasswordAction(staff.id)
+      const result = await confirm(
+        {
+          title: `Reset the password for staff member ${staff.name}`,
+          description: "Their current password stops working right away.",
+          risk: "high",
+          confirmLabel: "Reset staff password",
+        },
+        () => resetStaffPasswordAction(staff.id)
+      )
+      // Admin cancelled (only possible while impersonating): keep the dialog.
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

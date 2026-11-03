@@ -11,6 +11,8 @@ import type {
   SignupProgress,
   SignupStart,
 } from "@/lib/api/whatsapp-onboarding"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
+import { SIGNUP_CONFIRM } from "@/lib/whatsapp/signup-confirm"
 import { launchSignup } from "@/lib/whatsapp/signup-launch"
 import { useWhatsappSignupProgress } from "./use-whatsapp-signup-progress"
 import {
@@ -27,6 +29,7 @@ export function useWhatsappSignup() {
   const currentId = useRef<string | undefined>(undefined)
   const receivedCode = useRef(false)
   const popupPending = useRef(false)
+  const confirm = useConfirmedAction()
   useEffect(() => {
     mounted.current = true
     return () => {
@@ -55,6 +58,10 @@ export function useWhatsappSignup() {
     if (busy) return
     if (popupPending.current)
       return setError("Finish or close the Meta setup window before retrying.")
+    // Admin logged in as the merchant confirms once for the whole prepare.
+    await confirm(SIGNUP_CONFIRM.prepare, prepareAttempt)
+  }
+  async function prepareAttempt() {
     setBusy(true)
     try {
       if (attempt) {
@@ -104,9 +111,15 @@ export function useWhatsappSignup() {
       { active, mounted, currentId, receivedCode, popupPending },
       (code) => {
         if (attempt)
-          void sendSignupCode(attempt.attemptId, attempt.nonce, code).then(
-            apply
-          )
+          void confirm(SIGNUP_CONFIRM.code, () =>
+            sendSignupCode(attempt.attemptId, attempt.nonce, code)
+          ).then((result) => {
+            if (result) apply(result)
+            else
+              setError(
+                "Connection not sent. Prepare a new connection to try again."
+              )
+          })
       },
       setProgress,
       setError,
@@ -117,7 +130,11 @@ export function useWhatsappSignup() {
     setBusy(true)
     setError("")
     try {
-      apply(await resumeWhatsappSignup(attempt.attemptId, attempt.nonce, pin))
+      const result = await confirm(
+        pin ? SIGNUP_CONFIRM.pin : SIGNUP_CONFIRM.resume,
+        () => resumeWhatsappSignup(attempt.attemptId, attempt.nonce, pin)
+      )
+      if (result) apply(result)
     } catch {
       setError("Connection interrupted. Resume this setup to check its result.")
     } finally {

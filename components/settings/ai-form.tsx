@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { updateBusinessAction } from "@/lib/api/business-actions";
 import { updateAiEnabledAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { Business } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function AiForm({ business }: { business: Business }) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -53,13 +55,30 @@ export function AiForm({ business }: { business: Business }) {
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
-      const [aiResult, bizResult] = await Promise.all([
-        updateAiEnabledAction(values.aiEnabled),
-        updateBusinessAction({
-          businessDescription: values.businessDescription || undefined,
-          aiBusinessContext: values.aiBusinessContext || undefined,
-        }),
-      ]);
+      const results = await confirm(
+        {
+          title:
+            values.aiEnabled === business.aiEnabled
+              ? "Save AI settings"
+              : values.aiEnabled
+                ? "Turn AI replies on"
+                : "Turn AI replies off",
+          description:
+            "Also saves the business description and AI context.",
+        },
+        async () => {
+          const [aiResult, bizResult] = await Promise.all([
+            updateAiEnabledAction(values.aiEnabled),
+            updateBusinessAction({
+              businessDescription: values.businessDescription || undefined,
+              aiBusinessContext: values.aiBusinessContext || undefined,
+            }),
+          ]);
+          return { aiResult, bizResult };
+        },
+      );
+      if (!results) return;
+      const { aiResult, bizResult } = results;
       if (!aiResult.ok) { toast.error(aiResult.error); return; }
       if (!bizResult.ok) { toast.error(bizResult.error); return; }
       toast.success("AI settings saved");

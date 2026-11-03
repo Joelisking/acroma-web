@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { removeMemberAction } from "@/lib/api/team-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { TeamMember } from "@/lib/api/types"
 
 /**
@@ -28,10 +29,20 @@ import type { TeamMember } from "@/lib/api/types"
 export function RemoveMemberButton({ member }: { member: TeamMember }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   function remove() {
     startTransition(async () => {
-      const result = await removeMemberAction(member.id)
+      const result = await confirm(
+        {
+          title: `Remove team member ${member.name}`,
+          description: "They lose access to this business right away.",
+          risk: "high",
+          confirmLabel: "Remove team member",
+        },
+        () => removeMemberAction(member.id)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

@@ -5,6 +5,7 @@ import {
   getDashboardStatsAction,
   setDefaultDashboardFilterAction,
 } from "@/lib/api/dashboard-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { DashboardFilter, DashboardStats } from "@/lib/api/types";
 
 const FILTER_KEYS: (keyof DashboardFilter)[] = [
@@ -41,6 +42,7 @@ export function useDashboardStats(
   );
   const [isPending, startTransition] = useTransition();
   const [isSaving, startSaving] = useTransition();
+  const confirm = useConfirmedAction();
 
   // Guards against a slow earlier request overwriting a newer one.
   const requestId = useRef(0);
@@ -71,11 +73,15 @@ export function useDashboardStats(
 
   const saveDefault = useCallback(() => {
     startSaving(async () => {
-      const res = await setDefaultDashboardFilterAction(filter);
+      const res = await confirm(
+        { title: "Save default dashboard filter" },
+        () => setDefaultDashboardFilterAction(filter),
+      );
+      if (!res) return;
       if (res.ok) setSavedDefault(filter);
       else setError(res.error);
     });
-  }, [filter]);
+  }, [filter, confirm]);
 
   const isDefault = filtersEqual(filter, savedDefault);
 

@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { updateWhatsappAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 const schema = z.object({
   phoneNumberId: z.string().min(3, "Required"),
@@ -37,6 +38,7 @@ type WhatsappFormProps = {
 
 export function WhatsappForm({ defaults }: WhatsappFormProps) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -49,7 +51,17 @@ export function WhatsappForm({ defaults }: WhatsappFormProps) {
 
   function onSubmit(values: z.infer<typeof schema>) {
     startTransition(async () => {
-      const result = await updateWhatsappAction(values);
+      const result = await confirm(
+        {
+          title: "Change this business's WhatsApp connection",
+          description:
+            "Replaces the WhatsApp phone number ID, business account ID and access token.",
+          risk: "high",
+          confirmLabel: "Change WhatsApp connection",
+        },
+        () => updateWhatsappAction(values),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else {
         toast.success("WhatsApp credentials saved");

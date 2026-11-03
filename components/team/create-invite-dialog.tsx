@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { createInviteAction } from "@/lib/api/team-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { CreatedInvite } from "@/lib/api/types"
 
 /**
@@ -30,10 +31,19 @@ export function CreateInviteDialog() {
   const [open, setOpen] = React.useState(false)
   const [invite, setInvite] = React.useState<CreatedInvite | null>(null)
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   function create() {
     startTransition(async () => {
-      const result = await createInviteAction()
+      const result = await confirm(
+        {
+          title: "Create a team invite link",
+          description:
+            "Whoever opens the link joins this business with full access.",
+        },
+        () => createInviteAction()
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

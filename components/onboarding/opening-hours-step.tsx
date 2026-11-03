@@ -12,6 +12,7 @@ import {
   clearOpeningHoursAction,
   updateOpeningHoursAction,
 } from "@/lib/api/settings-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import { isOvernight, toMinutes } from "@/lib/business-hours"
 import type { DayHours, OpeningHours } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
@@ -58,6 +59,7 @@ export function OnboardingOpeningHoursStep({ initial, beforeSave }: Props) {
   const router = useRouter()
   const [hours, setHours] = React.useState<OpeningHours>(initial ?? EMPTY_WEEK)
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   const errors = React.useMemo(() => {
     const e: Partial<Record<DayKey, string>> = {}
@@ -94,7 +96,10 @@ export function OnboardingOpeningHoursStep({ initial, beforeSave }: Props) {
     if (hasErrors) return
     startTransition(async () => {
       if (beforeSave && !(await beforeSave())) return
-      const result = await updateOpeningHoursAction(hours)
+      const result = await confirm({ title: "Save opening hours" }, () =>
+        updateOpeningHoursAction(hours)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return
@@ -106,7 +111,11 @@ export function OnboardingOpeningHoursStep({ initial, beforeSave }: Props) {
   function onAlwaysOpen() {
     startTransition(async () => {
       if (beforeSave && !(await beforeSave())) return
-      const result = await clearOpeningHoursAction()
+      const result = await confirm(
+        { title: "Set opening hours to always open" },
+        () => clearOpeningHoursAction()
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

@@ -8,21 +8,29 @@ import {
   completeOnboardingAction,
   completeOnboardingAndGoToCatalogAction,
 } from "@/lib/api/onboarding-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 export function CatalogDoneStep({ realEstate = false }: { realEstate?: boolean }) {
   const [pendingDash, startDashTransition] = React.useTransition();
   const [pendingCatalog, startCatalogTransition] = React.useTransition();
   const anyPending = pendingDash || pendingCatalog;
+  const confirm = useConfirmedAction();
 
   function goToDashboard() {
     startDashTransition(() => {
-      void completeOnboardingAction();
+      // Not awaited, so the transition ends exactly as before when nobody is
+      // impersonating (confirm runs the action synchronously in that case).
+      void confirm({ title: "Finish onboarding and open the dashboard" }, () =>
+        completeOnboardingAction(),
+      );
     });
   }
 
   function goToCatalog() {
     startCatalogTransition(() => {
-      void completeOnboardingAndGoToCatalogAction();
+      void confirm({ title: "Finish onboarding and open the catalog" }, () =>
+        completeOnboardingAndGoToCatalogAction(),
+      );
     });
   }
 

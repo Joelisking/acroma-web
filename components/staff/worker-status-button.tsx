@@ -21,6 +21,10 @@ import {
   deactivateStaffAction,
   reactivateStaffAction,
 } from "@/lib/api/staff-actions"
+import {
+  useConfirmedAction,
+  type ConfirmSpec,
+} from "@/components/impersonation/use-confirmed-action"
 import type { Staff } from "@/lib/api/types"
 
 /**
@@ -30,14 +34,17 @@ import type { Staff } from "@/lib/api/types"
 export function WorkerStatusButton({ staff }: { staff: Staff }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
   const deactivated = staff.deactivatedAt !== null
 
   function run(
     action: () => Promise<{ ok: boolean; error?: string }>,
-    done: string
+    done: string,
+    spec: ConfirmSpec
   ) {
     startTransition(async () => {
-      const result = await action()
+      const result = await confirm(spec, action)
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error ?? "Something went wrong")
         return
@@ -57,7 +64,8 @@ export function WorkerStatusButton({ staff }: { staff: Staff }) {
         onClick={() =>
           run(
             () => reactivateStaffAction(staff.id),
-            `${staff.name} can sign in again`
+            `${staff.name} can sign in again`,
+            { title: `Restore access for staff member ${staff.name}` }
           )
         }
         className="gap-1.5"
@@ -97,7 +105,13 @@ export function WorkerStatusButton({ staff }: { staff: Staff }) {
             onClick={() =>
               run(
                 () => deactivateStaffAction(staff.id),
-                `${staff.name} can no longer sign in`
+                `${staff.name} can no longer sign in`,
+                {
+                  title: `Deactivate staff member ${staff.name}`,
+                  description: "They are signed out and cannot sign in again.",
+                  risk: "high",
+                  confirmLabel: "Deactivate staff member",
+                }
               )
             }
           >

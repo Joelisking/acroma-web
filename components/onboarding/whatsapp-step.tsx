@@ -1,7 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { completeOnboardingAndConnectWhatsappAction } from "@/lib/api/onboarding-actions"
+import { ConnectWhatsappForm } from "./connect-whatsapp-form"
 
 /**
  * Onboarding WhatsApp step. The Embedded Signup OAuth flow only supports a
@@ -39,16 +37,7 @@ export function WhatsappStep() {
         >
           Skip for now
         </Link>
-        <form action={completeOnboardingAndConnectWhatsappAction}>
-          <Button
-            type="submit"
-            className="h-11 gap-2 rounded-xl bg-brand-orange px-5 text-sm hover:bg-brand-orange/90"
-          >
-            <MessageCircle />
-            Connect WhatsApp
-            <ArrowRight />
-          </Button>
-        </form>
+        <ConnectWhatsappForm />
       </div>
     </div>
   )

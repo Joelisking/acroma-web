@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateReminderSettingsAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { ReminderSettings } from "@/lib/api/types";
 
 // Bounds mirror the backend DTO (UpdateReminderSettingsDto). Minute fields
@@ -91,6 +92,7 @@ const FIELDS: ReadonlyArray<{
 
 export function ReminderSettingsForm({ initial }: ReminderSettingsFormProps) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const [serverValues, setServerValues] =
     React.useState<ReminderSettings>(initial);
 
@@ -110,7 +112,11 @@ export function ReminderSettingsForm({ initial }: ReminderSettingsFormProps) {
 
   function onSubmit(submitted: FormValues) {
     startTransition(async () => {
-      const result = await updateReminderSettingsAction(submitted);
+      const result = await confirm(
+        { title: "Save reminder cadence" },
+        () => updateReminderSettingsAction(submitted),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

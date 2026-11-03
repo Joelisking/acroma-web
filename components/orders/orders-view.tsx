@@ -15,6 +15,7 @@ import { OrdersEmpty } from "./orders-empty";
 import { BookingCalendar } from "./booking-calendar/booking-calendar";
 import { localDayKey } from "@/lib/orders/group-bookings";
 import { setOrdersViewAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Mode = "month" | "week";
 
@@ -34,6 +35,7 @@ export function OrdersView({
   const router = useRouter();
   const params = useSearchParams();
   const [savingDefault, startSave] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function setParam(updates: Record<string, string>) {
     const next = new URLSearchParams(params.toString());
@@ -44,7 +46,11 @@ export function OrdersView({
   function saveDefault() {
     const pref: ViewPref = view === "calendar" ? "CALENDAR" : "LIST";
     startSave(async () => {
-      const result = await setOrdersViewAction(pref);
+      const result = await confirm(
+        { title: `Set the default Orders view to ${view}` },
+        () => setOrdersViewAction(pref),
+      );
+      if (!result) return;
       if (!result.ok) toast.error(result.error);
       else toast.success(`Default set to ${view}`);
     });

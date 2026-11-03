@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { updateAcceptsCashOnDeliveryAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Props = {
   initial: boolean;
@@ -13,11 +14,24 @@ type Props = {
 export function AcceptCodToggle({ initial }: Props) {
   const [enabled, setEnabled] = React.useState(initial);
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   function onChange(next: boolean) {
     setEnabled(next);
     startTransition(async () => {
-      const result = await updateAcceptsCashOnDeliveryAction(next);
+      const result = await confirm(
+        {
+          title: next
+            ? "Turn cash on delivery on"
+            : "Turn cash on delivery off",
+        },
+        () => updateAcceptsCashOnDeliveryAction(next),
+      );
+      if (!result) {
+        // Admin cancelled (only possible while impersonating): revert.
+        setEnabled(!next);
+        return;
+      }
       if (!result.ok) {
         toast.error(result.error);
         setEnabled(!next);

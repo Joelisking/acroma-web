@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { updateDeliveryFeeAction } from "@/lib/api/settings-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 
 type Props = {
   initial: number
@@ -21,6 +22,7 @@ export function DeliveryFeeField({ initial, currency }: Props) {
   const [value, setValue] = React.useState(String(initial))
   const [saved, setSaved] = React.useState(initial)
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   const parsed = Number.parseFloat(value)
   const valid = Number.isFinite(parsed) && parsed >= 0
@@ -29,7 +31,16 @@ export function DeliveryFeeField({ initial, currency }: Props) {
   function save() {
     if (!dirty) return
     startTransition(async () => {
-      const result = await updateDeliveryFeeAction(parsed)
+      const result = await confirm(
+        {
+          title:
+            parsed > 0
+              ? `Set delivery charge to ${currency} ${parsed.toFixed(2)}`
+              : "Make delivery free",
+        },
+        () => updateDeliveryFeeAction(parsed)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

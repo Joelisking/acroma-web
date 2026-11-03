@@ -8,6 +8,7 @@ import { Link2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CopyButton } from "@/components/ui/copy-button"
 import { revokeInviteAction } from "@/lib/api/team-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { TeamInvite } from "@/lib/api/types"
 
 function expiresIn(iso: string): string {
@@ -22,10 +23,20 @@ function expiresIn(iso: string): string {
 export function InviteRow({ invite }: { invite: TeamInvite }) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
 
   function revoke() {
     startTransition(async () => {
-      const result = await revokeInviteAction(invite.id)
+      const result = await confirm(
+        {
+          title: "Cancel this team invite link",
+          description: "The link stops working straight away.",
+          risk: "high",
+          confirmLabel: "Cancel invite link",
+        },
+        () => revokeInviteAction(invite.id)
+      )
+      if (!result) return
       if (!result.ok) {
         toast.error(result.error)
         return

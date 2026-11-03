@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { testWhatsappAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 
 type Props = { disabled?: boolean };
 
@@ -15,6 +16,7 @@ export function WhatsappTestButton({ disabled }: Props) {
   const [open, setOpen] = React.useState(false);
   const [phone, setPhone] = React.useState("");
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -24,7 +26,11 @@ export function WhatsappTestButton({ disabled }: Props) {
   function send(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      const result = await testWhatsappAction(phone);
+      const result = await confirm(
+        { title: `Send a WhatsApp test message to ${phone}` },
+        () => testWhatsappAction(phone),
+      );
+      if (!result) return;
       if (!result.ok) {
         toast.error(result.error);
         return;

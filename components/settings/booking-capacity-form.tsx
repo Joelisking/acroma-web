@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateBookingCapacityAction } from "@/lib/api/settings-actions";
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action";
 import type { BookingCapacitySettings } from "@/lib/api/types";
 import {
   CategoryCapacityFields,
@@ -84,6 +85,7 @@ function buildDefaultValues(
 
 export function BookingCapacityForm({ initial, categories }: Props) {
   const [pending, startTransition] = React.useTransition();
+  const confirm = useConfirmedAction();
 
   // Fix 4: keep a serverValues snapshot so we can compute dirty state and
   // reset the form baseline after a successful save — matching the house
@@ -149,7 +151,10 @@ export function BookingCapacityForm({ initial, categories }: Props) {
                 submitted.defaultServiceDurationMinutes,
             };
 
-      const res = await updateBookingCapacityAction(body);
+      const res = await confirm({ title: "Save booking capacity" }, () =>
+        updateBookingCapacityAction(body),
+      );
+      if (!res) return;
       if (res.ok) {
         // Fix 4: reset both the RHF baseline and the server snapshot so
         // isDirty (and our manual dirty check) return to false.

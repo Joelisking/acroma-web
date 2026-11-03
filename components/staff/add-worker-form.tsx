@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { createStaffAction } from "@/lib/api/staff-actions"
+import { useConfirmedAction } from "@/components/impersonation/use-confirmed-action"
 import type { CreatedStaff } from "@/lib/api/types"
 
 import { USERNAME_HINT, USERNAME_PATTERN, suggestUsername } from "./username"
@@ -45,6 +46,7 @@ type Props = {
 export function AddWorkerForm({ businessName, onCreated, onCancel }: Props) {
   const router = useRouter()
   const [pending, startTransition] = React.useTransition()
+  const confirm = useConfirmedAction()
   const edited = React.useRef(false)
 
   const form = useForm<AddWorkerInput>({
@@ -63,7 +65,11 @@ export function AddWorkerForm({ businessName, onCreated, onCancel }: Props) {
 
   function onSubmit(values: AddWorkerInput) {
     startTransition(async () => {
-      const result = await createStaffAction(values)
+      const result = await confirm(
+        { title: `Add staff member ${values.name}` },
+        () => createStaffAction(values)
+      )
+      if (!result) return
       if (!result.ok) {
         // Usernames are unique across every business, so a clash is the one
         // failure the owner can fix right here on the field.
