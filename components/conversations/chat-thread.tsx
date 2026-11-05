@@ -6,6 +6,8 @@ import type { ConversationWithMessages, Message } from "@/lib/api/types";
 import { useAcromaSocket } from "@/hooks/use-acroma-socket";
 import { MessageBubble } from "./message-bubble";
 import { formatPhone } from "@/lib/format";
+import { isNewChatDay } from "@/lib/format-datetime";
+import { ChatDateSeparator } from "./chat-date-separator";
 import { ReplyComposer } from "./reply-composer";
 
 type ChatThreadProps = {
@@ -97,6 +99,9 @@ export function ChatThread({ conversation, businessId }: ChatThreadProps) {
         ) : (
           messages.map((m, i) => (
             <React.Fragment key={m.id}>
+              {isNewChatDay(m.createdAt, messages[i - 1]?.createdAt) ? (
+                <ChatDateSeparator iso={m.createdAt} />
+              ) : null}
               {i === firstOwnerIdx && firstOwnerIdx > 0 ? (
                 <div className="text-muted-foreground my-1 flex items-center gap-3 px-2 text-[0.7rem] font-medium">
                   <span className="bg-border h-px flex-1" />
